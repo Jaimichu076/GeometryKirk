@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>GeometryKirk - Perfil</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script type="module" src="js/auth.js" defer></script>
+</head>
+<body>
+
+    <!-- Fondo + navbar -->
+    <div class="bg-carousel">
+        <div class="bg-slide"></div>
+        <div class="bg-slide"></div>
+        <div class="bg-slide"></div>
+    </div>
+    <div class="bg-overlay"></div>
+
+    <header class="navbar">
+        <div class="logo">GeometryKirk</div>
+        <nav>
+            <a href="index.html">Inicio</a>
+            <a href="descarga-windows.html">Windows</a>
+            <a href="descarga-android.html">Android</a>
+            <a href="foro.html">Foro</a>
+            <a href="perfil.html">Perfil</a>
+        </nav>
+    </header>
+
+    <main class="main-container">
+        <h1>Perfil</h1>
+        <p>Inicia sesión o regístrate para acceder al contenido.</p>
+
+        <h2>Iniciar sesión</h2>
+        <form id="login-form">
+            <input type="email" id="login-email" placeholder="Email" required>
+            <input type="password" id="login-password" placeholder="Contraseña" required>
+            <button type="submit" class="btn">Entrar</button>
+        </form>
+        <div id="login-msg" class="msg"></div>
+
+        <h2>Registrarse</h2>
+        <form id="register-form">
+            <input type="email" id="register-email" placeholder="Email" required>
+            <input type="password" id="register-password" placeholder="Contraseña" required>
+            <button type="submit" class="btn">Crear cuenta</button>
+        </form>
+        <div id="register-msg" class="msg"></div>
+
+        <h2>Sesión actual</h2>
+        <p id="user-info">No has iniciado sesión.</p>
+        <button id="logout-btn" class="btn" style="margin-top:10px; display:none;">Cerrar sesión</button>
+    </main>
+
+</body>
+</html>

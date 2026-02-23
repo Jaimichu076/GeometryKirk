@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>GeometryKirk - Foro</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script type="module" src="js/foro.js" defer></script>
+</head>
+<body>
+
+    <!-- Fondo + navbar -->
+    <div class="bg-carousel">
+        <div class="bg-slide"></div>
+        <div class="bg-slide"></div>
+        <div class="bg-slide"></div>
+    </div>
+    <div class="bg-overlay"></div>
+
+    <header class="navbar">
+        <div class="logo">GeometryKirk</div>
+        <nav>
+            <a href="index.html">Inicio</a>
+            <a href="descarga-windows.html">Windows</a>
+            <a href="descarga-android.html">Android</a>
+            <a href="foro.html">Foro</a>
+            <a href="perfil.html">Perfil</a>
+        </nav>
+    </header>
+
+    <main class="main-container">
+        <h1>Foro de sugerencias</h1>
+        <p>Publica ideas, comenta y responde a otros jugadores.</p>
+
+        <div id="foro-msg" class="msg"></div>
+
+        <h2>Nueva sugerencia</h2>
+        <form id="new-post-form">
+            <input type="text" id="post-title" placeholder="Título" required>
+            <textarea id="post-body" placeholder="Tu sugerencia..." required></textarea>
+            <button type="submit" class="btn">Publicar</button>
+        </form>
+
+        <h2 style="margin-top:30px;">Sugerencias</h2>
+        <div id="posts-container"></div>
+    </main>
+
+</body>
+</html>
