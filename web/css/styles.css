@@ -5,14 +5,22 @@
     padding: 0;
 }
 
+/* Para que el footer siempre esté abajo */
+html, body {
+    height: 100%;
+}
+
 body {
-    font-family: 'Segoe UI', sans-serif;
+    font-family: 'Segoe UI', system-ui, sans-serif;
     color: #fff;
-    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
     overflow-x: hidden;
 }
 
-/* CARRUSEL DE FONDO ESTILO GTA */
+/* ===========================
+   CARRUSEL DE FONDO
+=========================== */
 .bg-carousel {
     position: fixed;
     inset: 0;
@@ -24,41 +32,48 @@ body {
     position: absolute;
     inset: 0;
     background-size: cover;
-    background-position: center;
+    background-position: center center;
+    background-repeat: no-repeat;
     opacity: 0;
-    animation: slideShow 24s infinite;
+    animation: slideShow 15s infinite; /* antes 24s */
+    filter: brightness(1.2) contrast(1.15) saturate(1.15);
 }
 
 .bg-slide:nth-child(1) {
-    background-image: url("images/bg1.jpg");
+    background-image: url("../assets/images/epstein.jpg");
     animation-delay: 0s;
 }
+
 .bg-slide:nth-child(2) {
-    background-image: url("images/bg2.jpg");
+    background-image: url("../assets/images/trump1.jpg");
     animation-delay: 8s;
 }
+
 .bg-slide:nth-child(3) {
-    background-image: url("images/bg3.jpg");
+    background-image: url("../assets/images/Netanyahu1.jpg");
     animation-delay: 16s;
 }
 
 @keyframes slideShow {
     0% { opacity: 0; transform: scale(1.05); }
     10% { opacity: 1; transform: scale(1); }
-    30% { opacity: 1; transform: scale(1); }
-    40% { opacity: 0; transform: scale(1.05); }
+    40% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0; transform: scale(1.05); }
     100% { opacity: 0; transform: scale(1.05); }
 }
 
-/* CAPA OSCURA ENCIMA DEL FONDO */
+
+/* Capa oscura mejorada (menos oscura) */
 .bg-overlay {
     position: fixed;
     inset: 0;
-    background: radial-gradient(circle at top, rgba(0,0,0,0.4), rgba(0,0,0,0.9));
+    background: radial-gradient(circle at top, rgba(0,0,0,0.15), rgba(0,0,0,0.45));
     z-index: -1;
 }
 
-/* NAVBAR */
+/* ===========================
+   NAVBAR
+=========================== */
 .navbar {
     width: 100%;
     padding: 15px 30px;
@@ -74,7 +89,8 @@ body {
 
 .navbar .logo {
     font-size: 24px;
-    font-weight: bold;
+    font-weight: 800;
+    letter-spacing: 1px;
     text-shadow: 0 0 10px cyan;
 }
 
@@ -82,8 +98,9 @@ body {
     color: #fff;
     text-decoration: none;
     margin-left: 20px;
-    font-size: 16px;
+    font-size: 15px;
     position: relative;
+    opacity: 0.9;
 }
 
 .navbar nav a::after {
@@ -101,50 +118,154 @@ body {
     width: 100%;
 }
 
-/* CONTENEDOR PRINCIPAL */
-.main-container {
-    max-width: 1000px;
-    margin: 40px auto;
-    padding: 20px;
-    background: rgba(0,0,0,0.6);
-    border-radius: 16px;
-    backdrop-filter: blur(8px);
-    box-shadow: 0 0 25px rgba(0,0,0,0.7);
+/* ===========================
+   HERO SECTION
+=========================== */
+.hero {
+    width: 100%;
+    height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 20px;
 }
 
-/* TITULOS */
-h1, h2, h3 {
+.hero-content {
+    max-width: 800px;
+    animation: fadeIn 1.2s ease forwards;
+    opacity: 0;
+}
+
+@keyframes fadeIn {
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.hero-title {
+    font-size: 70px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+    text-shadow: 0 0 25px cyan, 0 0 50px #00eaff;
+}
+
+.hero-subtitle {
+    font-size: 20px;
+    opacity: 0.9;
+    margin-bottom: 25px;
+}
+
+.hero-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.hero-btn {
+    font-size: 18px;
+    padding: 12px 28px;
+}
+
+.hero-btn.alt {
+    background: linear-gradient(135deg, #00ff6a, #00c853);
+}
+
+/* ===========================
+   CONTENEDOR PRINCIPAL
+=========================== */
+.main-container {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 25px;
+    background: rgba(0,0,0,0.7);
+    border-radius: 18px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 30px rgba(0,0,0,0.8);
+}
+
+/* ===========================
+   SECCIONES
+=========================== */
+.section {
+    margin-bottom: 40px;
+}
+
+h1, h2, h3, h4 {
     margin-bottom: 15px;
     text-shadow: 0 0 10px #00eaff;
 }
 
-/* TEXTOS */
 p {
     margin-bottom: 10px;
     line-height: 1.6;
 }
 
-/* BOTONES GENERALES */
-.btn {
-    display: inline-block;
-    padding: 10px 20px;
-    border-radius: 10px;
-    text-decoration: none;
-    color: #fff;
-    font-weight: 600;
-    border: none;
-    cursor: pointer;
-    background: linear-gradient(135deg, #0078ff, #00c3ff);
-    box-shadow: 0 0 15px rgba(0,0,0,0.6);
-    transition: transform 0.15s, box-shadow 0.15s;
+/* ===========================
+   FEATURES GRID
+=========================== */
+.features-grid {
+    margin-top: 25px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
 }
 
-.btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 25px rgba(0,0,0,0.9);
+.feature-card {
+    padding: 20px;
+    background: rgba(0,0,0,0.6);
+    border-radius: 12px;
+    text-align: center;
+    border-left: 3px solid cyan;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* FORMULARIOS */
+.feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 0 20px rgba(0,255,255,0.4);
+}
+
+/* ===========================
+   TIMELINE DE VERSIONES
+=========================== */
+.version-timeline {
+    margin-top: 30px;
+    border-left: 3px solid cyan;
+    padding-left: 25px;
+}
+
+.version-item {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.version-dot {
+    width: 16px;
+    height: 16px;
+    background: cyan;
+    border-radius: 50%;
+    position: absolute;
+    left: -34px;
+    top: 5px;
+    box-shadow: 0 0 10px cyan;
+}
+
+.version-dot.upcoming {
+    background: #ffea00;
+    box-shadow: 0 0 10px #ffea00;
+}
+
+.version-content h3 {
+    margin-bottom: 10px;
+}
+
+.version-content ul {
+    margin-left: 15px;
+    line-height: 1.6;
+}
+
+/* ===========================
+   FORMULARIOS
+=========================== */
 form {
     display: flex;
     flex-direction: column;
@@ -152,12 +273,14 @@ form {
     margin-top: 15px;
 }
 
-input, textarea {
+input, textarea, select {
     padding: 8px 10px;
     border-radius: 8px;
     border: none;
     outline: none;
     font-size: 14px;
+    background: rgba(255,255,255,0.9);
+    color: #000;
 }
 
 textarea {
@@ -165,30 +288,6 @@ textarea {
     min-height: 80px;
 }
 
-/* LISTAS DE VERSIONES / MENSAJES */
-.version-card, .post-card {
-    margin-top: 15px;
-    padding: 15px;
-    background: rgba(0,0,0,0.5);
-    border-radius: 10px;
-    border-left: 3px solid cyan;
-}
-
-/* FORO */
-.post-header {
-    font-weight: bold;
-    margin-bottom: 5px;
-}
-
-.reply {
-    margin-left: 15px;
-    margin-top: 5px;
-    padding-left: 10px;
-    border-left: 2px solid rgba(255,255,255,0.3);
-    font-size: 14px;
-}
-
-/* MENSAJES DE ERROR / INFO */
 .msg {
     margin-top: 10px;
     font-size: 14px;
@@ -202,7 +301,98 @@ textarea {
     color: #4cd964;
 }
 
-/* RESPONSIVE */
+/* ===========================
+   FORO
+=========================== */
+#posts-container {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.post-card {
+    padding: 12px 14px;
+    background: rgba(0,0,0,0.7);
+    border-radius: 10px;
+    border-left: 3px solid #00eaff;
+}
+
+.post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    margin-bottom: 6px;
+    font-size: 15px;
+}
+
+.post-meta {
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+.reply-list {
+    margin-top: 8px;
+    padding-left: 10px;
+    border-left: 2px solid rgba(255,255,255,0.3);
+}
+
+.reply-item {
+    margin-top: 5px;
+    font-size: 13px;
+}
+
+.reply-meta {
+    font-size: 11px;
+    opacity: 0.7;
+}
+
+.reply-form {
+    margin-top: 8px;
+    display: flex;
+    gap: 6px;
+}
+
+.reply-form input {
+    flex: 1;
+}
+
+/* ===========================
+   FOOTER PEGADO ABAJO
+=========================== */
+.footer {
+    width: 100%;
+    padding: 25px 20px;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(8px);
+    border-top: 2px solid rgba(0,255,255,0.3);
+    text-align: center;
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.6);
+    margin-top: auto;
+}
+
+.footer-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 5px;
+    text-shadow: 0 0 10px cyan;
+}
+
+.footer-creators {
+    font-size: 15px;
+    opacity: 0.85;
+    margin-bottom: 8px;
+}
+
+.footer-copy {
+    font-size: 13px;
+    opacity: 0.6;
+}
+
+/* ===========================
+   RESPONSIVE
+=========================== */
 @media (max-width: 700px) {
     .navbar {
         flex-direction: column;
@@ -211,4 +401,12 @@ textarea {
     .navbar nav {
         margin-top: 10px;
     }
+    .main-container {
+        margin: 20px;
+        padding: 18px;
+    }
+    .hero-title {
+        font-size: 48px;
+    }
 }
+

@@ -29,28 +29,43 @@
 
     <main class="main-container">
         <h1>Perfil</h1>
-        <p>Inicia sesión o regístrate para acceder al contenido.</p>
+        <p>Inicia sesión o regístrate para acceder a las descargas y al foro.</p>
 
-        <h2>Iniciar sesión</h2>
-        <form id="login-form">
-            <input type="email" id="login-email" placeholder="Email" required>
-            <input type="password" id="login-password" placeholder="Contraseña" required>
-            <button type="submit" class="btn">Entrar</button>
-        </form>
-        <div id="login-msg" class="msg"></div>
+        <div class="card">
+            <h2>Iniciar sesión</h2>
+            <form id="login-form">
+                <input type="email" id="login-email" placeholder="Email" required>
+                <input type="password" id="login-password" placeholder="Contraseña" required>
+                <button type="submit" class="btn">Entrar</button>
+            </form>
+            <div id="login-msg" class="msg"></div>
+        </div>
 
-        <h2>Registrarse</h2>
-        <form id="register-form">
-            <input type="email" id="register-email" placeholder="Email" required>
-            <input type="password" id="register-password" placeholder="Contraseña" required>
-            <button type="submit" class="btn">Crear cuenta</button>
-        </form>
-        <div id="register-msg" class="msg"></div>
+        <div class="card">
+            <h2>Registrarse</h2>
+            <form id="register-form">
+                <input type="email" id="register-email" placeholder="Email" required>
+                <input type="password" id="register-password" placeholder="Contraseña" required>
+                <button type="submit" class="btn">Crear cuenta</button>
+            </form>
+            <div id="register-msg" class="msg"></div>
+        </div>
 
-        <h2>Sesión actual</h2>
-        <p id="user-info">No has iniciado sesión.</p>
-        <button id="logout-btn" class="btn" style="margin-top:10px; display:none;">Cerrar sesión</button>
+        <div class="card">
+            <h2>Sesión actual</h2>
+            <p id="user-info">No has iniciado sesión.</p>
+            <button id="logout-btn" class="btn" style="margin-top:10px; display:none;">Cerrar sesión</button>
+        </div>
     </main>
+
+    <footer class="footer">
+    <div class="footer-content">
+        <p class="footer-creators">Creado por <strong>Jaime</strong> e <strong>Ismail</strong></p>
+        <p class="footer-copy">© 2026 GeometryKirk. Todos los derechos reservados.</p>
+    </div>
+    </footer>
 
 </body>
 </html>
+
+
