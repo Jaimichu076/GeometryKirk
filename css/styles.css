@@ -65,6 +65,11 @@ body {
     animation-delay: 20s;
 }
 
+.bg-slide:nth-child(6) {
+    background-image: url("../assets/images/Charlie.jpg");
+    animation-delay: 20s;
+}
+
 /* SI AÑADES MÁS IMÁGENES:
    - Cambia animation-duration: N_imágenes * 5s
    - Añade nth-child(N) con delay = (N-1)*5s
