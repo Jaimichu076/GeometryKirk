@@ -20,7 +20,6 @@ clock = pygame.time.Clock()
 
 font_title = pygame.font.SysFont("Arial Black", 95)
 
-# Cargar fondo
 background_img = None
 if os.path.exists(config.MENU_BACKGROUND):
     try:
@@ -31,7 +30,6 @@ if os.path.exists(config.MENU_BACKGROUND):
 else:
     print("WARN: Fondo no encontrado:", config.MENU_BACKGROUND)
 
-# Cargar música del menú
 try:
     if os.path.exists(config.MENU_MUSIC):
         pygame.mixer.music.load(config.MENU_MUSIC)
@@ -42,7 +40,6 @@ try:
 except Exception:
     print("WARN: No se pudo iniciar mixer para la música del menú.")
 
-# Iconos
 def draw_play_icon(surf, center, size):
     x, y = center
     pts = [(x - size//3, y - size//2), (x + size//2, y), (x - size//3, y + size//2)]
@@ -60,7 +57,6 @@ def draw_settings_icon(surf, center, size):
     pygame.draw.circle(surf, (255, 150, 0), (x, y), size//2)
     pygame.draw.circle(surf, (0, 0, 0), (x, y), size//2, 4)
 
-# RoundButton
 class RoundButton:
     def __init__(self, center, radius, action, icon):
         self.center = center
@@ -94,7 +90,6 @@ class RoundButton:
             return self.action
         return None
 
-# Menú principal
 def main_menu():
     center_y = config.HEIGHT // 2 + 40
     spacing = 180
@@ -112,12 +107,9 @@ def main_menu():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                try:
-                    pygame.mixer.music.stop()
-                except Exception:
-                    pass
-                pygame.quit()
-                sys.exit()
+                try: pygame.mixer.music.stop()
+                except: pass
+                pygame.quit(); sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 for b in buttons:
                     action = b.handle_click(mouse_pos)
@@ -137,19 +129,16 @@ def main_menu():
                         except Exception as e:
                             print("ERROR al abrir OTROS:", e)
 
-        # Fondo
         if background_img:
             screen.blit(background_img, (0, 0))
         else:
             screen.fill(config.C_BG)
 
-        # Título
         title = font_title.render("GEOMETRY KIRK", True, config.C_TEXT)
         shadow = font_title.render("GEOMETRY KIRK", True, (0, 0, 0))
         screen.blit(shadow, (config.WIDTH//2 - title.get_width()//2 + 6, 80 + 6))
         screen.blit(title, (config.WIDTH//2 - title.get_width()//2, 80))
 
-        # Botones
         for b in buttons:
             b.update_hover(mouse_pos)
             b.draw(screen)
@@ -158,9 +147,6 @@ def main_menu():
 
 if __name__ == "__main__":
     main_menu()
-
-
-
 
 
 

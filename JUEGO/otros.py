@@ -2,9 +2,8 @@
 import pygame
 import config
 import importlib
-import os
 
-# Intentamos importar dinámicamente boss0..boss10; si faltan, los marcamos None
+# Intentamos importar boss1..boss10 y boss0
 boss_modules = {}
 for i in range(0, 11):
     name = f"boss{i}"
@@ -57,14 +56,12 @@ def run_otros(screen, clock):
         available = boss_modules.get(act) is not None
         buttons.append(MenuButton(r, txt, act, available=available))
 
-    # Scrolling state
     offset_y = 0
     content_height = start_y + len(buttons)*gap + 40
     view_height = config.HEIGHT - 120
     max_offset = max(0, content_height - view_height)
     scroll_speed = 40
 
-    # Scrollbar geometry
     bar_x = start_x + btn_w + 16
     bar_w = 12
     bar_h = view_height - 20
@@ -76,12 +73,9 @@ def run_otros(screen, clock):
         mouse_pos = pygame.mouse.get_pos()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                try:
-                    pygame.mixer.music.stop()
-                except Exception:
-                    pass
-                pygame.quit()
-                raise SystemExit
+                try: pygame.mixer.music.stop()
+                except: pass
+                pygame.quit(); raise SystemExit
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     running = False
@@ -100,7 +94,6 @@ def run_otros(screen, clock):
                                 except Exception as e:
                                     print(f"ERROR ejecutando {b.action}.run_boss():", e)
                             else:
-                                # breve mensaje en pantalla
                                 screen.fill(config.C_BG)
                                 title = font_title.render("MINIJUEGOS / BOSS", True, config.C_TEXT)
                                 screen.blit(title, (config.WIDTH//2 - title.get_width()//2, 40))
@@ -108,34 +101,29 @@ def run_otros(screen, clock):
                                 screen.blit(msg, (config.WIDTH//2 - msg.get_width()//2, config.HEIGHT//2))
                                 pygame.display.flip()
                                 pygame.time.delay(700)
-                elif event.button == 4:  # wheel up
+                elif event.button == 4:
                     offset_y = min(offset_y + scroll_speed, 0)
-                elif event.button == 5:  # wheel down
+                elif event.button == 5:
                     offset_y = max(offset_y - scroll_speed, -max_offset)
 
         screen.fill(config.C_BG)
         title = font_title.render("MINIJUEGOS / BOSS", True, config.C_TEXT)
         screen.blit(title, (config.WIDTH//2 - title.get_width()//2, 40))
 
-        # Draw buttons (with offset)
         for b in buttons:
             b.update(mouse_pos, offset_y)
             b.draw(screen, offset_y)
 
-        # Draw scrollbar background
         pygame.draw.rect(screen, (40,40,60), bar_rect, border_radius=6)
-        # Thumb size proportional
         if max_offset > 0:
             thumb_h = max(30, int(bar_h * (view_height / content_height)))
             thumb_y = int(bar_rect.y + (-offset_y / max_offset) * (bar_h - thumb_h))
             thumb_rect = pygame.Rect(bar_x, thumb_y, bar_w, thumb_h)
             pygame.draw.rect(screen, (180,180,180), thumb_rect, border_radius=6)
         else:
-            # full
             pygame.draw.rect(screen, (120,120,120), bar_rect, border_radius=6)
 
         hint = font_small.render("Pulsa ESC para volver al menú principal. Usa rueda o flechas para bajar.", True, config.C_TEXT)
         screen.blit(hint, (config.WIDTH//2 - hint.get_width()//2, config.HEIGHT - 40))
 
         pygame.display.flip()
-
