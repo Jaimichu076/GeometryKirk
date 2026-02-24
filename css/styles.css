@@ -35,7 +35,7 @@ body {
     background-position: center center;
     background-repeat: no-repeat;
     opacity: 0;
-    animation: slideShow 25s infinite; /* 7 imágenes x 5s */
+    animation: slideShow 50s infinite; /* 10 imágenes x 5s */
     filter: brightness(1.2) contrast(1.15) saturate(1.15);
 }
 
@@ -67,12 +67,27 @@ body {
 
 .bg-slide:nth-child(6) {
     background-image: url("../assets/images/Charlie.jpg");
-    animation-delay: 20s;
+    animation-delay: 25s;
 }
 
 .bg-slide:nth-child(7) {
     background-image: url("../assets/images/Pedrosanchez.jpg");
-    animation-delay: 25s;
+    animation-delay: 30s;
+}
+
+.bg-slide:nth-child(8) {
+    background-image: url("../assets/images/chicote.jpg");
+    animation-delay: 35s;
+}
+
+.bg-slide:nth-child(9) {
+    background-image: url("../assets/images/Elonmusk.jpg");
+    animation-delay: 40s;
+}
+
+.bg-slide:nth-child(10) {
+    background-image: url("../assets/images/Ruth.jpg");
+    animation-delay: 45s;
 }
 
 /* SI AÑADES MÁS IMÁGENES:
