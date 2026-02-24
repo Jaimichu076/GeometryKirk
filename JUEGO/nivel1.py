@@ -18,6 +18,11 @@ import math
 import random
 
 import config
+skin_img = None
+bg_image = None
+
+# Cargar imagen del suelo
+
 
 # ------------------ RECURSOS ------------------
 
@@ -456,6 +461,14 @@ def run_level(screen, clock):
     font_pct = pygame.font.SysFont("Arial Black", 28)
 
     bg_static = bg_image  # fondo estático
+        # Cargar imagen del suelo (correcto)
+    GROUND_IMG = pygame.image.load("assets/images/suelo.png").convert_alpha()
+    GROUND_IMG = pygame.transform.scale(
+        GROUND_IMG,
+        (config.WIDTH, config.HEIGHT - config.GROUND_Y)
+    )
+
+    
 
     particles = []
     player = Player(start_x=150)
@@ -607,7 +620,8 @@ def run_level(screen, clock):
                 if death_timer <= 0:
                     state = "GAMEOVER"
 
-        # ------------------ DRAW ------------------
+        
+                # ------------------ DRAW ------------------
         ox = random.randint(-camera_shake, camera_shake) if camera_shake > 0 else 0
         oy = random.randint(-camera_shake, camera_shake) if camera_shake > 0 else 0
 
@@ -619,11 +633,17 @@ def run_level(screen, clock):
         else:
             temp_surf.fill(config.C_BG)
 
-        # suelo
-        pygame.draw.rect(temp_surf, config.C_GROUND,
-                         (0, config.GROUND_Y, config.WIDTH, config.HEIGHT - config.GROUND_Y))
-        pygame.draw.line(temp_surf, config.C_LINE,
-                         (0, config.GROUND_Y), (config.WIDTH, config.GROUND_Y), 3)
+        # suelo con imagen
+        temp_surf.blit(GROUND_IMG, (0, config.GROUND_Y))
+
+        # línea negra del borde del suelo
+        pygame.draw.line(
+            temp_surf,
+            (0, 0, 0),  # negro
+            (0, config.GROUND_Y),
+            (config.WIDTH, config.GROUND_Y),
+            3
+        )
 
         # dibujar objetos
         for obj in objects:
@@ -635,6 +655,8 @@ def run_level(screen, clock):
 
         # dibujar jugador
         player.draw(temp_surf)
+
+        
 
         # barra superior de progreso
         bar_w = int(config.WIDTH * 0.72)
