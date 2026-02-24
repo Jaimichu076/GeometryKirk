@@ -35,7 +35,7 @@ body {
     background-position: center center;
     background-repeat: no-repeat;
     opacity: 0;
-    animation: slideShow 25s infinite; /* 5 imágenes x 5s */
+    animation: slideShow 25s infinite; /* 7 imágenes x 5s */
     filter: brightness(1.2) contrast(1.15) saturate(1.15);
 }
 
@@ -68,6 +68,11 @@ body {
 .bg-slide:nth-child(6) {
     background-image: url("../assets/images/Charlie.jpg");
     animation-delay: 20s;
+}
+
+.bg-slide:nth-child(7) {
+    background-image: url("../assets/images/Pedrosanchez.jpg");
+    animation-delay: 25s;
 }
 
 /* SI AÑADES MÁS IMÁGENES:
