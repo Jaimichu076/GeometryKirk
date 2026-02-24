@@ -34,13 +34,15 @@ MENU_BACKGROUND = os.path.join(ASSETS_IMG, "wallpaper.jpg")
 MENU_MUSIC = os.path.join(ASSETS_AUDIO, "C418 - Aria Math.mp3")
 
 # Música del nivel
-LEVEL_MUSIC = os.path.join(ASSETS_AUDIO, "wearecharliekirk.mp3")
+LEVEL_MUSIC = os.path.join(ASSETS_AUDIO, "kirki.mp3")
 
 # Skins disponibles
 SKINS = [
     os.path.join(ASSETS_IMG, "Epstein.jpg"),
     os.path.join(ASSETS_IMG, "Diddy.jpg"),
     os.path.join(ASSETS_IMG, "Maduro.jpg"),
+    os.path.join(ASSETS_IMG, "neta.jpg"),
+
 ]
 
 selected_skin_index = 0
