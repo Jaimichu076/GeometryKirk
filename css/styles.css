@@ -431,6 +431,16 @@ textarea {
     }
 }
 
+/* Centrado del título principal */
+.title-centered {
+    text-align: center;
+    font-size: 3rem;
+    margin-top: 20px;
+    margin-bottom: 25px;
+    text-shadow: 0 0 15px cyan;
+}
+
+
 
 
 
