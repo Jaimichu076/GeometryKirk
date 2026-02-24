@@ -1,7 +1,6 @@
+# main.py
 import pygame
 import sys
-import math
-import random
 import os
 
 import config
@@ -10,7 +9,10 @@ import otros
 import niveles
 
 pygame.init()
-pygame.mixer.init()
+try:
+    pygame.mixer.init()
+except Exception:
+    pass
 
 screen = pygame.display.set_mode((config.WIDTH, config.HEIGHT))
 pygame.display.set_caption("GEOMETRY KIRK - MAIN MENU")
@@ -18,32 +20,29 @@ clock = pygame.time.Clock()
 
 font_title = pygame.font.SysFont("Arial Black", 95)
 
-# -----------------------------
-# CARGAR FONDO
-# -----------------------------
+# Cargar fondo
 background_img = None
 if os.path.exists(config.MENU_BACKGROUND):
     try:
         background_img = pygame.image.load(config.MENU_BACKGROUND).convert()
         background_img = pygame.transform.scale(background_img, (config.WIDTH, config.HEIGHT))
-    except:
+    except Exception:
         background_img = None
 else:
-    print("ERROR: Fondo no encontrado:", config.MENU_BACKGROUND)
+    print("WARN: Fondo no encontrado:", config.MENU_BACKGROUND)
 
-# -----------------------------
-# CARGAR MÚSICA DEL MENÚ
-# -----------------------------
+# Cargar música del menú
 try:
-    pygame.mixer.music.load(config.MENU_MUSIC)
-    pygame.mixer.music.set_volume(0.6)
-    pygame.mixer.music.play(-1)
-except:
-    print("ERROR: No se pudo cargar la música del menú:", config.MENU_MUSIC)
+    if os.path.exists(config.MENU_MUSIC):
+        pygame.mixer.music.load(config.MENU_MUSIC)
+        pygame.mixer.music.set_volume(0.6)
+        pygame.mixer.music.play(-1)
+    else:
+        print("WARN: Música del menú no encontrada:", config.MENU_MUSIC)
+except Exception:
+    print("WARN: No se pudo iniciar mixer para la música del menú.")
 
-# -----------------------------
-# ICONOS
-# -----------------------------
+# Iconos
 def draw_play_icon(surf, center, size):
     x, y = center
     pts = [(x - size//3, y - size//2), (x + size//2, y), (x - size//3, y + size//2)]
@@ -61,9 +60,7 @@ def draw_settings_icon(surf, center, size):
     pygame.draw.circle(surf, (255, 150, 0), (x, y), size//2)
     pygame.draw.circle(surf, (0, 0, 0), (x, y), size//2, 4)
 
-# -----------------------------
-# BOTÓN REDONDO
-# -----------------------------
+# RoundButton
 class RoundButton:
     def __init__(self, center, radius, action, icon):
         self.center = center
@@ -76,30 +73,28 @@ class RoundButton:
     def draw(self, surf):
         target = 1.15 if self.hover else 1.0
         self.scale += (target - self.scale) * 0.15
-
         r = int(self.radius * self.scale)
         x, y = self.center
-
         pygame.draw.circle(surf, (40, 40, 80), (x, y), r)
         pygame.draw.circle(surf, (255, 255, 255), (x, y), r, 4)
-
-        self.icon(surf, (x, y), int(r * 1.2))
+        try:
+            self.icon(surf, (x, y), int(r * 1.2))
+        except Exception:
+            pass
 
     def update_hover(self, mouse_pos):
         mx, my = mouse_pos
         x, y = self.center
-        self.hover = (mx - x)**2 + (my - y)**2 <= self.radius**2
+        self.hover = (mx - x)**2 + (my - y)**2 <= (self.radius)**2
 
     def handle_click(self, mouse_pos):
         mx, my = mouse_pos
         x, y = self.center
-        if (mx - x)**2 + (my - y)**2 <= self.radius**2:
+        if (mx - x)**2 + (my - y)**2 <= (self.radius)**2:
             return self.action
         return None
 
-# -----------------------------
-# MENÚ PRINCIPAL
-# -----------------------------
+# Menú principal
 def main_menu():
     center_y = config.HEIGHT // 2 + 40
     spacing = 180
@@ -111,24 +106,36 @@ def main_menu():
     ]
 
     running = True
-
     while running:
         clock.tick(config.FPS)
         mouse_pos = pygame.mouse.get_pos()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                try:
+                    pygame.mixer.music.stop()
+                except Exception:
+                    pass
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 for b in buttons:
                     action = b.handle_click(mouse_pos)
                     if action == "LEVELS":
-                        niveles.run_levels_menu(screen, clock)
+                        try:
+                            niveles.run_levels_menu(screen, clock)
+                        except Exception as e:
+                            print("ERROR al abrir LEVELS:", e)
                     elif action == "SKINS":
-                        skins.run_skins_menu(screen, clock)
+                        try:
+                            skins.run_skins_menu(screen, clock)
+                        except Exception as e:
+                            print("ERROR al abrir SKINS:", e)
                     elif action == "OTHERS":
-                        otros.run_otros(screen, clock)
+                        try:
+                            otros.run_otros(screen, clock)
+                        except Exception as e:
+                            print("ERROR al abrir OTROS:", e)
 
         # Fondo
         if background_img:
@@ -136,10 +143,9 @@ def main_menu():
         else:
             screen.fill(config.C_BG)
 
-        # Título (FIJO, SIN ANIMACIÓN)
+        # Título
         title = font_title.render("GEOMETRY KIRK", True, config.C_TEXT)
         shadow = font_title.render("GEOMETRY KIRK", True, (0, 0, 0))
-
         screen.blit(shadow, (config.WIDTH//2 - title.get_width()//2 + 6, 80 + 6))
         screen.blit(title, (config.WIDTH//2 - title.get_width()//2, 80))
 
@@ -152,6 +158,7 @@ def main_menu():
 
 if __name__ == "__main__":
     main_menu()
+
 
 
 
