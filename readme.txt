@@ -1,1 +1,1 @@
-kebab mardcin paradigmazon
+kebab mardcin paradigmazon triañ
