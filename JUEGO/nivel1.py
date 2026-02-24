@@ -464,7 +464,7 @@ def run_level(screen, clock):
     bg_static = bg_image  # fondo estático
     # Cargar imagen del spike (correcto)
     SPIKE_IMG = pygame.image.load("assets/images/obunga.png").convert_alpha()
-    SPIKE_IMG = pygame.transform.scale(SPIKE_IMG, (40, 40))
+    SPIKE_IMG = pygame.transform.scale(SPIKE_IMG, (70, 70))
     # Cargar imagen del suelo (correcto)
     GROUND_IMG = pygame.image.load("assets/images/suelo.png").convert_alpha()
     GROUND_IMG = pygame.transform.scale(
