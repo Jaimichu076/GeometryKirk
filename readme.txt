@@ -1,1 +1,1 @@
-kebab mardcin paradigmazon triañ
+yeeeeeeee
