@@ -33,7 +33,7 @@ class Player:
         self.rect = pygame.Rect(self.x, self.y, self.w, self.h)
         self.img = load_player_skin(self.w)
         self.hp = PLAYER_MAX_HP
-        self.shots = []
+        self.shots = []  # list of pygame.Rect
         self.cooldown = 0
 
     def update(self, keys):
@@ -71,4 +71,3 @@ class Player:
             rect = pygame.Rect(rx, ry, PROJECTILE_SIZE, PROJECTILE_SIZE)
             self.shots.append(rect)
             self.cooldown = SHOT_COOLDOWN
-

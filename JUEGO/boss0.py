@@ -1,9 +1,26 @@
-# AUTO-GENERATED boss0.py
-from boss_template import *
-# Ajustes específicos para boss0
-BOSS_IMAGE = BOSS_IMAGE.replace("boss_X.png", "boss_0.png")
-BOSS_MUSIC = BOSS_MUSIC.replace("boss_X.mp3", "boss_0.mp3")
-BOSS_MAX_HP = 400
-BOSS_SIZE = 140
-PROJECTILE_SIZE = 12
-# run_boss ya está definido en boss_template y usará estas constantes
+# boss1.py
+import os
+from boss_template import run_boss_generic
+import config
+
+params = {
+    "image_path": os.path.join(config.ASSETS_IMG, "boss_1.png"),
+    "music_path": os.path.join(config.ASSETS_AUDIO, "boss_1.mp3"),
+    "boss_size": 150,
+    "boss_hp": 900,
+    "name": "BOSS 1",
+    "base_pattern": "fan",
+    "shoot_interval": 55,
+    "projectile_speed": 7.0,
+    "ob_interval": 160,
+    "obstacle_types": ["moving","falling"],
+    "player_damage_to_boss": 10,
+    "boss_proj_damage": 14,
+    "obstacle_damage": 20,
+    "phases": [
+        {"threshold":600, "overrides":{"shoot_interval":45,"projectile_speed":8.0}}
+    ]
+}
+
+def run_boss(screen, clock):
+    run_boss_generic(screen, clock, params)
