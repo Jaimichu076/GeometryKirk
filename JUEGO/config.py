@@ -13,7 +13,7 @@ FPS = 60
 # Física del jugador
 PLAYER_SIZE = 40
 GRAVITY = 1.0
-JUMP_FORCE = -15      # ← NECESARIO para saltar
+JUMP_FORCE = -16    # ← NECESARIO para saltar
 SPEED = 6
 GROUND_Y = 500
 
