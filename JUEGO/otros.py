@@ -3,12 +3,11 @@ import pygame
 import config
 import importlib
 
-# Intentamos importar boss1..boss10 y boss0
 boss_modules = {}
 for i in range(0, 11):
     name = f"boss{i}"
     try:
-        boss_modules[name] = importlib.import_module(name)
+        boss_modules[name] = importlib.import_module(f"boss.{name}")
     except Exception:
         boss_modules[name] = None
 
@@ -73,16 +72,25 @@ def run_otros(screen, clock):
         mouse_pos = pygame.mouse.get_pos()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                try: pygame.mixer.music.stop()
-                except: pass
                 pygame.quit(); raise SystemExit
+
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     running = False
+
+                    # 🔥 VOLVER A PONER LA MÚSICA DEL MENÚ
+                    try:
+                        pygame.mixer.music.load(config.MENU_MUSIC)
+                        pygame.mixer.music.set_volume(0.6)
+                        pygame.mixer.music.play(-1)
+                    except:
+                        pass
+
                 if event.key == pygame.K_DOWN:
                     offset_y = max(offset_y - scroll_speed, -max_offset)
                 if event.key == pygame.K_UP:
                     offset_y = min(offset_y + scroll_speed, 0)
+
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     for b in buttons:
@@ -101,6 +109,7 @@ def run_otros(screen, clock):
                                 screen.blit(msg, (config.WIDTH//2 - msg.get_width()//2, config.HEIGHT//2))
                                 pygame.display.flip()
                                 pygame.time.delay(700)
+
                 elif event.button == 4:
                     offset_y = min(offset_y + scroll_speed, 0)
                 elif event.button == 5:
