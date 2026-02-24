@@ -42,6 +42,7 @@ SKINS = [
     os.path.join(ASSETS_IMG, "Diddy.jpg"),
     os.path.join(ASSETS_IMG, "Maduro.jpg"),
     os.path.join(ASSETS_IMG, "neta.jpg"),
+    os.path.join(ASSETS_IMG, "floy.jpg")
 
 ]
 

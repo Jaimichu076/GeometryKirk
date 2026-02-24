@@ -20,6 +20,7 @@ import random
 import config
 skin_img = None
 bg_image = None
+SPIKE_IMG = None
 
 # Cargar imagen del suelo
 
@@ -52,6 +53,7 @@ def load_bg():
 
 skin_img = None
 bg_image = None
+
 
 # ------------------ CLASES DE OBJETOS ------------------
 
@@ -225,11 +227,10 @@ class Spike(GameObject):
 
     def draw(self, surface):
         if self.inverted:
-            pts = [(self.rect.left, self.rect.top), (self.rect.centerx, self.rect.bottom), (self.rect.right, self.rect.top)]
+            img = pygame.transform.flip(SPIKE_IMG, False, True)
         else:
-            pts = [(self.rect.left, self.rect.bottom), (self.rect.centerx, self.rect.top), (self.rect.right, self.rect.bottom)]
-        pygame.draw.polygon(surface, (255, 50, 50), pts)
-        pygame.draw.polygon(surface, (0, 0, 0), pts, 2)
+            img = SPIKE_IMG
+        surface.blit(img, self.rect)
 
 class Saw(GameObject):
     """Sierra giratoria fija."""
@@ -451,7 +452,7 @@ def run_level(screen, clock):
     - Actualiza progreso y muestra barra superior
     - Muestra pantallas de muerte y victoria
     """
-    global skin_img, bg_image
+    global skin_img, bg_image, SPIKE_IMG
     skin_img = load_skin()
     bg_image = load_bg()
 
@@ -461,7 +462,10 @@ def run_level(screen, clock):
     font_pct = pygame.font.SysFont("Arial Black", 28)
 
     bg_static = bg_image  # fondo estático
-        # Cargar imagen del suelo (correcto)
+    # Cargar imagen del spike (correcto)
+    SPIKE_IMG = pygame.image.load("assets/images/obunga.png").convert_alpha()
+    SPIKE_IMG = pygame.transform.scale(SPIKE_IMG, (40, 40))
+    # Cargar imagen del suelo (correcto)
     GROUND_IMG = pygame.image.load("assets/images/suelo.png").convert_alpha()
     GROUND_IMG = pygame.transform.scale(
         GROUND_IMG,
