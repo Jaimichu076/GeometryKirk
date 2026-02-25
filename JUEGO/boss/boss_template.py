@@ -60,7 +60,7 @@ def run_boss_generic(screen, clock, params):
             return None
 
     boss_img = load_img(image_path, (boss_size, boss_size))
-    proj_img = load_img(proj_image_path, (18, 18))
+    proj_img = load_img(proj_image_path, (60, 60))
     big_proj_img = load_img(big_proj_image_path, (32, 32))
 
     try:
