@@ -302,6 +302,16 @@ class Portal(GameObject):
         color = (200, 80, 255) if not self.used else (70, 70, 100)
         pygame.draw.ellipse(surface, color, self.rect, 5)
 
+class Platform(GameObject):
+    """Plataforma sólida donde el jugador puede subirse."""
+    def __init__(self, x, y, w, h):
+        super().__init__(x, y, w, h, kind="platform")
+
+    def draw(self, surface):
+        pygame.draw.rect(surface, (180, 180, 180), self.rect)
+        pygame.draw.rect(surface, (0, 0, 0), self.rect, 2)
+
+
 # ------------------ GENERACIÓN DEL NIVEL (LARGO + FASE SHIP) ------------------
 
 def generate_level():
@@ -316,8 +326,12 @@ def generate_level():
 
     objects.append(MovingSaw(800, config.GROUND_Y - 80))
     objects.append(MovingSaw(1100, config.GROUND_Y - 80))
-    objects.append(MovingSaw(1400, config.GROUND_Y - 80))
     objects.append(Spike(1600, config.GROUND_Y -500))
+    objects.append(Spike(1650, config.GROUND_Y -500))
+    objects.append(Spike(1800, config.GROUND_Y -500))
+    objects.append(Spike(1850, config.GROUND_Y -500))
+    objects.append(GameObject(2000, config.GROUND_Y - 40, 200, 40))
+
 
     
 
@@ -338,6 +352,8 @@ def generate_level():
 def spawn_particles(particles, x, y, color, count=30, speed=1.0):
     for _ in range(count):
         particles.append(Particle(x + random.uniform(-12, 12), y + random.uniform(-12, 12), color, speed))
+
+
 
 # ------------------ BUCLE PRINCIPAL DEL NIVEL ------------------
 
@@ -460,17 +476,28 @@ def run_level(screen, clock):
         if state == "PLAY":
             if player.alive:
                 player.update()
+                # colisiones y lógica de objetos
+
+                hitbox = player.rect.inflate(-12, -12)
 
                 # actualizar objetos (scroll)
                 for obj in objects[:]:
+                    if isinstance(obj, Platform) and player.mode == "cube":
+                        if hitbox.colliderect(obj.rect):
+                            if player.vel_y > 0 and player.rect.bottom <= obj.rect.top +20:
+                                player.rect.bottom = obj.rect.top
+                                player.vel_y = 0
+                                player.rotation = round(player.rotation / 90) * 90
+
+                        
                     obj.update(config.SPEED)
 
                 # incrementar distancia recorrida
                 distance_traveled += config.SPEED
                 progress = max(0, min(100, int((distance_traveled / total_distance) * 100)))
 
-                # colisiones y lógica de objetos
-                hitbox = player.rect.inflate(-12, -12)
+                
+                
 
                 for obj in objects[:]:
                     # end -> WIN
