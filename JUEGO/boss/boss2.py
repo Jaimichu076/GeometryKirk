@@ -3,10 +3,10 @@ import config
 from boss.boss_template import run_boss_generic
 
 params = {
-    "image_path": os.path.join(config.ASSETS_IMG, "boss_2.png"),
+    "image_path": os.path.join(config.ASSETS_IMG, "falete.jpg"),
     "proj_image_path": os.path.join(config.ASSETS_IMG, "boss_2_proj.png"),
     "big_proj_image_path": os.path.join(config.ASSETS_IMG, "boss_2_big.png"),
-    "music_path": os.path.join(config.ASSETS_AUDIO, "boss_2.mp3"),
+    "music_path": os.path.join(config.ASSETS_AUDIO, "faletesong.mp3"),
     "boss_size": 160,
     "boss_hp": 1100,
     "name": "BOSS 2",

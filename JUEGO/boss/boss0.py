@@ -40,13 +40,13 @@ def run_boss(screen, clock):
     # --- CONFIGURACIÓN DEL BOSS TUTORIAL ---
     params = {
         "image_path": os.path.join(config.ASSETS_IMG, "Ruth.jpg"),
-        "proj_image_path": os.path.join(config.ASSETS_IMG, "obunga.png"),
+        "proj_image_path": os.path.join(config.ASSETS_IMG, "ronlarecompensa.jpg"),
         "big_proj_image_path": os.path.join(config.ASSETS_IMG, "obunga700.png"),
         "music_path": os.path.join(config.ASSETS_AUDIO, "Estamos perdidas.mp3"),
 
         "boss_size": 140,
         "boss_hp": 300,
-        "name": "BOSS Tutorial",
+        "name": "La Ruth",
 
         "base_pattern": "fan",
         "shoot_interval": 90,

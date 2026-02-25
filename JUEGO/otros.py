@@ -32,7 +32,7 @@ class MenuButton:
         pygame.draw.rect(surf, color, r, border_radius=10)
         pygame.draw.rect(surf, (255,255,255), r, 3, border_radius=10)
         txt = font_btn.render(self.text, True, config.C_TEXT if self.available else (160,160,160))
-        surf.blit(txt, txt.get_rect(center=r.center))
+        surf.blit(txt, (r.x + 20, r.y + r.height//2 - txt.get_height()//2))
 
     def update(self, mouse_pos, offset_y=0):
         r = self.rect.move(0, offset_y)
@@ -44,10 +44,24 @@ def run_otros(screen, clock):
     start_y = 140
     gap = 72
 
+    boss_names = [
+    "Tutorial – Silver-Russell",           # boss0
+    "Nivel 1 – El Mago",                   # boss1
+    "Nivel 2 – SAPOOOOOOOOOOO",            # boss2
+    "Nivel 3 – Baby oil",                  # boss3
+    "Nivel 4 – Amego",                     # boss4 (Amego)
+    "Nivel 5 – COMING SOON",               # boss5
+    "Nivel 6 – COMING SOON",               # boss6
+    "Nivel 7 – COMING SOON",               # boss7
+    "Nivel 8 – COMING SOON",               # boss8
+    "Nivel 9 – COMING SOON",               # boss9
+    "Nivel 10 – COMING SOON"               # boss10 
+    ] 
+
     labels = []
     for i in range(0, 11):
-        txt = f"Boss Nivel {i} (boss{i})" if i != 0 else "Boss Tutorial (boss0)"
-        labels.append((txt, f"boss{i}"))
+        labels.append((boss_names[i], f"boss{i}"))
+
 
     buttons = []
     for i, (txt, act) in enumerate(labels):

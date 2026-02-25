@@ -60,8 +60,8 @@ def run_boss_generic(screen, clock, params):
             return None
 
     boss_img = load_img(image_path, (boss_size, boss_size))
-    proj_img = load_img(proj_image_path, (18, 18))
-    big_proj_img = load_img(big_proj_image_path, (32, 32))
+    proj_img = load_img(proj_image_path, (45, 45))
+    big_proj_img = load_img(big_proj_image_path, (90, 90))
 
     try:
         if music_path and os.path.exists(music_path):
