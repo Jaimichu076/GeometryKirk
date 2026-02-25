@@ -308,130 +308,15 @@ def generate_level():
     - end_x colocado de forma que no haya objetos detrás de la pared final.
     - No se generan plataformas marrones decorativas; todo es funcional.
     """
-    desired_seconds = random.randint(100, 130)
-    total_distance = int(config.SPEED * config.FPS * desired_seconds)
-    end_x = 150 + total_distance
+    
 
     objects = []
     x = 900
     margin_final = 700
+    end_x = 15000
     max_x = end_x - margin_final
 
-    def gap(amount):
-        nonlocal x
-        x += amount
-
-    # Intro: picos y pads para aprender timing
-    for i in range(10):
-        if x >= max_x: break
-        x += random.randint(200, 320)
-        if i % 4 == 3 and x < max_x:
-            objects.append(JumpPad(x, config.GROUND_Y - 20))
-        else:
-            objects.append(Spike(x))
-
-    gap(300)
-
-    # Sección de sierras y huecos (ritmo)
-    for i in range(18):
-        if x >= max_x: break
-        x += random.randint(240, 360)
-        r = random.random()
-        if r < 0.38:
-            objects.append(Saw(x, config.GROUND_Y - 80))
-        elif r < 0.68:
-            objects.append(Spike(x))
-        else:
-            # hueco con jump pad o nada
-            if random.random() < 0.6 and x < max_x:
-                objects.append(JumpPad(x, config.GROUND_Y - 20))
-            else:
-                # pequeño hueco (no objeto)
-                pass
-
-    gap(350)
-
-    # Sección de salto largo con clusters de picos
-    for i in range(16):
-        if x >= max_x: break
-        x += random.randint(260, 420)
-        if i % 5 == 0 and x < max_x:
-            objects.append(JumpPad(x, config.GROUND_Y - 20))
-        else:
-            objects.append(Spike(x))
-            if random.random() < 0.35 and x + 60 < max_x:
-                objects.append(Spike(x + 60))
-
-    gap(300)
-
-    # Portal de entrada a ship (preparación + sierras)
-    if x + 600 < max_x:
-        x += random.randint(260, 360)
-        portal_in = Portal(x, config.GROUND_Y - 120)
-        objects.append(portal_in)
-        # sierras justo antes del portal para forzar timing
-        for i in range(4):
-            if x + 120 * (i+1) < max_x:
-                objects.append(Saw(x + 120 * (i+1), config.GROUND_Y - 80))
-        gap(200)
-
-    # FASE SHIP: pasillos, picos arriba/abajo, sierras móviles
-    ship_start = x + 200
-    x = ship_start
-    ship_length = int(total_distance * 0.28)  # ~28% del nivel para ship
-    ship_end = min(max_x - 300, x + ship_length)
-
-    # generar pasillos con patrones inspirados en Stereo Madness
-    segment = 160
-    while x < ship_end:
-        x += random.randint(segment - 40, segment + 80)
-        pattern = random.choice(['top', 'bottom', 'middle', 'gaps', 'saws'])
-        if pattern == 'top':
-            # picos colgantes
-            for i in range(4):
-                if x + i*50 < ship_end:
-                    objects.append(Spike(x + i*50, y_offset=40, inverted=True))
-        elif pattern == 'bottom':
-            for i in range(4):
-                if x + i*50 < ship_end:
-                    objects.append(Spike(x + i*50))
-        elif pattern == 'middle':
-            # sierras en el centro
-            objects.append(Saw(x, config.GROUND_Y - 220))
-            if random.random() < 0.45:
-                objects.append(MovingSaw(x + 120, config.GROUND_Y - 220, range_y=60))
-        elif pattern == 'saws':
-            # ráfaga de sierras
-            for i in range(3):
-                if x + i*80 < ship_end:
-                    objects.append(Saw(x + i*80, config.GROUND_Y - 220))
-        else:
-            # gaps: espacio estrecho (sin objetos)
-            pass
-
-    # Portal de salida de ship (vuelve a cube)
-    if x + 400 < max_x:
-        x = ship_end + random.randint(200, 320)
-        portal_out = Portal(x, config.GROUND_Y - 120)
-        objects.append(portal_out)
-
-    gap(300)
-
-    # Tramo final: combinaciones rápidas y luego tramo limpio
-    for i in range(18):
-        if x >= max_x: break
-        x += random.randint(240, 360)
-        r = random.random()
-        if r < 0.5:
-            objects.append(Spike(x))
-        else:
-            objects.append(Saw(x, config.GROUND_Y - 80))
-
-    # Espacio limpio final (no objetos detrás de la pared)
-    x = max_x + random.randint(300, 500)
-
-    # Pared final (end) colocada en end_x
-    objects.append(GameObject(end_x, 0, 10, config.HEIGHT, kind="end"))
+    
 
     total_distance_real = end_x - 150
     return objects, end_x, total_distance_real
