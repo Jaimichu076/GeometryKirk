@@ -1,4 +1,4 @@
-# boss0.py — Tutorial avanzado e interactivo
+# boss0.py — Tutorial avanzado e interactivo (actualizado para disparar proyectiles pequeños y grandes)
 import os
 import pygame
 import config
@@ -21,7 +21,6 @@ def run_boss(screen, clock):
                     return
             if timeout_ms and pygame.time.get_ticks() - start >= timeout_ms:
                 return
-            # simple background
             screen.fill((10,10,25))
             hint = font_small.render("Pulsa ESPACIO para continuar", True, (200,200,200))
             screen.blit(hint, (config.WIDTH//2 - hint.get_width()//2, config.HEIGHT - 120))
@@ -53,7 +52,6 @@ def run_boss(screen, clock):
     # 2) Movimiento práctico: pide al jugador ir a un área objetivo
     target_rect = pygame.Rect(220, config.HEIGHT//2 - 40, 120, 80)
     show_message("Practica el movimiento: ve al recuadro verde", duration=800)
-    # loop hasta que el jugador entre en target_rect
     from player import Player
     p = Player()
     practicing = True
@@ -91,7 +89,6 @@ def run_boss(screen, clock):
                 p.shoot(target_rect=dummy)
         keys = pygame.key.get_pressed()
         p.update(keys)
-        # check collisions of shots with dummy
         for s in list(p.shots):
             if dummy.colliderect(s["rect"]):
                 hits += 1
@@ -134,7 +131,6 @@ def run_boss(screen, clock):
 
     # 5) Desbloqueo Escopeta: explicación y práctica
     show_message("Escopeta: más daño a corta distancia. Pulsa 2 para seleccionarla.", duration=2000)
-    # unlock shotgun in the upcoming boss via tutorial messages; we just ensure player knows
     show_message("Práctica: cambia a 2 y dispara al dummy (3 aciertos).", duration=1600)
     p = Player()
     p.allowed_weapons = {"pistol": True, "shotgun": True, "rocket": False}
@@ -168,7 +164,6 @@ def run_boss(screen, clock):
     show_message("Lanzacohetes: gran daño, cooldown 9s. Pulsa 3 para seleccionarlo.", duration=2200)
     p = Player()
     p.allowed_weapons = {"pistol": True, "shotgun": True, "rocket": True}
-    # pedir 1 disparo con rocket
     fired = False
     while not fired:
         clock.tick(config.FPS)
@@ -190,19 +185,26 @@ def run_boss(screen, clock):
     show_message("Tutorial completado. Prepárate para el combate.", duration=1400)
 
     # --- CONFIGURACIÓN DEL BOSS TUTORIAL ---
+    # Nota: para asegurar que en el tutorial se disparen tanto proyectiles pequeños como grandes,
+    # pasamos "tutorial": True y ajustamos parámetros que controlan el patrón y la frecuencia.
+    # El boss_template en modo tutorial alterna fan normal y fan grande; aquí forzamos valores
+    # que evitan que solo salgan grandes (interval más corto y fan_count razonable).
     params = {
-        "image_path": os.path.join(config.ASSETS_IMG, "Ruth.jpg"),
+        "image_path": os.path.join(config.ASSETS_IMG, "Ruth.png"),
         "proj_image_path": os.path.join(config.ASSETS_IMG, "ronlarecompensa.jpg"),
         "big_proj_image_path": os.path.join(config.ASSETS_IMG, "obunga700.png"),
-        "music_path": os.path.join(config.ASSETS_AUDIO, "Estamos perdidas.mp3"),
+        "music_path": os.path.join(config.ASSETS_AUDIO, "boss_0.mp3"),
 
         "boss_size": 140,
         "boss_hp": 300,
         "name": "La Ruth",
 
+        # patrón y ritmo: en tutorial el template alterna fan normal y fan grande.
+        # Ajustamos para que la alternancia sea clara y frecuente.
         "base_pattern": "fan",
-        "shoot_interval": 90,
+        "shoot_interval": 70,            # intervalo razonable para alternar
         "projectile_speed": 4.5,
+        "fan_count": 5,                  # número de proyectiles por fan
         "ob_interval": 260,
         "obstacle_types": ["falling"],
 
@@ -219,11 +221,13 @@ def run_boss(screen, clock):
         "heal_amount": 30,
         "heal_spawn_count": 2,
 
+        # activar modo tutorial en el template (usa la lógica de alternancia)
         "tutorial": True,
         "enable_puddles": False,
         "enable_lasers": False,
         "enable_enrage": False,
-        # sonido de explosión específico para este boss 
+
+        # sonido de explosión específico para este boss
         "explosion_sound": config.EXPLOSION_SOUND_BOSS0
     }
 
@@ -233,7 +237,6 @@ def run_boss(screen, clock):
         if result == "exit":
             return
         if result == "lose":
-            # pantalla de derrota: Enter para reintentar, Esc para volver al menú
             font = pygame.font.SysFont("Arial Black", 48)
             small = pygame.font.SysFont("Arial", 22)
             waiting = True
@@ -244,20 +247,17 @@ def run_boss(screen, clock):
                         pygame.quit(); raise SystemExit
                     if ev.type == pygame.KEYDOWN:
                         if ev.key == pygame.K_RETURN:
-                            waiting = False  # reintentar
+                            waiting = False
                         if ev.key == pygame.K_ESCAPE:
-                            return  # volver al menú
+                            return
                 screen.fill((20,10,10))
                 msg = font.render("Has perdido", True, (255, 80, 80))
                 hint = small.render("Pulsa ENTER para reintentar o ESC para volver al menú", True, (220,220,220))
                 screen.blit(msg, (config.WIDTH//2 - msg.get_width()//2, config.HEIGHT//2 - 40))
                 screen.blit(hint, (config.WIDTH//2 - hint.get_width()//2, config.HEIGHT//2 + 40))
                 pygame.display.flip()
-            # si sale del while, reintenta (loop)
             continue
         if result == "win":
-            # ya se ejecutó la explosión dentro de run_boss_generic
-            # mostrar pantalla de victoria y esperar ESC para volver al menú
             font = pygame.font.SysFont("Arial Black", 48)
             small = pygame.font.SysFont("Arial", 22)
             waiting = True

@@ -5,7 +5,7 @@ import config
 from boss.boss_template import run_boss_generic
 
 params = {
-    "image_path": os.path.join(config.ASSETS_IMG, "boss_1.png"),
+    "image_path": os.path.join(config.ASSETS_IMG, "boss_1.jpg"),
     "proj_image_path": os.path.join(config.ASSETS_IMG, "boss_1_proj.png"),
     "big_proj_image_path": os.path.join(config.ASSETS_IMG, "boss_1_big.png"),
     "music_path": os.path.join(config.ASSETS_AUDIO, "boss_1.mp3"),

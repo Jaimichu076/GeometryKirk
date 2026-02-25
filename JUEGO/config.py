@@ -69,7 +69,7 @@ COMING_SOON_IMG = os.path.join(ASSETS_IMG, "coming_soon.png")
 # Weapon / projectile images (por defecto)
 # ---------------------------
 PROJ_PISTOL = os.path.join(ASSETS_IMG, "proj_pistol.png")
-PROJ_SHOTGUN = os.path.join(ASSETS_IMG, "proj_shotgun.png")
+PROJ_SHOTGUN = os.path.join(ASSETS_IMG, "proj_shotgun.jpg")
 PROJ_ROCKET = os.path.join(ASSETS_IMG, "proj_rocket.png")
 
 # Inventory icons (opcional)
@@ -78,7 +78,7 @@ ICON_SHOTGUN = os.path.join(ASSETS_IMG, "icon_shotgun.png")
 ICON_ROCKET = os.path.join(ASSETS_IMG, "icon_rocket.png")
 
 # Default heal pickup image
-HEAL_PICKUP_IMG = os.path.join(ASSETS_IMG, "heal_cube.png")
+HEAL_PICKUP_IMG = os.path.join(ASSETS_IMG, "heal_cube.webp")
 
 # Rutas a sonidos de explosión por boss (ajusta nombres de archivo en assets/audio)
 EXPLOSION_SOUND_BOSS0 = os.path.join(ASSETS_AUDIO, "explosion_boss0.wav")
