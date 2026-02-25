@@ -4,6 +4,9 @@ import config
 import os
 import math
 
+# Inicializar pygame si no está ya inicializado en el flujo principal
+pygame.init()
+
 # Constantes del jugador y armas
 PLAYER_SIZE = config.PLAYER_SIZE if hasattr(config, "PLAYER_SIZE") else 64
 PLAYER_SPEED = 7
@@ -15,12 +18,16 @@ PISTOL_SPEED = 14
 PISTOL_DAMAGE = 10
 PISTOL_SIZE = 12
 
-# Escopeta
+# Escopeta (pellets)
 SHOTGUN_COOLDOWN = 22
 SHOTGUN_PELLETS = 7
 SHOTGUN_SPREAD = 0.6
 SHOTGUN_PELLET_SPEED = 12
 SHOTGUN_BASE_DAMAGE = 6
+# -------------------------
+# Cambia este valor para ajustar el tamaño de los pellets de la escopeta
+SHOTGUN_PELLET_SIZE = 14
+# -------------------------
 
 # Lanzacohetes
 ROCKET_COOLDOWN_SEC = 9.0
@@ -32,6 +39,9 @@ ROCKET_SIZE = 18
 SLOT_SIZE = 48
 
 def load_image(path, size=None):
+    """Carga una imagen y la escala si size es proporcionado. Devuelve None si falla."""
+    if not path or not os.path.exists(path):
+        return None
     try:
         img = pygame.image.load(path).convert_alpha()
         if size:
@@ -73,9 +83,10 @@ class Player:
         self.rocket_last_time = -999999
 
         # Cargar imágenes de proyectiles e iconos desde config
+        # Usamos las constantes de tamaño para escalar correctamente
         self.proj_imgs = {
             "pistol": load_image(config.PROJ_PISTOL, (PISTOL_SIZE, PISTOL_SIZE)),
-            "shotgun": load_image(config.PROJ_SHOTGUN, (PISTOL_SIZE, PISTOL_SIZE)),
+            "shotgun": load_image(config.PROJ_SHOTGUN, (SHOTGUN_PELLET_SIZE, SHOTGUN_PELLET_SIZE)),
             "rocket": load_image(config.PROJ_ROCKET, (ROCKET_SIZE, ROCKET_SIZE))
         }
         self.icons = {
@@ -191,7 +202,8 @@ class Player:
                     angle = -SHOTGUN_SPREAD/2 + t * SHOTGUN_SPREAD
                     vx = SHOTGUN_PELLET_SPEED * math.cos(angle)
                     vy = SHOTGUN_PELLET_SPEED * math.sin(angle)
-                    rect = pygame.Rect(int(sx), int(sy - 6), PISTOL_SIZE, PISTOL_SIZE)
+                    # Usar SHOTGUN_PELLET_SIZE para el rect del pellet
+                    rect = pygame.Rect(int(sx), int(sy - SHOTGUN_PELLET_SIZE//2), SHOTGUN_PELLET_SIZE, SHOTGUN_PELLET_SIZE)
                     img = self.proj_imgs.get("shotgun")
                     damage = SHOTGUN_BASE_DAMAGE
                     if target_rect:
