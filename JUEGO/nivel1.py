@@ -120,24 +120,34 @@ class Player:
             return
 
         if self.mode == "cube":
-            # auto-jump if held and on ground
             if self.jump_held and self.on_ground():
                 self.jump()
-            self.vel_y += config.GRAVITY * self.gravity_dir
-            self.rect.y += self.vel_y
 
-            # colisión suelo/techo
-            if self.gravity_dir == 1 and self.rect.bottom >= config.GROUND_Y:
+            
+            #auto-jump
+            if not self.on_platform:
+                self.vel_y += config.GRAVITY * self.gravity_dir
+                self.rect.y += self.vel_y
+
+            else:
+                self.vel_y = 0
+
+            if self.gravity_dir == 1 and self.rect.bottom >=config.GROUND_Y:
                 self.rect.bottom = config.GROUND_Y
                 self.vel_y = 0
-                self.rotation = round(self.rotation / 90) * 90
+                self.rotacion = round(self.rotation / 90) * 90
+            
             elif self.gravity_dir == -1 and self.rect.top <= 0:
                 self.rect.top = 0
                 self.vel_y = 0
-                self.rotation = round(self.rotation / 90) * 90
+                self.rotacion = round(self.rotacion / 90) * 90
 
             if self.vel_y != 0:
                 self.rotation -= 6 * self.gravity_dir
+
+            
+
+
 
         elif self.mode == "ship":
             # ship vertical control: hold -> up, release -> down
@@ -505,12 +515,16 @@ def run_level(screen, clock):
                 for obj in objects[:]:
                     if isinstance(obj, Platform) and player.mode == "cube":
                         if hitbox.colliderect(obj.rect):
-                            if player.vel_y > 0 and player.rect.bottom <= obj.rect.top +20:
+                            if player.rect.bottom <= obj.rect.top + 15:
+
                                 player.rect.bottom = obj.rect.top
                                 player.vel_y = 0
                                 player.rotation = round(player.rotation / 90) * 90
-                                if abs (player.rect.bottom - obj.rect.top) <= 2:
-                                    player.on_platform = True
+                                player.on_platform = True
+
+
+                                
+                                    
 
                         
                     obj.update(config.SPEED)
