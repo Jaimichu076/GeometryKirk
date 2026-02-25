@@ -13,7 +13,7 @@ FPS = 60
 # Física del jugador
 PLAYER_SIZE = 64
 GRAVITY = 1.0
-JUMP_FORCE = -16
+JUMP_FORCE = -20
 SPEED = 6
 GROUND_Y = 500
 

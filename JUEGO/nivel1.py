@@ -100,10 +100,20 @@ class Player:
         self.jump_held = False
         self.mode = "cube"
         self.ship_speed_y = 4.0
+        self.on_platform = False
+
 
     def on_ground(self):
-        return (self.mode == "cube" and self.gravity_dir == 1 and self.rect.bottom >= config.GROUND_Y) or \
-               (self.mode == "cube" and self.gravity_dir == -1 and self.rect.top <= 0)
+        return (
+            self.mode == "cube"
+            and (
+                (self.gravity_dir == 1 and self.rect.bottom >= config.GROUND_Y)
+                or (self.gravity_dir == -1 and self.rect.top <= 0)
+                or self.on_platform
+            )
+
+        )
+        
 
     def update(self):
         if not self.alive:
@@ -149,7 +159,8 @@ class Player:
     def jump(self):
         """Salto en modo cube."""
         if self.mode == "cube":
-            if self.gravity_dir == 1 and self.rect.bottom >= config.GROUND_Y:
+            if self.gravity_dir == 1 and (self.rect.bottom >= config.GROUND_Y or self.on_platform):
+
                 self.vel_y = config.JUMP_FORCE
                 return True
             elif self.gravity_dir == -1 and self.rect.top <= 0:
@@ -330,7 +341,15 @@ def generate_level():
     objects.append(Spike(1650, config.GROUND_Y -500))
     objects.append(Spike(1800, config.GROUND_Y -500))
     objects.append(Spike(1850, config.GROUND_Y -500))
-    objects.append(GameObject(2000, config.GROUND_Y - 40, 200, 40))
+    objects.append(Platform(2400, config.GROUND_Y - 30, 200, 40))
+    objects.append(Spike(2600, config.GROUND_Y -500))
+    objects.append(Spike(2650, config.GROUND_Y -500))
+    objects.append(Spike(2700, config.GROUND_Y -500))
+    objects.append(Platform(2800, config.GROUND_Y - 30, 200, 40))
+
+    
+
+
 
 
     
@@ -377,16 +396,16 @@ def run_level(screen, clock):
 
     bg_static = bg_image  # fondo estático
     # Cargar imagen del spike (correcto)
-    SPIKE_IMG = pygame.image.load("assets/images/obunga.png").convert_alpha()
+    SPIKE_IMG = pygame.image.load("Juego/assets/images/obunga.png").convert_alpha()
     SPIKE_IMG = pygame.transform.scale(SPIKE_IMG, (70, 70))
     # Cargar imagen del suelo (correcto)
-    GROUND_IMG = pygame.image.load("assets/images/suelo.png").convert_alpha()
+    GROUND_IMG = pygame.image.load("Juego/assets/images/suelo.png").convert_alpha()
     GROUND_IMG = pygame.transform.scale(
         GROUND_IMG,
         (config.WIDTH, config.HEIGHT - config.GROUND_Y)
     )
     # cargar imagen del suelo
-    SAW_IMG = pygame.image.load("assets/images/isra.png").convert_alpha()
+    SAW_IMG = pygame.image.load("Juego/assets/images/israel.png").convert_alpha()
     SAW_IMG = pygame.transform.scale(SAW_IMG, (70, 70))
 
     
@@ -481,6 +500,8 @@ def run_level(screen, clock):
                 hitbox = player.rect.inflate(-12, -12)
 
                 # actualizar objetos (scroll)
+                player.on_platform = False
+
                 for obj in objects[:]:
                     if isinstance(obj, Platform) and player.mode == "cube":
                         if hitbox.colliderect(obj.rect):
@@ -488,6 +509,8 @@ def run_level(screen, clock):
                                 player.rect.bottom = obj.rect.top
                                 player.vel_y = 0
                                 player.rotation = round(player.rotation / 90) * 90
+                                if abs (player.rect.bottom - obj.rect.top) <= 2:
+                                    player.on_platform = True
 
                         
                     obj.update(config.SPEED)
