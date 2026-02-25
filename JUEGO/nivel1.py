@@ -21,6 +21,7 @@ import config
 skin_img = None
 bg_image = None
 SPIKE_IMG = None
+SAW_IMG = None
 
 # Cargar imagen del suelo
 
@@ -258,24 +259,26 @@ class MovingSaw(GameObject):
     def __init__(self, x, y, range_y=80):
         super().__init__(x, y, 60, 60, kind="movingsaw")
         self.angle = 0
-        self.move_axis = 'y'
         self.move_range = range_y
         self.move_origin = (self.rect.x, self.rect.y)
 
+        
+
     def update(self, speed):
         super().update(speed)
-        self.angle += 14
+        self.angle += 14  # velocidad de giro
+
+        # movimiento predecible
+        t = pygame.time.get_ticks() / 300
+        offset = math.sin(t) * self.move_range
+
+        self.rect.y = self.move_origin[1] + offset
 
     def draw(self, surface):
-        surf = pygame.Surface((70, 70), pygame.SRCALPHA)
-        pygame.draw.circle(surf, (180, 120, 120), (35, 35), 30)
-        pygame.draw.circle(surf, (80, 40, 40), (35, 35), 25)
-        for i in range(8):
-            ang = math.radians(self.angle + i * 45)
-            end_x = 35 + math.cos(ang) * 35
-            end_y = 35 + math.sin(ang) * 35
-            pygame.draw.line(surf, (220, 180, 180), (35, 35), (end_x, end_y), 4)
-        surface.blit(surf, surf.get_rect(center=self.rect.center))
+        rotated = pygame.transform.rotate(SAW_IMG, self.angle)
+        rect = rotated.get_rect(center=self.rect.center)
+        surface.blit(rotated, rect)
+
 
 class JumpPad(GameObject):
     """Pad que impulsa al jugador hacia arriba (útil)."""
@@ -308,15 +311,24 @@ def generate_level():
     - end_x colocado de forma que no haya objetos detrás de la pared final.
     - No se generan plataformas marrones decorativas; todo es funcional.
     """
-    
 
     objects = []
+
+    objects.append(MovingSaw(800, config.GROUND_Y - 80))
+    objects.append(MovingSaw(1100, config.GROUND_Y - 80))
+    objects.append(MovingSaw(1400, config.GROUND_Y - 80))
+    objects.append(Spike(1600, config.GROUND_Y -500))
+
+    
+
+    
     x = 900
     margin_final = 700
     end_x = 15000
     max_x = end_x - margin_final
 
     
+    objects.append(GameObject(end_x, 0, 10, config.HEIGHT, kind="end"))
 
     total_distance_real = end_x - 150
     return objects, end_x, total_distance_real
@@ -337,9 +349,10 @@ def run_level(screen, clock):
     - Actualiza progreso y muestra barra superior
     - Muestra pantallas de muerte y victoria
     """
-    global skin_img, bg_image, SPIKE_IMG
+    global skin_img, bg_image, SPIKE_IMG, SAW_IMG
     skin_img = load_skin()
     bg_image = load_bg()
+
 
     # Fuentes
     font_title = pygame.font.SysFont("Arial Black", 60)
@@ -356,6 +369,9 @@ def run_level(screen, clock):
         GROUND_IMG,
         (config.WIDTH, config.HEIGHT - config.GROUND_Y)
     )
+    # cargar imagen del suelo
+    SAW_IMG = pygame.image.load("assets/images/isra.png").convert_alpha()
+    SAW_IMG = pygame.transform.scale(SAW_IMG, (70, 70))
 
     
 
