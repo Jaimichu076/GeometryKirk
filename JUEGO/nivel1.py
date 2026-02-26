@@ -132,18 +132,19 @@ class Player:
             else:
                 self.vel_y = 0
 
-            if self.gravity_dir == 1 and self.rect.bottom >=config.GROUND_Y:
+            if self.gravity_dir == 1 and self.rect.bottom >= config.GROUND_Y:
                 self.rect.bottom = config.GROUND_Y
                 self.vel_y = 0
-                self.rotacion = round(self.rotation / 90) * 90
-            
+                self.rotation = round(self.rotation / 90) * 90
+
             elif self.gravity_dir == -1 and self.rect.top <= 0:
                 self.rect.top = 0
                 self.vel_y = 0
-                self.rotacion = round(self.rotacion / 90) * 90
+                self.rotation = round(self.rotation / 90) * 90
 
             if self.vel_y != 0:
                 self.rotation -= 6 * self.gravity_dir
+
 
             
 
