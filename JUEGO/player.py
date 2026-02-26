@@ -8,32 +8,32 @@ import math
 pygame.init()
 
 # Constantes del jugador y armas
-PLAYER_SIZE = config.PLAYER_SIZE if hasattr(config, "PLAYER_SIZE") else 64
-PLAYER_SPEED = 7
-PLAYER_MAX_HP = 180
+PLAYER_SIZE = config.PLAYER_SIZE if hasattr(config, "PLAYER_SIZE") else 60
+PLAYER_SPEED = 8
+PLAYER_MAX_HP = 280
 
 # Pistola
 PISTOL_COOLDOWN = 10
-PISTOL_SPEED = 14
-PISTOL_DAMAGE = 10
-PISTOL_SIZE = 12
+PISTOL_SPEED = 20
+PISTOL_DAMAGE = 12
+PISTOL_SIZE = 20
 
 # Escopeta (pellets)
 SHOTGUN_COOLDOWN = 22
-SHOTGUN_PELLETS = 7
-SHOTGUN_SPREAD = 0.6
+SHOTGUN_PELLETS = 9
+SHOTGUN_SPREAD = 0.3
 SHOTGUN_PELLET_SPEED = 12
-SHOTGUN_BASE_DAMAGE = 6
+SHOTGUN_BASE_DAMAGE = 5
 # -------------------------
 # Cambia este valor para ajustar el tamaño de los pellets de la escopeta
-SHOTGUN_PELLET_SIZE = 14
+SHOTGUN_PELLET_SIZE = 40
 # -------------------------
 
 # Lanzacohetes
 ROCKET_COOLDOWN_SEC = 9.0
-ROCKET_SPEED = 9
-ROCKET_DAMAGE = 80
-ROCKET_SIZE = 18
+ROCKET_SPEED = 11
+ROCKET_DAMAGE = 300
+ROCKET_SIZE = 45
 
 # HUD
 SLOT_SIZE = 48

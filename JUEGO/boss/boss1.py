@@ -10,7 +10,7 @@ params = {
     "big_proj_image_path": os.path.join(config.ASSETS_IMG, "boss_1_big.png"),
     "music_path": os.path.join(config.ASSETS_AUDIO, "boss_1.mp3"),
     "boss_size": 150,
-    "boss_hp": 900,
+    "boss_hp": 800,
     "name": "Netanyahu",
     "base_pattern": "fan",
     "shoot_interval": 60,
@@ -37,7 +37,7 @@ params = {
     "tutorial": False,
     "enable_lasers": False,
     "enable_enrage": False,
-    "explosion_sound": os.path.join(config.ASSETS_AUDIO, "boss_explosion.wav")
+    "explosion_sound": os.path.join(config.ASSETS_AUDIO, "explosion_boss1.wav")
 }
 
 def run_boss(screen, clock):
