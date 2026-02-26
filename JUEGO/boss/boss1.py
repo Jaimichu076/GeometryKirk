@@ -14,7 +14,7 @@ params = {
     "name": "Netanyahu",
     "base_pattern": "fan",
     "shoot_interval": 60,
-    "projectile_speed": 6.0,
+    "projectile_speed": 5.5,
     "ob_interval": 220,
     "obstacle_types": ["falling", "moving"],
     "player_damage_to_boss": 12,

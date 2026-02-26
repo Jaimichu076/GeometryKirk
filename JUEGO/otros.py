@@ -49,7 +49,7 @@ def run_otros(screen, clock):
     "Nivel 1 – El Mago",                   # boss1
     "Nivel 2 – SAPOOOOOOOOOOO",            # boss2
     "Nivel 3 – Baby oil",                  # boss3
-    "Nivel 4 – Amego",                     # boss4 (Amego)
+    "Nivel 4 – COMING SOON",               # boss4 (Amego)
     "Nivel 5 – COMING SOON",               # boss5
     "Nivel 6 – COMING SOON",               # boss6
     "Nivel 7 – COMING SOON",               # boss7

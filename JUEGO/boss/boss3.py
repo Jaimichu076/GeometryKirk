@@ -5,7 +5,7 @@ import config
 from boss.boss_template import run_boss_generic
 
 params = {
-    "image_path": os.path.join(config.ASSETS_IMG, "boss_3.png"),
+    "image_path": os.path.join(config.ASSETS_IMG, "boss_3.jpg"),
     "proj_image_path": os.path.join(config.ASSETS_IMG, "boss_3_proj.png"),
     "big_proj_image_path": os.path.join(config.ASSETS_IMG, "boss_3_big.png"),
     "music_path": os.path.join(config.ASSETS_AUDIO, "boss_3.mp3"),
@@ -37,7 +37,7 @@ params = {
     "enrage_cycle": 600,
     "enrage_duration": 240,
     "enrage_factor": 0.6,
-    "explosion_sound": os.path.join(config.ASSETS_AUDIO, "boss_explosion.wav")
+    "explosion_sound": os.path.join(config.ASSETS_AUDIO, "explosion_boss3.wav")
 }
 
 def run_boss(screen, clock):

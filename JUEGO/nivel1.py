@@ -359,13 +359,6 @@ def generate_level():
     objects.append(Platform(2800, config.GROUND_Y - 30, 200, 40))
 
     
-
-
-
-
-    
-
-    
     x = 900
     margin_final = 700
     end_x = 15000
