@@ -346,29 +346,74 @@ def generate_level():
 
     objects = []
 
+# --- SECCIÓN INICIAL ---
     objects.append(MovingSaw(800, config.GROUND_Y - 80))
     objects.append(MovingSaw(1100, config.GROUND_Y - 80))
-    objects.append(Spike(1600, config.GROUND_Y -500))
-    objects.append(Spike(1650, config.GROUND_Y -500))
-    objects.append(Spike(1800, config.GROUND_Y -500))
-    objects.append(Spike(1850, config.GROUND_Y -500))
-    objects.append(Platform(2400, config.GROUND_Y - 30, 200, 40))
-    objects.append(Spike(2600, config.GROUND_Y -500))
-    objects.append(Spike(2650, config.GROUND_Y -500))
-    objects.append(Spike(2700, config.GROUND_Y -500))
-    objects.append(Platform(2800, config.GROUND_Y - 30, 200, 40))
 
-    
-    x = 900
+    objects.append(Spike(1600, 0))
+    objects.append(Spike(1650, 0))
+    objects.append(Spike(1800, 0))
+    objects.append(Spike(1850, 0))
+
+    objects.append(Spike(2600, 0))
+    objects.append(Spike(2650, 0))
+    objects.append(Spike(2700, 0))
+
+# --- PORTAL A SHIP ---
+    objects.append(Portal(3000, config.GROUND_Y - 120))
+
+# --- SECCIÓN SHIP (solo sierras y spikes) ---
+    objects.append(Saw(3400, 150))
+    objects.append(MovingSaw(3800, 200, 120))
+    objects.append(Saw(4200, 100))
+    objects.append(MovingSaw(4600, 250, 120))
+
+    objects.append(Spike(5000, 0))
+    objects.append(Spike(5050, 0))
+    objects.append(Spike(5100, 0))
+
+    objects.append(MovingSaw(5400, 180, 120))
+    objects.append(Saw(5800, 130))
+
+# --- PORTAL A CUBE ---
+    objects.append(Portal(6200, config.GROUND_Y - 120))
+
+# --- SECCIÓN FINAL CUBE ---
+    objects.append(Spike(6600, 0))
+    objects.append(Spike(6650, 0))
+    objects.append(Spike(6700, 0))
+
+    objects.append(Saw(7000, config.GROUND_Y - 90))
+    objects.append(MovingSaw(7400, config.GROUND_Y - 120, 100))
+
+    objects.append(Spike(7800, 0))
+    objects.append(Spike(7850, 0))
+    objects.append(Spike(7900, 0))
+
+    objects.append(Saw(8200, config.GROUND_Y))
+    objects.append(Saw(8400, config.GROUND_Y - 90))
+
+
+    objects.append(MovingSaw(8800, config.GROUND_Y - 100, 140))
+
+    objects.append(Spike(9200, 0))
+    objects.append(Spike(9250, 0))
+    objects.append(Spike(9300, 0))
+
     margin_final = 700
     end_x = 15000
-    max_x = end_x - margin_final
-
-    
     objects.append(GameObject(end_x, 0, 10, config.HEIGHT, kind="end"))
 
-    total_distance_real = end_x - 150
+
+    total_distance_real = end_x - 150 
     return objects, end_x, total_distance_real
+
+
+
+
+
+    
+
 
 # ------------------ UTILIDADES ------------------
 
