@@ -28,7 +28,7 @@ MENU_BACKGROUND = os.path.join(ASSETS_IMG, "wallpaper.jpg")
 MENU_MUSIC = os.path.join(ASSETS_AUDIO, "C418 - Aria Math.mp3")
 
 # Música del nivel
-LEVEL_MUSIC = os.path.join(ASSETS_AUDIO, "level1.mp3")
+LEVEL_MUSIC = os.path.join(ASSETS_AUDIO, "charliekirk.mp3")
 
 # ---------------------------
 # Skins: ahora se descubren automáticamente en assets/images/skins

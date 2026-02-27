@@ -22,6 +22,8 @@ skin_img = None
 bg_image = None
 SPIKE_IMG = None
 SAW_IMG = None
+saw_img = None
+PORTAL_IMG = None
 
 # Cargar imagen del suelo
 
@@ -266,15 +268,11 @@ class Saw(GameObject):
         self.angle += 12
 
     def draw(self, surface):
-        surf = pygame.Surface((70, 70), pygame.SRCALPHA)
-        pygame.draw.circle(surf, (150, 150, 150), (35, 35), 30)
-        pygame.draw.circle(surf, (50, 50, 50), (35, 35), 25)
-        for i in range(8):
-            ang = math.radians(self.angle + i * 45)
-            end_x = 35 + math.cos(ang) * 35
-            end_y = 35 + math.sin(ang) * 35
-            pygame.draw.line(surf, (200, 200, 200), (35, 35), (end_x, end_y), 4)
-        surface.blit(surf, surf.get_rect(center=self.rect.center))
+        
+        rotated = pygame.transform.rotate(saw_img, self.angle)
+        rect = rotated.get_rect(center=self.rect.center)
+        surface.blit(rotated, rect)
+
 
 class MovingSaw(GameObject):
     """Sierra que se mueve verticalmente (peligrosa)."""
@@ -316,14 +314,22 @@ class JumpPad(GameObject):
 
 class Portal(GameObject):
     """Portal que cambia el modo (cube <-> ship)."""
-    def __init__(self, x, y):
-        super().__init__(x, y, 50, 120, kind="portal")
-        self.used = False
+    
+    
+    def __init__(self, x, y, portal_type="in"): 
+            super().__init__(x, y - 40, 50, 160, kind="portal") 
+            self.portal_type = portal_type 
+            self.used = False
 
     def draw(self, surface):
-        color = (200, 80, 255) if not self.used else (70, 70, 100)
-        pygame.draw.ellipse(surface, color, self.rect, 5)
+        rect = PORTAL_IMG.get_rect(center=self.rect.center) 
+        surface.blit(PORTAL_IMG, rect)
+        
+       
 
+
+
+    
 class Platform(GameObject):
     """Plataforma sólida donde el jugador puede subirse."""
     def __init__(self, x, y, w, h):
@@ -344,69 +350,58 @@ def generate_level():
     - No se generan plataformas marrones decorativas; todo es funcional.
     """
 
+    
     objects = []
 
-# --- SECCIÓN INICIAL ---
-    objects.append(MovingSaw(800, config.GROUND_Y - 80))
-    objects.append(MovingSaw(1100, config.GROUND_Y - 80))
-
+    # --- SECCIÓN INICIAL (muy fácil) ---
+    objects.append(Spike(1200, 0))
+    objects.append(Spike(1400, 0))
     objects.append(Spike(1600, 0))
-    objects.append(Spike(1650, 0))
-    objects.append(Spike(1800, 0))
-    objects.append(Spike(1850, 0))
 
-    objects.append(Spike(2600, 0))
-    objects.append(Spike(2650, 0))
-    objects.append(Spike(2700, 0))
+    # Sierra fija muy separada
+    objects.append(Saw(2000, config.GROUND_Y - 90))
 
-# --- PORTAL A SHIP ---
-    objects.append(Portal(3000, config.GROUND_Y - 120))
+    # Spike suelto
+    objects.append(Spike(2400, 0))
 
-# --- SECCIÓN SHIP (solo sierras y spikes) ---
-    objects.append(Saw(3400, 150))
-    objects.append(MovingSaw(3800, 200, 120))
-    objects.append(Saw(4200, 100))
-    objects.append(MovingSaw(4600, 250, 120))
+    # --- PORTAL A SHIP ---
+    objects.append(Portal(2800, config.GROUND_Y - 120, "in"))
 
-    objects.append(Spike(5000, 0))
-    objects.append(Spike(5050, 0))
-    objects.append(Spike(5100, 0))
+    # --- SHIP FÁCIL ---
+    objects.append(MovingSaw(3300, 200, 80))
+    objects.append(Saw(3700, 150))
+    objects.append(MovingSaw(4100, 220, 80))
 
-    objects.append(MovingSaw(5400, 180, 120))
-    objects.append(Saw(5800, 130))
+    # Spikes bajos (fáciles de esquivar en ship)
+    objects.append(Spike(4500, 0))
+    objects.append(Spike(4700, 0))
 
-# --- PORTAL A CUBE ---
-    objects.append(Portal(6200, config.GROUND_Y - 120))
+    # --- PORTAL A CUBE ---
+    objects.append(Portal(5200, config.GROUND_Y - 120, "out"))
 
-# --- SECCIÓN FINAL CUBE ---
+    # --- CUBE FINAL (muy fácil) ---
+    objects.append(Spike(5600, 0))
+    objects.append(Spike(5800, 0))
+
+    objects.append(Saw(6200, config.GROUND_Y - 90))
+
     objects.append(Spike(6600, 0))
-    objects.append(Spike(6650, 0))
-    objects.append(Spike(6700, 0))
+    objects.append(Spike(6800, 0))
 
-    objects.append(Saw(7000, config.GROUND_Y - 90))
-    objects.append(MovingSaw(7400, config.GROUND_Y - 120, 100))
+    # Sierra móvil lenta
+    objects.append(MovingSaw(7200, config.GROUND_Y - 100, 60))
 
+    # Últimos spikes
+    objects.append(Spike(7600, 0))
     objects.append(Spike(7800, 0))
-    objects.append(Spike(7850, 0))
-    objects.append(Spike(7900, 0))
 
-    objects.append(Saw(8200, config.GROUND_Y))
-    objects.append(Saw(8400, config.GROUND_Y - 90))
-
-
-    objects.append(MovingSaw(8800, config.GROUND_Y - 100, 140))
-
-    objects.append(Spike(9200, 0))
-    objects.append(Spike(9250, 0))
-    objects.append(Spike(9300, 0))
-
-    margin_final = 700
-    end_x = 15000
+    # --- FINAL DEL NIVEL ---
+    end_x = 9000
     objects.append(GameObject(end_x, 0, 10, config.HEIGHT, kind="end"))
 
-
-    total_distance_real = end_x - 150 
+    total_distance_real = end_x - 150
     return objects, end_x, total_distance_real
+
 
 
 
@@ -433,7 +428,7 @@ def run_level(screen, clock):
     - Actualiza progreso y muestra barra superior
     - Muestra pantallas de muerte y victoria
     """
-    global skin_img, bg_image, SPIKE_IMG, SAW_IMG
+    global skin_img, bg_image, SPIKE_IMG, SAW_IMG, saw_img, PORTAL_IMG
     skin_img = load_skin()
     bg_image = load_bg()
 
@@ -456,6 +451,16 @@ def run_level(screen, clock):
     # cargar imagen del suelo
     SAW_IMG = pygame.image.load("Juego/assets/images/israel.png").convert_alpha()
     SAW_IMG = pygame.transform.scale(SAW_IMG, (70, 70))
+
+    # cargar imagen de sierra inmovil
+    saw_img = pygame.image.load("Juego/assets/images/rojaisra.png").convert_alpha()
+    saw_img = pygame.transform.scale(saw_img, (70, 70))
+
+    # imagen del portal
+    PORTAL_IMG = pygame.image.load("Juego/assets/images/nether.png").convert_alpha()
+    PORTAL_IMG = pygame.transform.scale(PORTAL_IMG, (70, 120))
+
+
 
     
 
