@@ -352,55 +352,168 @@ def generate_level():
 
     
     objects = []
+    
 
-    # --- SECCIÓN INICIAL (muy fácil) ---
+        # --- SECCIÓN INICIAL (muy fácil) ---
     objects.append(Spike(1200, 0))
     objects.append(Spike(1400, 0))
     objects.append(Spike(1600, 0))
 
-    # Sierra fija muy separada
     objects.append(Saw(2000, config.GROUND_Y - 90))
-
-    # Spike suelto
     objects.append(Spike(2400, 0))
 
     # --- PORTAL A SHIP ---
-    objects.append(Portal(2800, config.GROUND_Y - 120, "in"))
+    # --- PORTAL A SHIP ---
+    portal1_x = 2800
+    portal1_y = config.GROUND_Y - 90   # BAJADO AL SUELO
+    objects.append(Portal(portal1_x, portal1_y, "in"))
 
-    # --- SHIP FÁCIL ---
-    objects.append(MovingSaw(3300, 200, 80))
-    objects.append(Saw(3700, 150))
-    objects.append(MovingSaw(4100, 220, 80))
-
-    # Spikes bajos (fáciles de esquivar en ship)
+    objects.append(Saw(portal1_x, portal1_y - 80))
+    objects.append(Saw(portal1_x, portal1_y - 160))
+    objects.append(Saw(portal1_x, portal1_y - 240))
+    objects.append(Saw(portal1_x, portal1_y - 320))
+    objects.append(Saw(portal1_x, portal1_y - 400))
+    objects.append(Saw(portal1_x, portal1_y - 480))
+    objects.append(Spike(3000, 0))
+    objects.append(Spike(3050, 0))
+    objects.append(Spike(3100, 0))
+    objects.append(Spike(3150, 0))
+    objects.append(Spike(3200, 0))
+    objects.append(Spike(3250, 0))
+    objects.append(Spike(3300, 0))
+    objects.append(Saw(3200, config.GROUND_Y - 130))
+    objects.append(Saw(3300, config.GROUND_Y - 170))
+    objects.append(Saw(3500, config.GROUND_Y - 110))
+    objects.append(Spike(3350, 0))
+    objects.append(Spike(3400, 0))
+    objects.append(Spike(3450, 0))
+    objects.append(Spike(3500, 0))
+    objects.append(Spike(3550, 0))
+    objects.append(Spike(3600, 0))
+    objects.append(Spike(3650, 0))
+    objects.append(Spike(3700, 0))
+    objects.append(Spike(3750, 0))
+    objects.append(Spike(3800, 0))
+    objects.append(Spike(3850, 0))
+    objects.append(Spike(3900, 0))
+    objects.append(Spike(3950, 0))
+    objects.append(Spike(4000, 0))
+    objects.append(Spike(4050, 0))
+    objects.append(Spike(4100, 0))
+    objects.append(Spike(4150, 0))
+    objects.append(Spike(4200, 0))
+    objects.append(Spike(4250, 0))
+    objects.append(Spike(4300, 0))
+    objects.append(Spike(4350, 0))
+    objects.append(Spike(4400, 0))
+    objects.append(Spike(4450, 0))
     objects.append(Spike(4500, 0))
+    objects.append(Spike(4550, 0))
+    objects.append(Spike(4600, 0))
+    objects.append(Spike(4650, 0))
     objects.append(Spike(4700, 0))
+    objects.append(Spike(4750, 0))
+    objects.append(Spike(4800, 0))
+    objects.append(Spike(4850, 0))
+    objects.append(Spike(4900, 0))
+    objects.append(Spike(4850, 0))
+    objects.append(Spike(4900, 0))
+    objects.append(Spike(4950, 0))
+    objects.append(Spike(5000, 0))
+    objects.append(Spike(5050, 0))
+    objects.append(Spike(5100, 0))
+    objects.append(Spike(5150, 0))
+    objects.append(Spike(5200, 0))
+    objects.append(Spike(5250, 0))
+    objects.append(Spike(5300, 0))
+    objects.append(Saw(3700, config.GROUND_Y - 190))
+    objects.append(Saw(3850, config.GROUND_Y - 350))
+    objects.append(Saw(4000, config.GROUND_Y - 450))
+    objects.append(Saw(3900, config.GROUND_Y - 290))
+    objects.append(MovingSaw(4200, config.GROUND_Y - 350))
+    objects.append(Saw(4500, config.GROUND_Y - 120))
+    objects.append(Saw(4700, config.GROUND_Y - 320))
+    objects.append(Saw(4900, config.GROUND_Y - 390))
+    objects.append(Saw(5200, config.GROUND_Y - 250))
+
+
+
+    
+
+
+
+
 
     # --- PORTAL A CUBE ---
-    objects.append(Portal(5200, config.GROUND_Y - 120, "out"))
+    portal2_x = 5500
+    portal2_y = config.GROUND_Y - 90   # BAJADO AL SUELO
+    objects.append(Portal(portal2_x, portal2_y, "out"))
 
-    # --- CUBE FINAL (muy fácil) ---
-    objects.append(Spike(5600, 0))
+    objects.append(Saw(portal2_x, portal2_y - 80))
+    objects.append(Saw(portal2_x, portal2_y - 160))
+    objects.append(Saw(portal2_x, portal2_y - 240))
+    objects.append(Saw(portal2_x, portal2_y - 320))
+    objects.append(Saw(portal2_x, portal2_y - 400))
+    objects.append(Saw(portal2_x, portal2_y - 480))
     objects.append(Spike(5800, 0))
+    objects.append(Spike(5850, 0))
+    objects.append(MovingSaw(6200, config.GROUND_Y - 120))
+    objects.append(MovingSaw(6600, config.GROUND_Y - 120))
+    objects.append(Saw(6800, config.GROUND_Y - 80))
 
-    objects.append(Saw(6200, config.GROUND_Y - 90))
+    objects.append(Spike(7000, 0))
+    objects.append(Spike(7050, 0))
+    objects.append(Spike(7300, 0))
+    objects.append(Spike(7350, 0))
 
-    objects.append(Spike(6600, 0))
-    objects.append(Spike(6800, 0))
 
-    # Sierra móvil lenta
-    objects.append(MovingSaw(7200, config.GROUND_Y - 100, 60))
 
-    # Últimos spikes
-    objects.append(Spike(7600, 0))
-    objects.append(Spike(7800, 0))
 
-    # --- FINAL DEL NIVEL ---
-    end_x = 9000
-    objects.append(GameObject(end_x, 0, 10, config.HEIGHT, kind="end"))
+    # --- SEGUNDA SECCIÓN SHIP ---
+    portal3_x = 11300
+    portal3_y = config.GROUND_Y - 90   # BAJADO AL SUELO
+    objects.append(Portal(portal3_x, portal3_y, "in"))
 
-    total_distance_real = end_x - 150
+    objects.append(Saw(portal3_x, portal3_y - 80))
+    objects.append(Saw(portal3_x, portal3_y - 160))
+    objects.append(Saw(portal3_x, portal3_y - 240))
+    objects.append(Saw(portal3_x, portal3_y - 320))
+    objects.append(Saw(portal3_x, portal3_y - 400))
+    objects.append(Saw(portal3_x, portal3_y - 480))
+
+
+    # --- PORTAL FINAL A CUBE ---
+    portal4_x = 13600
+    portal4_y = config.GROUND_Y - 90   # BAJADO AL SUELO
+    objects.append(Portal(portal4_x, portal4_y, "out"))
+
+    objects.append(Saw(portal4_x, portal4_y - 80))
+    objects.append(Saw(portal4_x, portal4_y - 160))
+    objects.append(Saw(portal4_x, portal4_y - 240))
+    objects.append(Saw(portal4_x, portal4_y - 320))
+    objects.append(Saw(portal4_x, portal4_y - 400))
+    objects.append(Saw(portal4_x, portal4_y - 480))
+    # --- CUBE FINAL --- 
+    objects.append(Spike(13900, 0)) 
+    objects.append(Spike(14100, 0)) 
+    objects.append(Saw(14400, config.GROUND_Y - 90)) 
+    objects.append(Spike(14700, 0)) 
+    objects.append(Spike(14900, 0)) 
+    # --- FINAL DEL NIVEL --- 
+    end_x = 15000 
+    objects.append(GameObject(end_x, 0, 10, config.HEIGHT, kind="end")) 
+    total_distance_real = end_x - 150 
     return objects, end_x, total_distance_real
+
+    
+
+
+
+
+
+
+
+
 
 
 
@@ -458,7 +571,7 @@ def run_level(screen, clock):
 
     # imagen del portal
     PORTAL_IMG = pygame.image.load("Juego/assets/images/nether.png").convert_alpha()
-    PORTAL_IMG = pygame.transform.scale(PORTAL_IMG, (70, 120))
+    PORTAL_IMG = pygame.transform.scale(PORTAL_IMG, (90, 120))
 
 
 
