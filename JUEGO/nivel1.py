@@ -722,7 +722,3 @@ def run_level(screen, clock):
             pygame.mixer.music.play(-1)
         except:
             pass
-
-
-
-

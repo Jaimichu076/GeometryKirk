@@ -8,7 +8,7 @@ params = {
     "image_path": os.path.join(config.ASSETS_IMG, "falete.jpg"),
     "proj_image_path": os.path.join(config.ASSETS_IMG, "boss_2_proj.png"),
     "big_proj_image_path": os.path.join(config.ASSETS_IMG, "boss_2_big.png"),
-    "music_path": os.path.join(config.ASSETS_AUDIO, "faletesong.mp3"),
+    "music_path": os.path.join(config.ASSETS_AUDIO, "boss_2.mp3"),
     "boss_size": 160,
     "boss_hp": 1100,
     "name": "Falete",
@@ -34,7 +34,7 @@ params = {
     "orientation": "both",
     "tutorial": False,
     "enable_enrage": False,
-    "explosion_sound": os.path.join(config.ASSETS_AUDIO, "boss_explosion.wav")
+    "explosion_sound": os.path.join(config.ASSETS_AUDIO, "explosion_boss2.wav")
 }
 
 def run_boss(screen, clock):
