@@ -1,22 +1,18 @@
-Pasos de instalación del juego
-Puedes descargar cualquiera de las versiones del juego tanto desde la página web oficial como desde nuestro repositorio de GitHub, siempre de forma gratuita.
-Dependiendo de la plataforma, los archivos estarán disponibles en formato .exe, .apk o dentro de un archivo .zip que deberá descomprimirse antes de ejecutar el juego.
+ISMAIL:
+- Aumentar duracion del nivel 1
+- Mejorar ubicacion de objetos
+- Solucionar el bug del avion, si vuelo por encima del portal permanezco como avion, tienes o que poner una fila vertical de bloques para forzar al avion a bajar hasta el portal o hacer que cuando pase verticalmente por la zona del avion se transfrme en cubo de nuevo, no obstante  esa linea es invisible no se puede ver pero convierte el modo avion a modo bloques
+- Ajustar musica del nivel
+- Cuando el jugador llega a la pared final, no puede haber mapa despues de la pared, cuando llega el final lo ultimo es la pared no puede haber espacio en blanco despues
+- Creacion del nivel 2 con un nuevo tipo de obstaculo o funcion, (puedes inspirarte del geometry dash original), mas dificultad sin pasarse y minimo el doble de duracion, el nivel tiene que cambiar visualmente respecto al primer nivel minimo el fondo y el suelo, los obstaculos pueden ser los mismos
+- En el modo avion crea la existencia fisica de un miniavion debajo de la skin el cual permanezca siempre debajo de la skin y aparezca o desaparezca al entrar o salir del modo avion
+- En la zona del avion agregar mas objetos pues son faciles de esquivar, puedes poner pinchos tanto arriba como abajo y subir el portal por el medio o como veas
 
-Formatos disponibles
-Windows: ejecutable .exe
 
-Android: archivo .apk instalable
 
-Multiplataforma: versión comprimida .zip con todos los archivos necesarios
 
-Instalación
-Descarga la versión correspondiente a tu dispositivo.
-
-Si el archivo está comprimido, descomprímelo en una carpeta de tu elección.
-
-Ejecuta el archivo principal del juego (.exe en Windows o .apk en Android).
-
-¡Disfruta de Geometry Kirk!
-
-¿Problemas durante la instalación?
-Si alguno de los pasos no funciona correctamente, aparece un error o tienes dificultades para ejecutar el juego, puedes ponerte en contacto con nosotros y te ayudaremos encantados.
+JAIME:
+- Reajuste de skins.py
+- Mejora de la web
+- Recodificacion total del main.py + agregar cinematica de entrada llamada start.py
+- Completar y ajustar boss_template.py, boss0..3.py
