@@ -28,7 +28,6 @@ GLOW_MAX_ALPHA = 160
 GLOW_OUTER_PAD = 36
 GLOW_INNER_PAD = 8
 
-
 # ----------------------------------------------------------
 # Utilidades
 # ----------------------------------------------------------
@@ -42,7 +41,6 @@ def _make_coming_soon_surface(size):
     surf.blit(txt, ((size - txt.get_width()) // 2, (size - txt.get_height()) // 2))
     return surf
 
-
 def _load_image_safe(path, size):
     if not path or not os.path.exists(path):
         return None
@@ -51,7 +49,6 @@ def _load_image_safe(path, size):
         return pygame.transform.smoothscale(img, (size, size))
     except:
         return None
-
 
 def _create_glow_ring(size, color=(0,180,255), outer_pad=GLOW_OUTER_PAD, inner_pad=GLOW_INNER_PAD, alpha=GLOW_MAX_ALPHA):
     total = size + outer_pad * 2
@@ -71,7 +68,6 @@ def _create_glow_ring(size, color=(0,180,255), outer_pad=GLOW_OUTER_PAD, inner_p
 
     return surf
 
-
 # ----------------------------------------------------------
 # MENÚ PRINCIPAL
 # ----------------------------------------------------------
@@ -79,15 +75,12 @@ def _create_glow_ring(size, color=(0,180,255), outer_pad=GLOW_OUTER_PAD, inner_p
 def run_skins_menu(screen, clock):
     running = True
 
-    # Cargar rutas
     skin_paths = list(getattr(config, "SKINS", []))
 
-    # Placeholder
     coming_img_path = getattr(config, "COMING_SOON_IMG", None)
     coming_img = _load_image_safe(coming_img_path, SKIN_SIZE) if coming_img_path else None
     placeholder = coming_img if coming_img else _make_coming_soon_surface(SKIN_SIZE)
 
-    # Cargar imágenes
     skins_imgs = []
     for p in skin_paths:
         img = _load_image_safe(p, SKIN_SIZE)
@@ -96,22 +89,18 @@ def run_skins_menu(screen, clock):
     if not skins_imgs:
         skins_imgs = [placeholder]
 
-    # Nombres de skins (solo nombre del archivo)
     skin_names = [os.path.splitext(os.path.basename(p))[0] for p in skin_paths]
     if not skin_names:
         skin_names = ["coming_soon"]
 
-    # Estado del buscador
     search_text = ""
     active_search = False
     cursor_timer = 0
     cursor_visible = True
 
-    # Scroll
     scroll_offset = 0.0
     scroll_target = 0.0
 
-    # Animaciones
     hover_scale = [1.0 for _ in skins_imgs]
     hover_offset_y = [0 for _ in skins_imgs]
     glow_alpha = [0 for _ in skins_imgs]
@@ -120,6 +109,7 @@ def run_skins_menu(screen, clock):
     while running:
         dt = clock.tick(config.FPS)
         mx, my = pygame.mouse.get_pos()
+
         cursor_timer += dt
         if cursor_timer >= 450:
             cursor_timer = 0
@@ -136,16 +126,12 @@ def run_skins_menu(screen, clock):
                 if ev.key == pygame.K_ESCAPE:
                     running = False
 
-                # Borrar texto
                 if active_search and ev.key == pygame.K_BACKSPACE:
                     search_text = search_text[:-1]
-
-                # Escribir texto
                 elif active_search:
                     if len(ev.unicode) == 1 and ev.unicode.isprintable():
                         search_text += ev.unicode
 
-                # Activar buscador con CTRL+F
                 if ev.key == pygame.K_f and pygame.key.get_mods() & pygame.KMOD_CTRL:
                     active_search = True
 
@@ -156,6 +142,21 @@ def run_skins_menu(screen, clock):
                         active_search = True
                     else:
                         active_search = False
+
+                    # ----------------------------------------------------------
+                    # SELECCIÓN DE SKIN (AÑADIDO)
+                    # ----------------------------------------------------------
+                    for n, idx in enumerate(filtered_indices):
+                        row = n // SKINS_PER_ROW
+                        col = n % SKINS_PER_ROW
+
+                        x = start_x + col * (SKIN_SIZE + PADDING_X)
+                        y = TOP_MARGIN + row * (SKIN_SIZE + PADDING_Y) - int(scroll_offset)
+
+                        rect = pygame.Rect(x, y, SKIN_SIZE, SKIN_SIZE)
+
+                        if rect.collidepoint(mx, my):
+                            config.selected_skin_index = idx
 
                 # Scroll
                 if ev.button == 4:
@@ -198,35 +199,23 @@ def run_skins_menu(screen, clock):
         # ----------------------------------------------------------
         screen.fill(config.C_BG)
 
-        # Título
         title = font_title.render("SELECCIONAR SKIN", True, config.C_TEXT)
         screen.blit(title, (config.WIDTH // 2 - title.get_width() // 2, 20))
 
         # ----------------------------------------------------------
-        # BUSCADOR (UX mejorada)
+        # BUSCADOR
         # ----------------------------------------------------------
         search_rect = pygame.Rect(50, 110, config.WIDTH - 100, 40)
-
-        # Fondo del buscador
         pygame.draw.rect(screen, (30, 30, 50), search_rect, border_radius=10)
+        pygame.draw.rect(screen, (0, 180, 255) if active_search else (120, 120, 160), search_rect, 3, border_radius=10)
 
-        # Borde dinámico
-        border_color = (0, 180, 255) if active_search else (120, 120, 160)
-        pygame.draw.rect(screen, border_color, search_rect, 3, border_radius=10)
-
-        # Texto
-        if search_text:
-            txt = font_search.render(search_text, True, (230,230,230))
-        else:
-            txt = font_search.render("Buscar skin...", True, (150,150,150))
-
+        txt = font_search.render(search_text if search_text else "Buscar skin...", True, (230,230,230))
         screen.blit(txt, (search_rect.x + 12, search_rect.y + 7))
 
-        # Cursor parpadeante
         if active_search and cursor_visible:
-            cursor_x = search_rect.x + 12 + txt.get_width() + 3
-            cursor_y = search_rect.y + 8
-            pygame.draw.rect(screen, (255,255,255), (cursor_x, cursor_y, 2, 24))
+            cx = search_rect.x + 12 + txt.get_width() + 3
+            cy = search_rect.y + 8
+            pygame.draw.rect(screen, (255,255,255), (cx, cy, 2, 24))
 
         # ----------------------------------------------------------
         # VIEWPORT
@@ -246,7 +235,6 @@ def run_skins_menu(screen, clock):
             rect = pygame.Rect(x, y, SKIN_SIZE, SKIN_SIZE)
             is_hover = rect.collidepoint(mouse_in_view)
 
-            # Animación
             target_scale = HOVER_SCALE if is_hover else 1.0
             target_offset = HOVER_OFFSET_Y if is_hover else 0
             target_glow = GLOW_MAX_ALPHA if is_hover else 0
@@ -262,28 +250,11 @@ def run_skins_menu(screen, clock):
             center_y = y + SKIN_SIZE // 2 + int(hover_offset_y[idx])
             scaled_rect = scaled.get_rect(center=(center_x, center_y))
 
-            # Sombra
-            shadow = pygame.Surface((new_size + 36, new_size + 18), pygame.SRCALPHA)
-            pygame.draw.ellipse(shadow, (0, 0, 0, 120), shadow.get_rect())
-            surf.blit(shadow, shadow.get_rect(center=(center_x, center_y + 18)))
-
-            # Glow
-            if glow_alpha[idx] > 6:
-                key = (new_size, int(glow_alpha[idx]))
-                if key not in glow_cache:
-                    glow_cache[key] = _create_glow_ring(
-                        new_size,
-                        alpha=int(glow_alpha[idx])
-                    )
-                ring = glow_cache[key]
-                surf.blit(ring, ring.get_rect(center=(center_x, center_y)))
-
             # Seleccionada
             if idx == config.selected_skin_index:
                 border = pygame.Rect(x - 7, y - 7, SKIN_SIZE + 14, SKIN_SIZE + 14)
                 pygame.draw.rect(surf, (0,255,0), border, 6, border_radius=8)
 
-            # Skin
             surf.blit(scaled, scaled_rect.topleft)
 
         screen.blit(surf, (0, viewport_top))
