@@ -1,0 +1,22 @@
+Pasos de instalación del juego
+Puedes descargar cualquiera de las versiones del juego tanto desde la página web oficial como desde nuestro repositorio de GitHub, siempre de forma gratuita.
+Dependiendo de la plataforma, los archivos estarán disponibles en formato .exe, .apk o dentro de un archivo .zip que deberá descomprimirse antes de ejecutar el juego.
+
+Formatos disponibles
+Windows: ejecutable .exe
+
+Android: archivo .apk instalable
+
+Multiplataforma: versión comprimida .zip con todos los archivos necesarios
+
+Instalación
+Descarga la versión correspondiente a tu dispositivo.
+
+Si el archivo está comprimido, descomprímelo en una carpeta de tu elección.
+
+Ejecuta el archivo principal del juego (.exe en Windows o .apk en Android).
+
+¡Disfruta de Geometry Kirk!
+
+¿Problemas durante la instalación?
+Si alguno de los pasos no funciona correctamente, aparece un error o tienes dificultades para ejecutar el juego, puedes ponerte en contacto con nosotros y te ayudaremos encantados.
