@@ -27,6 +27,9 @@ C_BTN_HOVER = (60, 60, 120)
 MENU_BACKGROUND = os.path.join(ASSETS_IMG, "wallpaper.jpg")
 MENU_MUSIC = os.path.join(ASSETS_AUDIO, "C418 - Aria Math.mp3")
 
+# Logo compartido entre start y main
+LOGO_IMG = os.path.join(ASSETS_IMG, "logogeometrykirk.png")
+
 # Música del nivel
 LEVEL_MUSIC = os.path.join(ASSETS_AUDIO, "charliekirk.mp3")
 
@@ -37,8 +40,7 @@ SKINS_DIR = os.path.join(ASSETS_IMG, "skins")
 _VALID_SKIN_EXT = {".png", ".jpg", ".jpeg", ".webp", ".bmp"}
 
 def _discover_skins(folder, limit=150):
-    """Devuelve una lista ordenada de rutas absolutas a imágenes dentro de folder.
-       Limita a `limit` entradas para garantizar capacidad máxima."""
+    """Devuelve una lista ordenada de rutas absolutas a imágenes dentro de folder."""
     if not folder or not os.path.isdir(folder):
         return []
     files = []
@@ -80,8 +82,9 @@ ICON_ROCKET = os.path.join(ASSETS_IMG, "icon_rocket.png")
 # Default heal pickup image
 HEAL_PICKUP_IMG = os.path.join(ASSETS_IMG, "heal_cube.png")
 
-# Rutas a sonidos de explosión por boss (ajusta nombres de archivo en assets/audio)
+# Rutas a sonidos de explosión por boss
 EXPLOSION_SOUND_BOSS0 = os.path.join(ASSETS_AUDIO, "explosion_boss0.wav")
 EXPLOSION_SOUND_BOSS1 = os.path.join(ASSETS_AUDIO, "explosion_boss1.wav")
 EXPLOSION_SOUND_BOSS2 = os.path.join(ASSETS_AUDIO, "explosion_boss2.wav")
 EXPLOSION_SOUND_BOSS3 = os.path.join(ASSETS_AUDIO, "explosion_boss3.wav")
+

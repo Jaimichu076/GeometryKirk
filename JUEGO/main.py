@@ -1,4 +1,4 @@
-# main.py
+# main.py — menú principal con logo desde config
 import pygame
 import sys 
 import os
@@ -18,8 +18,19 @@ screen = pygame.display.set_mode((config.WIDTH, config.HEIGHT))
 pygame.display.set_caption("GEOMETRY KIRK - MAIN MENU")
 clock = pygame.time.Clock()
 
-font_title = pygame.font.SysFont("Arial Black", 95)
+# Cargar logo desde config
+logo_img = None
+if os.path.exists(config.LOGO_IMG):
+    try:
+        logo_img = pygame.image.load(config.LOGO_IMG).convert_alpha()
+        logo_img = pygame.transform.smoothscale(
+            logo_img,
+            (int(config.WIDTH * 0.65), int(config.HEIGHT * 0.22))
+        )
+    except Exception:
+        logo_img = None
 
+# Fondo
 background_img = None
 if os.path.exists(config.MENU_BACKGROUND):
     try:
@@ -27,18 +38,15 @@ if os.path.exists(config.MENU_BACKGROUND):
         background_img = pygame.transform.scale(background_img, (config.WIDTH, config.HEIGHT))
     except Exception:
         background_img = None
-else:
-    print("WARN: Fondo no encontrado:", config.MENU_BACKGROUND)
 
+# Música
 try:
     if os.path.exists(config.MENU_MUSIC):
         pygame.mixer.music.load(config.MENU_MUSIC)
         pygame.mixer.music.set_volume(0.6)
         pygame.mixer.music.play(-1)
-    else:
-        print("WARN: Música del menú no encontrada:", config.MENU_MUSIC)
 except Exception:
-    print("WARN: No se pudo iniciar mixer para la música del menú.")
+    pass
 
 def draw_play_icon(surf, center, size):
     x, y = center
@@ -71,12 +79,9 @@ class RoundButton:
         self.scale += (target - self.scale) * 0.15
         r = int(self.radius * self.scale)
         x, y = self.center
-        pygame.draw.circle(surf, (40, 40, 80), (x, y), r)
+        pygame.draw.circle(surf, config.C_BTN_IDLE, (x, y), r)
         pygame.draw.circle(surf, (255, 255, 255), (x, y), r, 4)
-        try:
-            self.icon(surf, (x, y), int(r * 1.2))
-        except Exception:
-            pass
+        self.icon(surf, (x, y), int(r * 1.2))
 
     def update_hover(self, mouse_pos):
         mx, my = mouse_pos
@@ -107,37 +112,24 @@ def main_menu():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                try: pygame.mixer.music.stop()
-                except: pass
                 pygame.quit(); sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 for b in buttons:
                     action = b.handle_click(mouse_pos)
                     if action == "LEVELS":
-                        try:
-                            niveles.run_levels_menu(screen, clock)
-                        except Exception as e:
-                            print("ERROR al abrir LEVELS:", e)
+                        niveles.run_levels_menu(screen, clock)
                     elif action == "SKINS":
-                        try:
-                            skins.run_skins_menu(screen, clock)
-                        except Exception as e:
-                            print("ERROR al abrir SKINS:", e)
+                        skins.run_skins_menu(screen, clock)
                     elif action == "OTHERS":
-                        try:
-                            otros.run_otros(screen, clock)
-                        except Exception as e:
-                            print("ERROR al abrir OTROS:", e)
+                        otros.run_otros(screen, clock)
 
         if background_img:
             screen.blit(background_img, (0, 0))
         else:
             screen.fill(config.C_BG)
 
-        title = font_title.render("GEOMETRY KIRK", True, config.C_TEXT)
-        shadow = font_title.render("GEOMETRY KIRK", True, (0, 0, 0))
-        screen.blit(shadow, (config.WIDTH//2 - title.get_width()//2 + 6, 80 + 6))
-        screen.blit(title, (config.WIDTH//2 - title.get_width()//2, 80))
+        if logo_img:
+            screen.blit(logo_img, (config.WIDTH//2 - logo_img.get_width()//2, 60))
 
         for b in buttons:
             b.update_hover(mouse_pos)
@@ -147,4 +139,3 @@ def main_menu():
 
 if __name__ == "__main__":
     main_menu()
- 
