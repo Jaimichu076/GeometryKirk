@@ -1,6 +1,6 @@
 # main.py — menú principal con logo desde config
 import pygame
-import sys
+import sys 
 import os
 
 import config
