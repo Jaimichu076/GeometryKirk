@@ -24,7 +24,7 @@ C_BTN_IDLE = (40, 40, 80)
 C_BTN_HOVER = (60, 60, 120)
 
 # Menu assets
-MENU_BACKGROUND = os.path.join(ASSETS_IMG, "wallpaper.jpg")
+MENU_BACKGROUND = os.path.join(ASSETS_IMG, "wallpaper.png")
 MENU_MUSIC = os.path.join(ASSETS_AUDIO, "C418 - Aria Math.mp3")
 
 # Logo compartido entre start y main
