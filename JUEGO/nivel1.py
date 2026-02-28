@@ -121,23 +121,20 @@ class Player:
         if not self.alive:
             return
 
+    # ------------------ MODO CUBE ------------------
         if self.mode == "cube":
 
-            # aplicar gravedad SOLO si no está sobre plataforma
+        # gravedad
             if not self.on_platform:
                 self.vel_y += config.GRAVITY * self.gravity_dir
-                self.rect.y += self.vel_y
-            else:
-                self.vel_y = 0
-
-        # colisión suelo/techo
-        if self.gravity_dir == 1 and self.rect.bottom >= config.GROUND_Y:
-            self.rect.bottom = config.GROUND_Y
+        else:
             self.vel_y = 0
-            self.rotation = round(self.rotation / 90) * 90
 
-        elif self.gravity_dir == -1 and self.rect.top <= 0:
-            self.rect.top = 0
+        self.rect.y += self.vel_y
+
+        # colisión con suelo
+        if self.rect.bottom >= config.GROUND_Y:
+            self.rect.bottom = config.GROUND_Y
             self.vel_y = 0
             self.rotation = round(self.rotation / 90) * 90
 
@@ -145,21 +142,28 @@ class Player:
         if self.vel_y != 0:
             self.rotation -= 6 * self.gravity_dir
 
+    # ------------------ MODO SHIP ------------------
         elif self.mode == "ship":
+
+        # subir si mantienes pulsado
             if self.jump_held:
                 self.rect.y -= self.ship_speed_y
-        else:
-            self.rect.y += self.ship_speed_y
 
+        # bajar por gravedad
+            else:
+               self.rect.y += self.ship_speed_y
+
+        # límites verticales
         if self.rect.top < 0:
             self.rect.top = 0
         if self.rect.bottom > config.GROUND_Y:
             self.rect.bottom = config.GROUND_Y
 
-    # trail visual
+    # ------------------ TRAIL ------------------
         self.trail.append(self.rect.center)
         if len(self.trail) > 12:
             self.trail.pop(0)
+
 
 
         
@@ -559,8 +563,9 @@ def run_level(screen, clock):
     progress = 0
 
     camera_shake = 0
-    state = "PLAY"   # PLAY, GAMEOVER, WIN, PAUSE
+    state = "PLAY"
 
+    # Música
     if os.path.exists(config.LEVEL_MUSIC):
         try:
             pygame.mixer.music.load(config.LEVEL_MUSIC)
@@ -579,46 +584,28 @@ def run_level(screen, clock):
                 pygame.quit()
                 raise SystemExit
 
-            # INPUT SOLO AFECTA A PLAY (menos ENTER/ESC en pantallas)
+            # INPUT SOLO EN PLAY
             if state == "PLAY":
-                # teclado
                 if event.type == pygame.KEYDOWN:
                     if event.key in (pygame.K_SPACE, pygame.K_UP):
                         player.jump_held = True
                         if player.mode == "cube":
                             player.jump()
-                    if event.key == pygame.K_ESCAPE:
-                        state = "PAUSE"
-                        pygame.mixer.music.pause()
 
                 if event.type == pygame.KEYUP:
                     if event.key in (pygame.K_SPACE, pygame.K_UP):
                         player.jump_held = False
 
-                # ratón
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     player.jump_held = True
                     if player.mode == "cube":
                         player.jump()
+
                 if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                     player.jump_held = False
 
-            elif state == "PAUSE":
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        state = "PLAY"
-                        pygame.mixer.music.unpause()
-                    if event.key == pygame.K_BACKSPACE:
-                        running = False
-
-            elif state == "GAMEOVER":
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_RETURN:
-                        return run_level(screen, clock)
-                    if event.key == pygame.K_ESCAPE:
-                        running = False
-
-            elif state == "WIN":
+            # GAMEOVER
+            if state == "GAMEOVER":
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
                         return run_level(screen, clock)
@@ -632,27 +619,21 @@ def run_level(screen, clock):
             if p.life <= 0:
                 particles.remove(p)
 
-        # SOLO HAY LÓGICA DE JUEGO SI ESTÁ EN PLAY Y VIVO
+        # SOLO HAY LÓGICA SI ESTÁ EN PLAY Y VIVO
         if state == "PLAY" and player.alive:
+
+            # actualizar jugador
             player.update()
 
-            # auto-salto mientras mantienes pulsado (como Geometry Dash)
+            # auto-salto (como GD)
             if player.mode == "cube" and player.jump_held and player.on_ground():
                 player.jump()
 
             hitbox = player.rect.inflate(-4, -4)
             player.on_platform = False
 
-            # actualizar objetos + plataformas
-            for obj in objects[:]:
-                if isinstance(obj, Platform) and player.mode == "cube":
-                    if hitbox.colliderect(obj.rect):
-                        if player.rect.bottom <= obj.rect.top + 15:
-                            player.rect.bottom = obj.rect.top
-                            player.vel_y = 0
-                            player.rotation = round(player.rotation / 90) * 90
-                            player.on_platform = True
-
+            # actualizar objetos SOLO si estás vivo
+            for obj in objects:
                 obj.update(config.SPEED)
 
             # colisiones mortales
@@ -661,6 +642,7 @@ def run_level(screen, clock):
                     if hitbox.colliderect(obj.rect):
                         player.alive = False
                         state = "GAMEOVER"
+                        pygame.mixer.music.stop()  # parar música
                         camera_shake = 12
                         spawn_particles(
                             particles,
@@ -670,25 +652,27 @@ def run_level(screen, clock):
                             40,
                             1.2
                         )
-                        break  # no más colisiones
+                        break  # NO MÁS COLISIONES
 
                 if obj.kind == "portal" and hitbox.colliderect(obj.rect) and not obj.used:
                     obj.used = True
-                    if obj.portal_type == "in":
-                        player.mode = "ship"
-                    else:
-                        player.mode = "cube"
+                    player.mode = "ship" if obj.portal_type == "in" else "cube"
 
                 if obj.kind == "end" and hitbox.colliderect(obj.rect):
                     state = "WIN"
 
-            # progreso solo avanza en PLAY y vivo
+            # progreso solo avanza si estás vivo
             distance_traveled += config.SPEED
             progress = max(0, min(100, int((distance_traveled / total_distance) * 100)))
 
         # ------------------ DRAW ------------------
-        ox = random.randint(-camera_shake, camera_shake) if camera_shake > 0 else 0
-        oy = random.randint(-camera_shake, camera_shake) if camera_shake > 0 else 0
+        # si estás muerto, NO hay shake
+        if state == "PLAY":
+            ox = random.randint(-camera_shake, camera_shake) if camera_shake > 0 else 0
+            oy = random.randint(-camera_shake, camera_shake) if camera_shake > 0 else 0
+        else:
+            ox = 0
+            oy = 0
 
         temp_surf = pygame.Surface((config.WIDTH, config.HEIGHT))
 
@@ -699,13 +683,7 @@ def run_level(screen, clock):
 
         temp_surf.blit(GROUND_IMG, (0, config.GROUND_Y))
 
-        pygame.draw.line(
-            temp_surf,
-            (0, 0, 0),
-            (0, config.GROUND_Y),
-            (config.WIDTH, config.GROUND_Y),
-            3
-        )
+        pygame.draw.line(temp_surf, (0, 0, 0), (0, config.GROUND_Y), (config.WIDTH, config.GROUND_Y), 3)
 
         for obj in objects:
             obj.draw(temp_surf)
@@ -726,10 +704,7 @@ def run_level(screen, clock):
         pct_text = font_pct.render(f"{progress}%", True, config.C_TEXT)
         temp_surf.blit(pct_text, (config.WIDTH // 2 - pct_text.get_width() // 2, bar_y + 34))
 
-        mode_text = font_ui.render(f"MODO: {player.mode.upper()}", True, config.C_TEXT)
-        temp_surf.blit(mode_text, (20, 20))
-
-        # overlays
+        # GAME OVER
         if state == "GAMEOVER":
             overlay = pygame.Surface((config.WIDTH, config.HEIGHT), pygame.SRCALPHA)
             overlay.fill((0, 0, 0, 230))
@@ -739,18 +714,8 @@ def run_level(screen, clock):
             hint = font_ui.render("ENTER: reintentar  |  ESC: salir", True, config.C_TEXT)
             temp_surf.blit(hint, (config.WIDTH//2 - hint.get_width()//2, config.HEIGHT//2 + 10))
 
-        if state == "WIN":
-            overlay = pygame.Surface((config.WIDTH, config.HEIGHT), pygame.SRCALPHA)
-            overlay.fill((0, 0, 0, 180))
-            temp_surf.blit(overlay, (0, 0))
-            txt = font_title.render("¡NIVEL COMPLETADO!", True, (50, 255, 50))
-            temp_surf.blit(txt, (config.WIDTH//2 - txt.get_width()//2, config.HEIGHT//2 - 80))
-            hint = font_ui.render("ENTER: jugar otra vez  |  ESC: salir", True, config.C_TEXT)
-            temp_surf.blit(hint, (config.WIDTH//2 - hint.get_width()//2, config.HEIGHT//2 + 10))
-
         screen.blit(temp_surf, (ox, oy))
         pygame.display.flip()
-
 
 
 
