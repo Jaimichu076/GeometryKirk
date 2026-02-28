@@ -122,52 +122,47 @@ class Player:
             return
 
         if self.mode == "cube":
-            if self.jump_held and self.on_ground():
-                self.jump()
 
-            
-            #auto-jump
+            # aplicar gravedad SOLO si no está sobre plataforma
             if not self.on_platform:
                 self.vel_y += config.GRAVITY * self.gravity_dir
                 self.rect.y += self.vel_y
-
             else:
                 self.vel_y = 0
 
-            if self.gravity_dir == 1 and self.rect.bottom >= config.GROUND_Y:
-                self.rect.bottom = config.GROUND_Y
-                self.vel_y = 0
-                self.rotation = round(self.rotation / 90) * 90
+        # colisión suelo/techo
+        if self.gravity_dir == 1 and self.rect.bottom >= config.GROUND_Y:
+            self.rect.bottom = config.GROUND_Y
+            self.vel_y = 0
+            self.rotation = round(self.rotation / 90) * 90
 
-            elif self.gravity_dir == -1 and self.rect.top <= 0:
-                self.rect.top = 0
-                self.vel_y = 0
-                self.rotation = round(self.rotation / 90) * 90
+        elif self.gravity_dir == -1 and self.rect.top <= 0:
+            self.rect.top = 0
+            self.vel_y = 0
+            self.rotation = round(self.rotation / 90) * 90
 
-            if self.vel_y != 0:
-                self.rotation -= 6 * self.gravity_dir
-
-
-            
-
-
+        # rotación mientras cae
+        if self.vel_y != 0:
+            self.rotation -= 6 * self.gravity_dir
 
         elif self.mode == "ship":
-            # ship vertical control: hold -> up, release -> down
             if self.jump_held:
                 self.rect.y -= self.ship_speed_y
-            else:
-                self.rect.y += self.ship_speed_y
-            # clamp inside screen (ship limited to play area)
-            if self.rect.top < 0:
-                self.rect.top = 0
-            if self.rect.bottom > config.GROUND_Y:
-                self.rect.bottom = config.GROUND_Y
+        else:
+            self.rect.y += self.ship_speed_y
 
-        # trail visual
+        if self.rect.top < 0:
+            self.rect.top = 0
+        if self.rect.bottom > config.GROUND_Y:
+            self.rect.bottom = config.GROUND_Y
+
+    # trail visual
         self.trail.append(self.rect.center)
         if len(self.trail) > 12:
             self.trail.pop(0)
+
+
+        
 
     def jump(self):
         """Salto en modo cube."""
@@ -351,8 +346,9 @@ def generate_level():
     """
 
     
-    objects = []
     
+
+    objects = []
 
         # --- SECCIÓN INICIAL (muy fácil) ---
     objects.append(Spike(1200, 0))
@@ -362,10 +358,9 @@ def generate_level():
     objects.append(Saw(2000, config.GROUND_Y - 90))
     objects.append(Spike(2400, 0))
 
-    # --- PORTAL A SHIP ---
-    # --- PORTAL A SHIP ---
+        # --- PORTAL A SHIP ---
     portal1_x = 2800
-    portal1_y = config.GROUND_Y - 90   # BAJADO AL SUELO
+    portal1_y = config.GROUND_Y - 90
     objects.append(Portal(portal1_x, portal1_y, "in"))
 
     objects.append(Saw(portal1_x, portal1_y - 80))
@@ -374,6 +369,7 @@ def generate_level():
     objects.append(Saw(portal1_x, portal1_y - 320))
     objects.append(Saw(portal1_x, portal1_y - 400))
     objects.append(Saw(portal1_x, portal1_y - 480))
+
     objects.append(Spike(3000, 0))
     objects.append(Spike(3050, 0))
     objects.append(Spike(3100, 0))
@@ -381,9 +377,11 @@ def generate_level():
     objects.append(Spike(3200, 0))
     objects.append(Spike(3250, 0))
     objects.append(Spike(3300, 0))
+
     objects.append(Saw(3200, config.GROUND_Y - 130))
     objects.append(Saw(3300, config.GROUND_Y - 170))
     objects.append(Saw(3500, config.GROUND_Y - 110))
+
     objects.append(Spike(3350, 0))
     objects.append(Spike(3400, 0))
     objects.append(Spike(3450, 0))
@@ -426,6 +424,7 @@ def generate_level():
     objects.append(Spike(5200, 0))
     objects.append(Spike(5250, 0))
     objects.append(Spike(5300, 0))
+
     objects.append(Saw(3700, config.GROUND_Y - 190))
     objects.append(Saw(3850, config.GROUND_Y - 350))
     objects.append(Saw(4000, config.GROUND_Y - 450))
@@ -436,17 +435,9 @@ def generate_level():
     objects.append(Saw(4900, config.GROUND_Y - 390))
     objects.append(Saw(5200, config.GROUND_Y - 250))
 
-
-
-    
-
-
-
-
-
-    # --- PORTAL A CUBE ---
+        # --- PORTAL A CUBE ---
     portal2_x = 5500
-    portal2_y = config.GROUND_Y - 90   # BAJADO AL SUELO
+    portal2_y = config.GROUND_Y - 90
     objects.append(Portal(portal2_x, portal2_y, "out"))
 
     objects.append(Saw(portal2_x, portal2_y - 80))
@@ -455,6 +446,7 @@ def generate_level():
     objects.append(Saw(portal2_x, portal2_y - 320))
     objects.append(Saw(portal2_x, portal2_y - 400))
     objects.append(Saw(portal2_x, portal2_y - 480))
+
     objects.append(Spike(5800, 0))
     objects.append(Spike(5850, 0))
     objects.append(MovingSaw(6200, config.GROUND_Y - 120))
@@ -466,12 +458,9 @@ def generate_level():
     objects.append(Spike(7300, 0))
     objects.append(Spike(7350, 0))
 
-
-
-
-    # --- SEGUNDA SECCIÓN SHIP ---
+        # --- SEGUNDA SECCIÓN SHIP ---
     portal3_x = 11300
-    portal3_y = config.GROUND_Y - 90   # BAJADO AL SUELO
+    portal3_y = config.GROUND_Y - 90
     objects.append(Portal(portal3_x, portal3_y, "in"))
 
     objects.append(Saw(portal3_x, portal3_y - 80))
@@ -481,10 +470,9 @@ def generate_level():
     objects.append(Saw(portal3_x, portal3_y - 400))
     objects.append(Saw(portal3_x, portal3_y - 480))
 
-
-    # --- PORTAL FINAL A CUBE ---
+        # --- PORTAL FINAL A CUBE ---
     portal4_x = 13600
-    portal4_y = config.GROUND_Y - 90   # BAJADO AL SUELO
+    portal4_y = config.GROUND_Y - 90
     objects.append(Portal(portal4_x, portal4_y, "out"))
 
     objects.append(Saw(portal4_x, portal4_y - 80))
@@ -493,19 +481,23 @@ def generate_level():
     objects.append(Saw(portal4_x, portal4_y - 320))
     objects.append(Saw(portal4_x, portal4_y - 400))
     objects.append(Saw(portal4_x, portal4_y - 480))
-    # --- CUBE FINAL --- 
-    objects.append(Spike(13900, 0)) 
-    objects.append(Spike(14100, 0)) 
-    objects.append(Saw(14400, config.GROUND_Y - 90)) 
-    objects.append(Spike(14700, 0)) 
-    objects.append(Spike(14900, 0)) 
-    # --- FINAL DEL NIVEL --- 
-    end_x = 15000 
-    objects.append(GameObject(end_x, 0, 10, config.HEIGHT, kind="end")) 
-    total_distance_real = end_x - 150 
+
+        # --- CUBE FINAL ---
+    objects.append(Spike(13900, 0))
+    objects.append(Spike(14100, 0))
+    objects.append(Saw(14400, config.GROUND_Y - 90))
+    objects.append(Spike(14700, 0))
+    objects.append(Spike(14900, 0))
+
+        # --- FINAL DEL NIVEL ---
+    end_x = 15000
+    objects.append(GameObject(end_x, 0, 10, config.HEIGHT, kind="end"))
+
+    total_distance_real = end_x - 150
     return objects, end_x, total_distance_real
 
-    
+
+        
 
 
 
@@ -534,61 +526,41 @@ def spawn_particles(particles, x, y, color, count=30, speed=1.0):
 # ------------------ BUCLE PRINCIPAL DEL NIVEL ------------------
 
 def run_level(screen, clock):
-    """
-    Bucle principal del nivel:
-    - Maneja entrada (espacio/clic y mantener)
-    - Cambia entre modos cube/ship con portals
-    - Actualiza progreso y muestra barra superior
-    - Muestra pantallas de muerte y victoria
-    """
     global skin_img, bg_image, SPIKE_IMG, SAW_IMG, saw_img, PORTAL_IMG
     skin_img = load_skin()
     bg_image = load_bg()
 
-
-    # Fuentes
     font_title = pygame.font.SysFont("Arial Black", 60)
     font_ui = pygame.font.SysFont("Arial", 24)
     font_pct = pygame.font.SysFont("Arial Black", 28)
 
-    bg_static = bg_image  # fondo estático
-    # Cargar imagen del spike (correcto)
+    bg_static = bg_image
+
     SPIKE_IMG = pygame.image.load("Juego/assets/images/obunga.png").convert_alpha()
     SPIKE_IMG = pygame.transform.scale(SPIKE_IMG, (70, 70))
-    # Cargar imagen del suelo (correcto)
+
     GROUND_IMG = pygame.image.load("Juego/assets/images/suelo.png").convert_alpha()
-    GROUND_IMG = pygame.transform.scale(
-        GROUND_IMG,
-        (config.WIDTH, config.HEIGHT - config.GROUND_Y)
-    )
-    # cargar imagen del suelo
+    GROUND_IMG = pygame.transform.scale(GROUND_IMG, (config.WIDTH, config.HEIGHT - config.GROUND_Y))
+
     SAW_IMG = pygame.image.load("Juego/assets/images/israel.png").convert_alpha()
     SAW_IMG = pygame.transform.scale(SAW_IMG, (70, 70))
 
-    # cargar imagen de sierra inmovil
     saw_img = pygame.image.load("Juego/assets/images/rojaisra.png").convert_alpha()
     saw_img = pygame.transform.scale(saw_img, (70, 70))
 
-    # imagen del portal
     PORTAL_IMG = pygame.image.load("Juego/assets/images/nether.png").convert_alpha()
     PORTAL_IMG = pygame.transform.scale(PORTAL_IMG, (90, 120))
-
-
-
-    
 
     particles = []
     player = Player(start_x=150)
     objects, end_x, total_distance = generate_level()
 
-    distance_traveled = 0.0
+    distance_traveled = 0
     progress = 0
 
     camera_shake = 0
-    death_timer = 0
     state = "PLAY"   # PLAY, GAMEOVER, WIN, PAUSE
 
-    # reproducir música del nivel
     if os.path.exists(config.LEVEL_MUSIC):
         try:
             pygame.mixer.music.load(config.LEVEL_MUSIC)
@@ -600,7 +572,6 @@ def run_level(screen, clock):
     running = True
     while running:
         dt = clock.tick(config.FPS) / 1000.0
-        mouse_pos = pygame.mouse.get_pos()
 
         # ------------------ EVENTOS ------------------
         for event in pygame.event.get():
@@ -608,6 +579,7 @@ def run_level(screen, clock):
                 pygame.quit()
                 raise SystemExit
 
+            # INPUT SOLO AFECTA A PLAY (menos ENTER/ESC en pantallas)
             if state == "PLAY":
                 # teclado
                 if event.type == pygame.KEYDOWN:
@@ -654,137 +626,96 @@ def run_level(screen, clock):
                         running = False
 
         # ------------------ UPDATE ------------------
+        # partículas siempre
         for p in particles[:]:
             p.update()
             if p.life <= 0:
                 particles.remove(p)
 
-        if state == "PLAY":
-            if player.alive:
-                player.update()
-                # colisiones y lógica de objetos
+        # SOLO HAY LÓGICA DE JUEGO SI ESTÁ EN PLAY Y VIVO
+        if state == "PLAY" and player.alive:
+            player.update()
 
-                hitbox = player.rect.inflate(-12, -12)
+            # auto-salto mientras mantienes pulsado (como Geometry Dash)
+            if player.mode == "cube" and player.jump_held and player.on_ground():
+                player.jump()
 
-                # actualizar objetos (scroll)
-                player.on_platform = False
+            hitbox = player.rect.inflate(-4, -4)
+            player.on_platform = False
 
-                for obj in objects[:]:
-                    if isinstance(obj, Platform) and player.mode == "cube":
-                        if hitbox.colliderect(obj.rect):
-                            if player.rect.bottom <= obj.rect.top + 15:
+            # actualizar objetos + plataformas
+            for obj in objects[:]:
+                if isinstance(obj, Platform) and player.mode == "cube":
+                    if hitbox.colliderect(obj.rect):
+                        if player.rect.bottom <= obj.rect.top + 15:
+                            player.rect.bottom = obj.rect.top
+                            player.vel_y = 0
+                            player.rotation = round(player.rotation / 90) * 90
+                            player.on_platform = True
 
-                                player.rect.bottom = obj.rect.top
-                                player.vel_y = 0
-                                player.rotation = round(player.rotation / 90) * 90
-                                player.on_platform = True
+                obj.update(config.SPEED)
 
-
-                                
-                                    
-
-                        
-                    obj.update(config.SPEED)
-
-                # incrementar distancia recorrida
-                distance_traveled += config.SPEED
-                progress = max(0, min(100, int((distance_traveled / total_distance) * 100)))
-
-                
-                
-
-                for obj in objects[:]:
-                    # end -> WIN
-                    if obj.kind == "end" and player.rect.colliderect(obj.rect):
-                        state = "WIN"
-                        spawn_particles(particles, player.rect.centerx, player.rect.centery, (0, 255, 0), 260, 3.0)
-                        try:
-                            pygame.mixer.music.stop()
-                        except:
-                            pass
-                        break
-
-                    # portal -> alterna modos (solo si no usado)
-                    if isinstance(obj, Portal) and player.rect.colliderect(obj.rect):
-                        if not obj.used:
-                            obj.used = True
-                            if player.mode == "cube":
-                                player.mode = "ship"
-                                # ajustar posición vertical para ship
-                                player.rect.y = max(20, min(config.GROUND_Y - 60, player.rect.y))
-                            else:
-                                player.mode = "cube"
-                                player.vel_y = 0
-
-                    # jump pads -> impulso
-                    if isinstance(obj, JumpPad) and player.mode == "cube" and hitbox.colliderect(obj.rect):
-                        player.vel_y = config.JUMP_FORCE * obj.power
-                        spawn_particles(particles, player.rect.centerx, player.rect.bottom, (0, 200, 255), 12, 1.2)
-
-                    # obstáculos que matan (aplican en ambos modos)
-                    if isinstance(obj, (Spike, Saw, MovingSaw)) and hitbox.colliderect(obj.rect):
+            # colisiones mortales
+            for obj in objects:
+                if obj.kind in ("spike", "saw", "movingsaw"):
+                    if hitbox.colliderect(obj.rect):
                         player.alive = False
-                        camera_shake = 28
-                        death_timer = 120
-                        spawn_particles(particles, player.rect.centerx, player.rect.centery, (255, 50, 50), 220, 3.0)
-                        try:
-                            pygame.mixer.music.stop()
-                        except:
-                            pass
-                        break
+                        state = "GAMEOVER"
+                        camera_shake = 12
+                        spawn_particles(
+                            particles,
+                            player.rect.centerx,
+                            player.rect.centery,
+                            (255, 50, 50),
+                            40,
+                            1.2
+                        )
+                        break  # no más colisiones
 
-                # limpiar objetos fuera de pantalla
-                for obj in objects[:]:
-                    if obj.rect.right < -600:
-                        objects.remove(obj)
+                if obj.kind == "portal" and hitbox.colliderect(obj.rect) and not obj.used:
+                    obj.used = True
+                    if obj.portal_type == "in":
+                        player.mode = "ship"
+                    else:
+                        player.mode = "cube"
 
-            else:
-                # jugador muerto -> esperar a GAMEOVER
-                if camera_shake > 0:
-                    camera_shake -= 1
-                death_timer -= 1
-                if death_timer <= 0:
-                    state = "GAMEOVER"
+                if obj.kind == "end" and hitbox.colliderect(obj.rect):
+                    state = "WIN"
 
-        
-                # ------------------ DRAW ------------------
+            # progreso solo avanza en PLAY y vivo
+            distance_traveled += config.SPEED
+            progress = max(0, min(100, int((distance_traveled / total_distance) * 100)))
+
+        # ------------------ DRAW ------------------
         ox = random.randint(-camera_shake, camera_shake) if camera_shake > 0 else 0
         oy = random.randint(-camera_shake, camera_shake) if camera_shake > 0 else 0
 
         temp_surf = pygame.Surface((config.WIDTH, config.HEIGHT))
 
-        # fondo estático o color
         if bg_static:
             temp_surf.blit(bg_static, (0, 0))
         else:
             temp_surf.fill(config.C_BG)
 
-        # suelo con imagen
         temp_surf.blit(GROUND_IMG, (0, config.GROUND_Y))
 
-        # línea negra del borde del suelo
         pygame.draw.line(
             temp_surf,
-            (0, 0, 0),  # negro
+            (0, 0, 0),
             (0, config.GROUND_Y),
             (config.WIDTH, config.GROUND_Y),
             3
         )
 
-        # dibujar objetos
         for obj in objects:
             obj.draw(temp_surf)
 
-        # partículas
         for p in particles:
             p.draw(temp_surf)
 
-        # dibujar jugador
         player.draw(temp_surf)
 
-        
-
-        # barra superior de progreso
+        # barra de progreso
         bar_w = int(config.WIDTH * 0.72)
         bar_x = config.WIDTH // 2 - bar_w // 2
         bar_y = 18
@@ -792,31 +723,20 @@ def run_level(screen, clock):
         pygame.draw.rect(temp_surf, (0, 200, 0), (bar_x, bar_y, int(bar_w * (progress / 100)), 28), border_radius=8)
         pygame.draw.rect(temp_surf, (0, 0, 0), (bar_x, bar_y, bar_w, 28), 3, border_radius=8)
 
-        # porcentaje centrado
         pct_text = font_pct.render(f"{progress}%", True, config.C_TEXT)
         temp_surf.blit(pct_text, (config.WIDTH // 2 - pct_text.get_width() // 2, bar_y + 34))
 
-        # indicador de modo (cube / ship)
         mode_text = font_ui.render(f"MODO: {player.mode.upper()}", True, config.C_TEXT)
         temp_surf.blit(mode_text, (20, 20))
 
-        # mensajes de estado
-        if state == "PAUSE":
-            overlay = pygame.Surface((config.WIDTH, config.HEIGHT), pygame.SRCALPHA)
-            overlay.fill((0, 0, 0, 180))
-            temp_surf.blit(overlay, (0, 0))
-            txt = font_title.render("PAUSA", True, config.C_TEXT)
-            temp_surf.blit(txt, (config.WIDTH//2 - txt.get_width()//2, config.HEIGHT//2 - 60))
-            txt2 = font_ui.render("ESC: continuar  |  BACKSPACE: salir al menú de niveles", True, config.C_TEXT)
-            temp_surf.blit(txt2, (config.WIDTH//2 - txt2.get_width()//2, config.HEIGHT//2 + 10))
-
+        # overlays
         if state == "GAMEOVER":
             overlay = pygame.Surface((config.WIDTH, config.HEIGHT), pygame.SRCALPHA)
             overlay.fill((0, 0, 0, 230))
             temp_surf.blit(overlay, (0, 0))
             txt = font_title.render("HAS MUERTO", True, (255, 50, 50))
             temp_surf.blit(txt, (config.WIDTH//2 - txt.get_width()//2, config.HEIGHT//2 - 80))
-            hint = font_ui.render("ENTER: reintentar  |  ESC: volver al menú de niveles", True, config.C_TEXT)
+            hint = font_ui.render("ENTER: reintentar  |  ESC: salir", True, config.C_TEXT)
             temp_surf.blit(hint, (config.WIDTH//2 - hint.get_width()//2, config.HEIGHT//2 + 10))
 
         if state == "WIN":
@@ -825,18 +745,12 @@ def run_level(screen, clock):
             temp_surf.blit(overlay, (0, 0))
             txt = font_title.render("¡NIVEL COMPLETADO!", True, (50, 255, 50))
             temp_surf.blit(txt, (config.WIDTH//2 - txt.get_width()//2, config.HEIGHT//2 - 80))
-            hint = font_ui.render("ENTER: volver a jugar  |  ESC: volver al menú de niveles", True, config.C_TEXT)
+            hint = font_ui.render("ENTER: jugar otra vez  |  ESC: salir", True, config.C_TEXT)
             temp_surf.blit(hint, (config.WIDTH//2 - hint.get_width()//2, config.HEIGHT//2 + 10))
 
-        # blit final con shake
         screen.blit(temp_surf, (ox, oy))
         pygame.display.flip()
 
-    # restaurar música del menú al salir
-    if os.path.exists(config.MENU_MUSIC):
-        try:
-            pygame.mixer.music.load(config.MENU_MUSIC)
-            pygame.mixer.music.set_volume(0.6)
-            pygame.mixer.music.play(-1)
-        except:
-            pass
+
+
+

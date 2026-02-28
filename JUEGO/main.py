@@ -1,6 +1,6 @@
 # main.py
 import pygame
-import sys
+import sys 
 import os
 
 import config
