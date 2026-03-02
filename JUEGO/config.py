@@ -34,57 +34,59 @@ LOGO_IMG = os.path.join(ASSETS_IMG, "logogeometrykirk.png")
 LEVEL_MUSIC = os.path.join(ASSETS_AUDIO, "charliekirk.mp3")
 
 # ---------------------------
-# Skins: ahora se descubren automáticamente en assets/images/skins
+# Descubrimiento automático de skins
 # ---------------------------
-SKINS_DIR = os.path.join(ASSETS_IMG, "skins")
 _VALID_SKIN_EXT = {".png", ".jpg", ".jpeg", ".webp", ".bmp"}
 
-def _discover_skins(folder, limit=150):
-    """Devuelve una lista ordenada de rutas absolutas a imágenes dentro de folder."""
+def _discover(folder, limit=150):
     if not folder or not os.path.isdir(folder):
         return []
-    files = []
+    out = []
     for fn in sorted(os.listdir(folder)):
         _, ext = os.path.splitext(fn)
         if ext.lower() in _VALID_SKIN_EXT:
-            files.append(os.path.join(folder, fn))
-            if len(files) >= limit:
+            out.append(os.path.join(folder, fn))
+            if len(out) >= limit:
                 break
-    return files
+    return out
 
-# Lista de skins detectadas automáticamente (máx 150)
-SKINS = _discover_skins(SKINS_DIR, limit=150)
+# Skins de personaje
+CHAR_SKINS_DIR = os.path.join(ASSETS_IMG, "skins", "characters")
+CHAR_SKINS = _discover(CHAR_SKINS_DIR)
+selected_character_skin_index = 0 if CHAR_SKINS else -1
 
-# Índice seleccionado (por defecto 0 si hay skins)
-selected_skin_index = 0 if SKINS else -1
-
-def get_selected_skin_path():
-    """Devuelve la ruta de la skin seleccionada o None si no hay ninguna."""
-    if 0 <= selected_skin_index < len(SKINS):
-        return SKINS[selected_skin_index]
+def get_selected_character_skin_path():
+    if 0 <= selected_character_skin_index < len(CHAR_SKINS):
+        return CHAR_SKINS[selected_character_skin_index]
     return None
 
-# Imagen que se mostrará en el cubo si no hay skins (opcional)
+# Skins de avión
+PLANE_SKINS_DIR = os.path.join(ASSETS_IMG, "skins", "planes")
+PLANE_SKINS = _discover(PLANE_SKINS_DIR)
+selected_plane_skin_index = 0 if PLANE_SKINS else -1
+
+def get_selected_plane_skin_path():
+    if 0 <= selected_plane_skin_index < len(PLANE_SKINS):
+        return PLANE_SKINS[selected_plane_skin_index]
+    return None
+
+# Imagen placeholder
 COMING_SOON_IMG = os.path.join(ASSETS_IMG, "coming_soon.png")
 
-# ---------------------------
-# Weapon / projectile images (por defecto)
-# ---------------------------
+# Proyectiles
 PROJ_PISTOL = os.path.join(ASSETS_IMG, "proj_pistol.png")
 PROJ_SHOTGUN = os.path.join(ASSETS_IMG, "proj_shotgun.jpg")
 PROJ_ROCKET = os.path.join(ASSETS_IMG, "proj_rocket.png")
 
-# Inventory icons (opcional)
+# Iconos inventario
 ICON_PISTOL = os.path.join(ASSETS_IMG, "icon_pistol.png")
 ICON_SHOTGUN = os.path.join(ASSETS_IMG, "icon_shotgun.png")
 ICON_ROCKET = os.path.join(ASSETS_IMG, "icon_rocket.png")
 
-# Default heal pickup image
 HEAL_PICKUP_IMG = os.path.join(ASSETS_IMG, "heal_cube.png")
 
-# Rutas a sonidos de explosión por boss
+# Explosiones
 EXPLOSION_SOUND_BOSS0 = os.path.join(ASSETS_AUDIO, "explosion_boss0.wav")
 EXPLOSION_SOUND_BOSS1 = os.path.join(ASSETS_AUDIO, "explosion_boss1.wav")
 EXPLOSION_SOUND_BOSS2 = os.path.join(ASSETS_AUDIO, "explosion_boss2.wav")
 EXPLOSION_SOUND_BOSS3 = os.path.join(ASSETS_AUDIO, "explosion_boss3.wav")
-

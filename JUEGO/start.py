@@ -47,7 +47,6 @@ LOADING_QUOTES = [
     "Hueles pestaco,.. A zorro mata peyizcos!",
     "- --- -. - --- / . .-.. / --.- ..- . / .-.. --- / .-.. . .-",
     "Ay la cookieeee!!!",
-    "si juegas con fuego te ahogas"
 
 ]
 quote = random.choice(LOADING_QUOTES)

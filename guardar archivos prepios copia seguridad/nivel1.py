@@ -19,7 +19,6 @@ import random
 
 import config
 skin_img = None
-plane_skin_img = None
 bg_image = None
 SPIKE_IMG = None
 SAW_IMG = None
@@ -32,25 +31,13 @@ PORTAL_IMG = None
 # ------------------ RECURSOS ------------------
 
 def load_skin():
-    """Carga la skin de personaje seleccionada desde config."""
-    path = config.get_selected_character_skin_path()
+    """Carga la skin seleccionada desde config (si existe)."""
+    path = config.get_selected_skin_path()
     if path is None or not os.path.exists(path):
         return None
     try:
         img = pygame.image.load(path).convert_alpha()
         img = pygame.transform.scale(img, (config.PLAYER_SIZE, config.PLAYER_SIZE))
-        return img
-    except Exception:
-        return None
-    
-def load_plane_skin():
-    """Carga la skin de avión seleccionada desde config."""
-    path = config.get_selected_plane_skin_path()
-    if path is None or not os.path.exists(path):
-        return None
-    try:
-        img = pygame.image.load(path).convert_alpha()
-        img = pygame.transform.scale(img, (config.PLAYER_SIZE + 20, config.PLAYER_SIZE))  # un poco más grande
         return img
     except Exception:
         return None
@@ -117,6 +104,7 @@ class Player:
         self.ship_speed_y = 4.0
         self.on_platform = False
 
+
     def on_ground(self):
         return (
             self.mode == "cube"
@@ -125,55 +113,66 @@ class Player:
                 or (self.gravity_dir == -1 and self.rect.top <= 0)
                 or self.on_platform
             )
+
         )
+        
 
     def update(self):
         if not self.alive:
             return
 
-        # ------------------ MODO CUBE ------------------
+    # ------------------ MODO CUBE ------------------
         if self.mode == "cube":
-            # gravedad
+
+        # gravedad
             if not self.on_platform:
                 self.vel_y += config.GRAVITY * self.gravity_dir
-            else:
-                self.vel_y = 0
+        else:
+            self.vel_y = 0
 
-            self.rect.y += self.vel_y
+        self.rect.y += self.vel_y
 
-            # colisión con suelo
-            if self.rect.bottom >= config.GROUND_Y:
-                self.rect.bottom = config.GROUND_Y
-                self.vel_y = 0
-                self.rotation = round(self.rotation / 90) * 90
+        # colisión con suelo
+        if self.rect.bottom >= config.GROUND_Y:
+            self.rect.bottom = config.GROUND_Y
+            self.vel_y = 0
+            self.rotation = round(self.rotation / 90) * 90
 
-            # rotación mientras cae
-            if self.vel_y != 0:
-                self.rotation -= 6 * self.gravity_dir
+        # rotación mientras cae
+        if self.vel_y != 0:
+            self.rotation -= 6 * self.gravity_dir
 
-        # ------------------ MODO SHIP ------------------
+    # ------------------ MODO SHIP ------------------
         elif self.mode == "ship":
-            # subir si mantienes pulsado
+
+        # subir si mantienes pulsado
             if self.jump_held:
                 self.rect.y -= self.ship_speed_y
+
+        # bajar por gravedad
             else:
-                self.rect.y += self.ship_speed_y
+               self.rect.y += self.ship_speed_y
 
-            # límites verticales
-            if self.rect.top < 0:
-                self.rect.top = 0
-            if self.rect.bottom > config.GROUND_Y:
-                self.rect.bottom = config.GROUND_Y
+        # límites verticales
+        if self.rect.top < 0:
+            self.rect.top = 0
+        if self.rect.bottom > config.GROUND_Y:
+            self.rect.bottom = config.GROUND_Y
 
-        # ------------------ TRAIL ------------------
+    # ------------------ TRAIL ------------------
         self.trail.append(self.rect.center)
         if len(self.trail) > 12:
             self.trail.pop(0)
+
+
+
+        
 
     def jump(self):
         """Salto en modo cube."""
         if self.mode == "cube":
             if self.gravity_dir == 1 and (self.rect.bottom >= config.GROUND_Y or self.on_platform):
+
                 self.vel_y = config.JUMP_FORCE
                 return True
             elif self.gravity_dir == -1 and self.rect.top <= 0:
@@ -190,28 +189,18 @@ class Player:
             s.fill((0, 255, 200, alpha))
             surface.blit(s, s.get_rect(center=pos))
 
-        # --- AVIÓN DEBAJO EN MODO SHIP ---
-        if self.mode == "ship" and plane_skin_img:
-            plane_rect = plane_skin_img.get_rect(center=(self.rect.centerx, self.rect.centery + 25))
-            surface.blit(plane_skin_img, plane_rect)
-
-        # --- PERSONAJE ENCIMA ---
+        # sprite o cubo
         if skin_img:
             rotated = pygame.transform.rotate(skin_img, self.rotation)
         else:
             cube = pygame.Surface((config.PLAYER_SIZE, config.PLAYER_SIZE), pygame.SRCALPHA)
             if self.mode == "cube":
-                cube.fill((0, 255, 200))
+                cube.fill(config.C_LINE)
             else:
-                cube.fill((80, 200, 255))
+                cube.fill((80, 200, 255))  # color distinto para ship
             pygame.draw.rect(cube, config.C_TEXT, cube.get_rect(), 3)
             rotated = pygame.transform.rotate(cube, self.rotation)
-
         surface.blit(rotated, rotated.get_rect(center=self.rect.center))
-
-
-
-
 
 class GameObject:
     """Objeto genérico (end, portal, jump pad, etc.)."""
@@ -541,11 +530,9 @@ def spawn_particles(particles, x, y, color, count=30, speed=1.0):
 # ------------------ BUCLE PRINCIPAL DEL NIVEL ------------------
 
 def run_level(screen, clock):
-    global skin_img, plane_skin_img, bg_image, SPIKE_IMG, SAW_IMG, saw_img, PORTAL_IMG
+    global skin_img, bg_image, SPIKE_IMG, SAW_IMG, saw_img, PORTAL_IMG
     skin_img = load_skin()
-    plane_skin_img = load_plane_skin()
     bg_image = load_bg()
-
 
     font_title = pygame.font.SysFont("Arial Black", 60)
     font_ui = pygame.font.SysFont("Arial", 24)

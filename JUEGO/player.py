@@ -51,7 +51,7 @@ def load_image(path, size=None):
         return None
 
 def load_player_skin(size=PLAYER_SIZE):
-    path = config.get_selected_skin_path()
+    path = config.get_selected_character_skin_path()
     if not path:
         surf = pygame.Surface((size, size), pygame.SRCALPHA)
         surf.fill((180, 180, 180))
