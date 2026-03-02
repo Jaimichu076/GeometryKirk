@@ -23,7 +23,7 @@ SHOTGUN_COOLDOWN = 22
 SHOTGUN_PELLETS = 7
 SHOTGUN_SPREAD = 0.6
 SHOTGUN_PELLET_SPEED = 20
-SHOTGUN_BASE_DAMAGE = 4.8
+SHOTGUN_BASE_DAMAGE = 90
 # -------------------------
 # Cambia este valor para ajustar el tamaño de los pellets de la escopeta
 SHOTGUN_PELLET_SIZE = 60
