@@ -8,7 +8,7 @@ pygame.init()
 # Fuentes
 font_title = pygame.font.SysFont("Arial Black", 56)
 font_small = pygame.font.SysFont("Arial", 18)
-font_name = pygame.font.SysFont("Arial Black", 18)
+font_name = pygame.font.SysFont("Arial Black", 12)
 font_search = pygame.font.SysFont("Arial", 26)
 
 # Layout
