@@ -31,7 +31,7 @@ MENU_MUSIC = os.path.join(ASSETS_AUDIO, "C418 - Aria Math.mp3")
 LOGO_IMG = os.path.join(ASSETS_IMG, "logogeometrykirk.png")
 
 # Música del nivel
-LEVEL_MUSIC = os.path.join(ASSETS_AUDIO, "charliekirk.mp3")
+LEVEL_MUSIC = os.path.join(ASSETS_AUDIO, "level1_soundtrack.mp3")
 
 # ---------------------------
 # Descubrimiento automático de skins

@@ -473,12 +473,19 @@ def generate_level():
     objects.append(Spike(5850, 0))
     objects.append(MovingSaw(6200, config.GROUND_Y - 120))
     objects.append(MovingSaw(6600, config.GROUND_Y - 120))
-    objects.append(Saw(6800, config.GROUND_Y - 80))
+    
 
     objects.append(Spike(7000, 0))
     objects.append(Spike(7050, 0))
     objects.append(Spike(7300, 0))
     objects.append(Spike(7350, 0))
+
+    objects.append(MovingSaw(7700, config.GROUND_Y - 120))
+
+    objects.append(MovingSaw(77200, config.GROUND_Y - 120))
+
+
+
 
         # --- SEGUNDA SECCIÓN SHIP ---
     portal3_x = 11300
