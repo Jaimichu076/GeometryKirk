@@ -56,19 +56,26 @@ def load_plane_skin():
         return None
 
 def load_bg():
-    """Carga fondo estático para el nivel (wallpaper.jpg por defecto)."""
-    bg_path = os.path.join(config.ASSETS_IMG, "wallpaper.jpg")
+    """Carga una imagen de fondo fija llamada fondo_lvl1.png."""
+    bg_path = os.path.join("Juego", "assets", "images", "fondo_lvl1.png")
+
     if not os.path.exists(bg_path):
-        return None
-    try:
-        img = pygame.image.load(bg_path).convert()
-        img = pygame.transform.scale(img, (config.WIDTH, config.HEIGHT))
-        return img
-    except Exception:
+        print("⚠ No se encontró el fondo en:", bg_path)
         return None
 
-skin_img = None
-bg_image = None
+    try:
+        img = pygame.image.load(bg_path).convert()
+        img = pygame.transform.smoothscale(img, (config.WIDTH, config.HEIGHT))
+
+        return img
+    except Exception as e:
+        print("⚠ Error cargando fondo:", e)
+        return None
+
+
+
+
+
 
 
 # ------------------ CLASES DE OBJETOS ------------------
