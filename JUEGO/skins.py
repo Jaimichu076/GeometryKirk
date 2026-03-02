@@ -1,4 +1,4 @@
-# skins.py — selector de skins de personaje y avión con hover mejorado
+# skins.py — selector de skins de personaje y avión con hover mejorado + nombres multilínea
 import pygame
 import os
 import config
@@ -8,12 +8,13 @@ pygame.init()
 # Fuentes
 font_title = pygame.font.SysFont("Arial Black", 56)
 font_small = pygame.font.SysFont("Arial", 18)
+font_name = pygame.font.SysFont("Arial Black", 18)
 font_search = pygame.font.SysFont("Arial", 26)
 
 # Layout
 SKIN_SIZE = 120
 PADDING_X = 28
-PADDING_Y = 24
+PADDING_Y = 40   # ← aumentado para dejar espacio al texto
 SKINS_PER_ROW = 4
 TOP_MARGIN = 210
 BOTTOM_MARGIN = 40
@@ -22,16 +23,37 @@ EASING = 0.18
 
 # Hover
 HOVER_SCALE = 1.18
-HOVER_OFFSET_Y = -10
-GLOW_MAX_ALPHA = 180
+HOVER_OFFSET_Y = -12
+GLOW_MAX_ALPHA = 160
+
+
+def wrap_text(text, font, max_width):
+    """Divide un texto en varias líneas para que no supere max_width."""
+    words = text.split(" ")
+    lines = []
+    current = ""
+
+    for w in words:
+        test = current + (" " if current else "") + w
+        if font.size(test)[0] <= max_width:
+            current = test
+        else:
+            if current:
+                lines.append(current)
+            current = w
+
+    if current:
+        lines.append(current)
+
+    return lines
 
 
 def _make_placeholder(size, text="COMING SOON"):
     surf = pygame.Surface((size, size), pygame.SRCALPHA)
-    surf.fill((30, 30, 45))
-    pygame.draw.rect(surf, (90, 90, 130), (0, 0, size, size), 4, border_radius=10)
+    surf.fill((36, 36, 46))
+    pygame.draw.rect(surf, (80, 80, 100), (0, 0, size, size), 4, border_radius=10)
     f = pygame.font.SysFont("Arial Black", max(18, size // 8))
-    txt = f.render(text, True, (230, 230, 230))
+    txt = f.render(text, True, (220, 220, 220))
     surf.blit(txt, ((size - txt.get_width()) // 2, (size - txt.get_height()) // 2))
     return surf
 
@@ -46,12 +68,11 @@ def _load_image_safe(path, size):
         return None
 
 
-def _run_generic_menu(screen, clock, title_text, paths, index_attr_name):
-    """Menú genérico para personaje o avión.
+# ----------------------------------------------------------
+# MENÚ GENÉRICO (personaje o avión)
+# ----------------------------------------------------------
 
-    paths: lista de rutas (CHAR_SKINS o PLANE_SKINS)
-    index_attr_name: nombre del atributo en config (ej: 'selected_character_skin_index')
-    """
+def _run_generic_menu(screen, clock, title_text, paths, index_attr_name):
     running = True
 
     placeholder = _make_placeholder(SKIN_SIZE)
@@ -130,7 +151,6 @@ def _run_generic_menu(screen, clock, title_text, paths, index_attr_name):
                         rect = pygame.Rect(x, y, SKIN_SIZE, SKIN_SIZE)
                         if rect.collidepoint(mx, my):
                             current_index = idx
-                            # guardar en config de verdad
                             setattr(config, index_attr_name, idx)
 
                 # scroll
@@ -155,7 +175,7 @@ def _run_generic_menu(screen, clock, title_text, paths, index_attr_name):
         viewport_bottom = config.HEIGHT - BOTTOM_MARGIN
         viewport_height = viewport_bottom - viewport_top
 
-        total_height = rows * SKIN_SIZE + (rows - 1) * PADDING_Y if rows > 0 else 0
+        total_height = rows * (SKIN_SIZE + PADDING_Y)  # ← corregido
         max_scroll = max(0, total_height - viewport_height)
 
         scroll_target = max(0, min(max_scroll, scroll_target))
@@ -169,8 +189,8 @@ def _run_generic_menu(screen, clock, title_text, paths, index_attr_name):
 
         # Buscador
         search_rect = pygame.Rect(50, 110, config.WIDTH - 100, 40)
-        pygame.draw.rect(screen, (25, 25, 45), search_rect, border_radius=10)
-        pygame.draw.rect(screen, (0, 200, 255) if active_search else (120, 120, 160),
+        pygame.draw.rect(screen, (30, 30, 50), search_rect, border_radius=10)
+        pygame.draw.rect(screen, (0, 180, 255) if active_search else (120, 120, 160),
                          search_rect, 3, border_radius=10)
 
         txt = font_search.render(search_text if search_text else "Buscar skin...", True, (230, 230, 230))
@@ -187,6 +207,7 @@ def _run_generic_menu(screen, clock, title_text, paths, index_attr_name):
 
         for n, idx in enumerate(filtered_indices):
             img = imgs[idx]
+            name = names[idx]
 
             row = n // SKINS_PER_ROW
             col = n % SKINS_PER_ROW
@@ -212,7 +233,7 @@ def _run_generic_menu(screen, clock, title_text, paths, index_attr_name):
             center_y = y + SKIN_SIZE // 2 + int(hover_offset_y[idx])
             scaled_rect = scaled.get_rect(center=(center_x, center_y))
 
-            # Glow suave
+            # Glow
             if glow_alpha[idx] > 5:
                 glow_surf = pygame.Surface((new_size + 26, new_size + 26), pygame.SRCALPHA)
                 pygame.draw.ellipse(
@@ -229,7 +250,22 @@ def _run_generic_menu(screen, clock, title_text, paths, index_attr_name):
                 border_rect.center = (center_x, center_y)
                 pygame.draw.rect(surf, (0, 255, 120), border_rect, 4, border_radius=10)
 
+            # Imagen
             surf.blit(scaled, scaled_rect.topleft)
+
+            # NOMBRE MULTILÍNEA
+            lines = wrap_text(name, font_name, SKIN_SIZE)
+            text_y = scaled_rect.bottom + 4
+
+            for line in lines:
+                name_surf = font_name.render(line, True, (255, 255, 255))
+                shadow = font_name.render(line, True, (0, 0, 0))
+                name_x = center_x - name_surf.get_width() // 2
+
+                surf.blit(shadow, (name_x + 2, text_y + 2))
+                surf.blit(name_surf, (name_x, text_y))
+
+                text_y += name_surf.get_height() + 2
 
         screen.blit(surf, (0, viewport_top))
 
@@ -246,8 +282,11 @@ def _run_generic_menu(screen, clock, title_text, paths, index_attr_name):
         pygame.display.flip()
 
 
+# ----------------------------------------------------------
+# MENÚ PRINCIPAL DE SKINS
+# ----------------------------------------------------------
+
 def run_skins_menu(screen, clock):
-    """Menú principal de skins: elegir personaje o avión."""
     running = True
 
     btn_char = pygame.Rect(config.WIDTH // 2 - 260, 120, 220, 60)
