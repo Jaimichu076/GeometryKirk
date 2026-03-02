@@ -560,19 +560,19 @@ def run_level(screen, clock):
 
     bg_static = bg_image
 
-    SPIKE_IMG = pygame.image.load("Juego/assets/images/obunga.png").convert_alpha()
+    SPIKE_IMG = pygame.image.load("Juego/assets/images/level1_spike.png").convert_alpha()
     SPIKE_IMG = pygame.transform.scale(SPIKE_IMG, (70, 70))
 
     GROUND_IMG = pygame.image.load("Juego/assets/images/suelo.png").convert_alpha()
     GROUND_IMG = pygame.transform.scale(GROUND_IMG, (config.WIDTH, config.HEIGHT - config.GROUND_Y))
 
-    SAW_IMG = pygame.image.load("Juego/assets/images/israel.png").convert_alpha()
+    SAW_IMG = pygame.image.load("Juego/assets/images/level1_motioncirclespike.png").convert_alpha()
     SAW_IMG = pygame.transform.scale(SAW_IMG, (70, 70))
 
-    saw_img = pygame.image.load("Juego/assets/images/rojaisra.png").convert_alpha()
+    saw_img = pygame.image.load("Juego/assets/images/level1_circlespike.gif").convert_alpha()
     saw_img = pygame.transform.scale(saw_img, (70, 70))
 
-    PORTAL_IMG = pygame.image.load("Juego/assets/images/nether.png").convert_alpha()
+    PORTAL_IMG = pygame.image.load("Juego/assets/images/netherportal.gif").convert_alpha()
     PORTAL_IMG = pygame.transform.scale(PORTAL_IMG, (90, 120))
 
     particles = []
