@@ -3,27 +3,23 @@ import config
 import importlib
 import os
 import sys
+import math
 
 # === FUNCIÓN PARA CARGAR RECURSOS EN VSCode, PyInstaller Y EL INSTALADOR ===
 def resource_path(relative_path):
-    # Si estamos dentro de un ejecutable PyInstaller
     if hasattr(sys, '_MEIPASS'):
         base_path = sys._MEIPASS
     else:
-        # Si estamos ejecutando desde VSCode o Python normal
         base_path = os.path.dirname(os.path.abspath(__file__))
     return os.path.join(base_path, relative_path)
 
-
-
 # === IMPORTS ESTÁTICOS PARA QUE PYINSTALLER INCLUYA LOS BOSS ===
-# (aunque no se usen directamente, PyInstaller los detecta y los empaqueta)
 import boss.boss0
 import boss.boss1
 import boss.boss2
 import boss.boss3
 
-# === IMPORT DINÁMICO (tu sistema original) ===
+# === IMPORT DINÁMICO ===
 boss_modules = {}
 for i in range(0, 11):
     name = f"boss{i}"
@@ -37,6 +33,27 @@ font_title = pygame.font.SysFont("Arial Black", 56)
 font_btn = pygame.font.SysFont("Arial", 26)
 font_small = pygame.font.SysFont("Arial", 18)
 
+# -----------------------------
+# FONDO ANIMADO (MISMO QUE niveles.py PERO SIN CÍRCULOS)
+# -----------------------------
+def draw_animated_background(surface, t):
+    w, h = surface.get_size()
+
+    # Ondas verticales estilo Geometry Dash
+    for y in range(0, h, 60):
+        c = 40 + int(40 * math.sin(t * 0.7 + y * 0.03))
+        pygame.draw.rect(surface, (10, c, 60 + c//3), (0, y, w, 60))
+
+    # Partículas suaves tipo neón
+    for i in range(18):
+        x = (i * 120 + int(t * 90)) % (w + 200) - 100
+        y = 120 + int(40 * math.sin(t * 1.3 + i))
+        alpha = 80 + int(60 * math.sin(t * 2 + i))
+        pygame.draw.circle(surface, (0, 255, 255, alpha), (x, y), 6)
+
+# -----------------------------
+# BOTÓN
+# -----------------------------
 class MenuButton:
     def __init__(self, rect, text, action, available=True):
         self.rect = pygame.Rect(rect)
@@ -50,8 +67,15 @@ class MenuButton:
         color = config.C_BTN_HOVER if self.hover else config.C_BTN_IDLE
         if not self.available:
             color = (30, 30, 30)
+
+        # Glow suave
+        glow = pygame.Surface((r.width + 20, r.height + 20), pygame.SRCALPHA)
+        pygame.draw.rect(glow, (255, 255, 255, 40), glow.get_rect(), border_radius=14)
+        surf.blit(glow, (r.x - 10, r.y - 10), special_flags=pygame.BLEND_PREMULTIPLIED)
+
         pygame.draw.rect(surf, color, r, border_radius=10)
         pygame.draw.rect(surf, (255,255,255), r, 3, border_radius=10)
+
         txt = font_btn.render(self.text, True, config.C_TEXT if self.available else (160,160,160))
         surf.blit(txt, (r.x + 20, r.y + r.height//2 - txt.get_height()//2))
 
@@ -59,6 +83,9 @@ class MenuButton:
         r = self.rect.move(0, offset_y)
         self.hover = r.collidepoint(mouse_pos)
 
+# -----------------------------
+# MENÚ OTROS
+# -----------------------------
 def run_otros(screen, clock):
     btn_w, btn_h = 560, 56
     start_x = config.WIDTH//2 - btn_w//2
@@ -66,22 +93,20 @@ def run_otros(screen, clock):
     gap = 72
 
     boss_names = [
-        "Tutorial – Silver-Russell",           
-        "Nivel 1 – El Mago",                   
-        "Nivel 2 – SAPOOOOOOOOOOO",            
-        "Nivel 3 – Baby oil",                  
-        "Nivel 4 – COMING SOON",               
-        "Nivel 5 – COMING SOON",               
-        "Nivel 6 – COMING SOON",               
-        "Nivel 7 – COMING SOON",               
-        "Nivel 8 – COMING SOON",               
-        "Nivel 9 – COMING SOON",               
-        "Nivel 10 – COMING SOON"               
-    ] 
+        "Tutorial – Silver-Russell",
+        "Nivel 1 – El Mago",
+        "Nivel 2 – SAPOOOOOOOOOOO",
+        "Nivel 3 – Baby oil",
+        "Nivel 4 – COMING SOON",
+        "Nivel 5 – COMING SOON",
+        "Nivel 6 – COMING SOON",
+        "Nivel 7 – COMING SOON",
+        "Nivel 8 – COMING SOON",
+        "Nivel 9 – COMING SOON",
+        "Nivel 10 – COMING SOON"
+    ]
 
-    labels = []
-    for i in range(0, 11):
-        labels.append((boss_names[i], f"boss{i}"))
+    labels = [(boss_names[i], f"boss{i}") for i in range(11)]
 
     buttons = []
     for i, (txt, act) in enumerate(labels):
@@ -101,9 +126,13 @@ def run_otros(screen, clock):
     bar_rect = pygame.Rect(bar_x, 100, bar_w, bar_h)
 
     running = True
+    start_time = pygame.time.get_ticks()
+
     while running:
-        clock.tick(config.FPS)
+        dt = clock.tick(config.FPS) / 1000.0
+        t = (pygame.time.get_ticks() - start_time) / 1000.0
         mouse_pos = pygame.mouse.get_pos()
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit(); raise SystemExit
@@ -111,8 +140,6 @@ def run_otros(screen, clock):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     running = False
-
-                    # 🔥 VOLVER A PONER LA MÚSICA DEL MENÚ
                     try:
                         pygame.mixer.music.load(resource_path(config.MENU_MUSIC))
                         pygame.mixer.music.set_volume(0.6)
@@ -149,8 +176,11 @@ def run_otros(screen, clock):
                 elif event.button == 5:
                     offset_y = max(offset_y - scroll_speed, -max_offset)
 
-        screen.fill(config.C_BG)
+        draw_animated_background(screen, t)
+
         title = font_title.render("MINIJUEGOS / BOSS", True, config.C_TEXT)
+        shadow = font_title.render("MINIJUEGOS / BOSS", True, (0, 0, 0))
+        screen.blit(shadow, (config.WIDTH//2 - title.get_width()//2 + 4, 44))
         screen.blit(title, (config.WIDTH//2 - title.get_width()//2, 40))
 
         for b in buttons:
