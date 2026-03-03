@@ -1,4 +1,4 @@
-# main.py — menú principal con logo desde config
+# main.py — menú principal con iconos avanzados y animación
 import pygame
 import sys 
 import os
@@ -6,7 +6,9 @@ import os
 import config
 import skins
 import otros
-from niveles import niveles   # ✔ IMPORT CORRECTO DESDE LA CARPETA niveles
+from niveles import niveles
+import perfil
+import notas
 
 pygame.init()
 try:
@@ -14,22 +16,19 @@ try:
 except Exception:
     pass
 
-# === FUNCIÓN PARA CARGAR RECURSOS EN VSCode, PyInstaller Y EL INSTALADOR ===
+# === FUNCIÓN UNIVERSAL PARA CARGAR RECURSOS ===
 def resource_path(relative_path):
-    # Si estamos dentro de un ejecutable PyInstaller
     if hasattr(sys, '_MEIPASS'):
         base_path = sys._MEIPASS
     else:
-        # Si estamos ejecutando desde VSCode o Python normal
         base_path = os.path.dirname(os.path.abspath(__file__))
     return os.path.join(base_path, relative_path)
-
 
 screen = pygame.display.set_mode((config.WIDTH, config.HEIGHT))
 pygame.display.set_caption("GEOMETRY KIRK - MAIN MENU")
 clock = pygame.time.Clock()
 
-# Cargar logo desde config
+# Cargar logo
 logo_img = None
 logo_path = resource_path(config.LOGO_IMG)
 if os.path.exists(logo_path):
@@ -61,6 +60,45 @@ try:
         pygame.mixer.music.play(-1)
 except Exception:
     pass
+
+# === ICONOS GENERADOS AUTOMÁTICAMENTE (CALIDAD ALTA) ===
+
+def draw_icon_perfil(size, hover=False):
+    surf = pygame.Surface((size, size), pygame.SRCALPHA)
+
+    glow = 12 if hover else 6
+    pygame.draw.circle(surf, (255, 255, 0, 80), (size//2, size//2), size//2 + glow)
+
+    pygame.draw.circle(surf, (255, 255, 0), (size//2, size//2 - 10), size//4)
+    pygame.draw.rect(surf, (255, 255, 0), (size//4, size//2, size//2, size//3), border_radius=12)
+
+    pygame.draw.circle(surf, (0, 0, 0), (size//2, size//2 - 10), size//4, 3)
+    pygame.draw.rect(surf, (0, 0, 0), (size//4, size//2, size//2, size//3), 3, border_radius=12)
+
+    return surf
+
+def draw_icon_notas(size, hover=False):
+    surf = pygame.Surface((size, size), pygame.SRCALPHA)
+
+    glow = 12 if hover else 6
+    pygame.draw.circle(surf, (255, 255, 255, 80), (size//2, size//2), size//2 + glow)
+
+    pygame.draw.rect(surf, (255, 255, 255), (size*0.2, size*0.15, size*0.6, size*0.7), border_radius=8)
+    pygame.draw.rect(surf, (0, 0, 0), (size*0.2, size*0.15, size*0.6, size*0.7), 3, border_radius=8)
+
+    for i in range(4):
+        pygame.draw.line(surf, (0, 0, 0), (size*0.28, size*0.28 + i*size*0.13), (size*0.72, size*0.28 + i*size*0.13), 3)
+
+    return surf
+
+ICON_SIZE = 70
+perfil_hover = False
+notas_hover = False
+
+perfil_rect = pygame.Rect(20, config.HEIGHT - ICON_SIZE - 20, ICON_SIZE, ICON_SIZE)
+notas_rect = pygame.Rect(110, config.HEIGHT - ICON_SIZE - 20, ICON_SIZE, ICON_SIZE)
+
+# === ICONOS DE LOS BOTONES PRINCIPALES ===
 
 def draw_play_icon(surf, center, size):
     x, y = center
@@ -110,6 +148,8 @@ class RoundButton:
         return None
 
 def main_menu():
+    global perfil_hover, notas_hover
+
     center_y = config.HEIGHT // 2 + 40
     spacing = 180
 
@@ -124,18 +164,29 @@ def main_menu():
         clock.tick(config.FPS)
         mouse_pos = pygame.mouse.get_pos()
 
+        perfil_hover = perfil_rect.collidepoint(mouse_pos)
+        notas_hover = notas_rect.collidepoint(mouse_pos)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit(); sys.exit()
+
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+
                 for b in buttons:
                     action = b.handle_click(mouse_pos)
                     if action == "LEVELS":
-                        niveles.run_levels_menu(screen, clock)   # ✔ CORRECTO
+                        niveles.run_levels_menu(screen, clock)
                     elif action == "SKINS":
                         skins.run_skins_menu(screen, clock)
                     elif action == "OTHERS":
                         otros.run_otros(screen, clock)
+
+                if perfil_rect.collidepoint(mouse_pos):
+                    perfil.run_perfil(screen, clock)
+
+                if notas_rect.collidepoint(mouse_pos):
+                    notas.run_notas(screen, clock)
 
         if background_img:
             screen.blit(background_img, (0, 0))
@@ -148,6 +199,12 @@ def main_menu():
         for b in buttons:
             b.update_hover(mouse_pos)
             b.draw(screen)
+
+        perfil_icon_final = draw_icon_perfil(ICON_SIZE, perfil_hover)
+        notas_icon_final = draw_icon_notas(ICON_SIZE, notas_hover)
+
+        screen.blit(perfil_icon_final, perfil_rect)
+        screen.blit(notas_icon_final, notas_rect)
 
         pygame.display.flip()
 
