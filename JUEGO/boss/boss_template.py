@@ -4,8 +4,16 @@ import random
 import os
 import math
 import config
+import sys
 from player import Player, PLAYER_MAX_HP
 pygame.init()
+
+def resource_path(relative_path):
+    if hasattr(sys, "_MEIPASS"):
+        base_path = sys._MEIPASS
+    else:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
 
 # run_boss_generic(screen, clock, params)
 # params keys (extended):
@@ -89,7 +97,8 @@ def run_boss_generic(screen, clock, params):
         if not path:
             return None
         try:
-            img = pygame.image.load(path).convert_alpha()
+            full = resource_path(path)
+            img = pygame.image.load(full).convert_alpha()
             if size:
                 img = pygame.transform.smoothscale(img, size)
             return img
@@ -101,24 +110,29 @@ def run_boss_generic(screen, clock, params):
     big_proj_img = load_img(big_proj_image_path, (72, 72))
     heal_img = load_img(heal_image_path, (28, 28))
 
-    # Precargar sonido de explosión para evitar latencia
+    # CARGA DE SONIDO DE EXPLOSIÓN (con resource_path)
     explosion_sound = None
     try:
-        if explosion_sound_path and os.path.exists(explosion_sound_path):
-            explosion_sound = pygame.mixer.Sound(explosion_sound_path)
-            # volumen por defecto; puedes ajustar en params si quieres
-            explosion_sound.set_volume(params.get("explosion_volume", 1.0))
-    except:
+        if explosion_sound_path:
+            full_expl = resource_path(explosion_sound_path)
+            if os.path.exists(full_expl):
+                explosion_sound = pygame.mixer.Sound(full_expl)
+                explosion_sound.set_volume(params.get("explosion_volume", 1.0))
+    except Exception:
         explosion_sound = None
 
-    # Iniciar música del boss (si existe)
+
+    # CARGA DE MÚSICA (con resource_path)
     try:
-        if music_path and os.path.exists(music_path):
-            pygame.mixer.music.load(music_path)
-            pygame.mixer.music.set_volume(params.get("music_volume", 0.6))
-            pygame.mixer.music.play(-1)
-    except:
+        if music_path:
+            full_music = resource_path(music_path)
+            if os.path.exists(full_music):
+                pygame.mixer.music.load(full_music)
+                pygame.mixer.music.set_volume(params.get("music_volume", 0.6))
+                pygame.mixer.music.play(-1)
+    except Exception:
         pass
+
 
     # Estado del boss
     boss = {

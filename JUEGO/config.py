@@ -1,8 +1,9 @@
-# config.py
 import os
 
+# Carpeta donde está este archivo (JUEGO/)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+# Carpeta assets al mismo nivel que config.py
 ASSETS_DIR = os.path.join(BASE_DIR, "assets")
 ASSETS_IMG = os.path.join(ASSETS_DIR, "images")
 ASSETS_AUDIO = os.path.join(ASSETS_DIR, "audio")

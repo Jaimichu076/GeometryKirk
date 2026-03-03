@@ -1,9 +1,21 @@
 # skins.py — selector de skins de personaje y avión con hover mejorado + nombres multilínea
 import pygame
 import os
+import sys
 import config
 
 pygame.init()
+
+# === FUNCIÓN PARA CARGAR RECURSOS EN VSCode, PyInstaller Y EL INSTALADOR ===
+def resource_path(relative_path):
+    # Si estamos dentro de un ejecutable PyInstaller
+    if hasattr(sys, '_MEIPASS'):
+        base_path = sys._MEIPASS
+    else:
+        # Si estamos ejecutando desde VSCode o Python normal
+        base_path = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(base_path, relative_path)
+
 
 # Fuentes
 font_title = pygame.font.SysFont("Arial Black", 56)
@@ -59,10 +71,10 @@ def _make_placeholder(size, text="COMING SOON"):
 
 
 def _load_image_safe(path, size):
-    if not path or not os.path.exists(path):
+    if not path or not os.path.exists(resource_path(path)):
         return None
     try:
-        img = pygame.image.load(path).convert_alpha()
+        img = pygame.image.load(resource_path(path)).convert_alpha()
         return pygame.transform.smoothscale(img, (size, size))
     except:
         return None
@@ -175,7 +187,7 @@ def _run_generic_menu(screen, clock, title_text, paths, index_attr_name):
         viewport_bottom = config.HEIGHT - BOTTOM_MARGIN
         viewport_height = viewport_bottom - viewport_top
 
-        total_height = rows * (SKIN_SIZE + PADDING_Y)  # ← corregido
+        total_height = rows * (SKIN_SIZE + PADDING_Y)
         max_scroll = max(0, total_height - viewport_height)
 
         scroll_target = max(0, min(max_scroll, scroll_target))

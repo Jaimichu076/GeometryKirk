@@ -1,8 +1,29 @@
-# otros.py
 import pygame
 import config
 import importlib
+import os
+import sys
 
+# === FUNCIÓN PARA CARGAR RECURSOS EN VSCode, PyInstaller Y EL INSTALADOR ===
+def resource_path(relative_path):
+    # Si estamos dentro de un ejecutable PyInstaller
+    if hasattr(sys, '_MEIPASS'):
+        base_path = sys._MEIPASS
+    else:
+        # Si estamos ejecutando desde VSCode o Python normal
+        base_path = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(base_path, relative_path)
+
+
+
+# === IMPORTS ESTÁTICOS PARA QUE PYINSTALLER INCLUYA LOS BOSS ===
+# (aunque no se usen directamente, PyInstaller los detecta y los empaqueta)
+import boss.boss0
+import boss.boss1
+import boss.boss2
+import boss.boss3
+
+# === IMPORT DINÁMICO (tu sistema original) ===
 boss_modules = {}
 for i in range(0, 11):
     name = f"boss{i}"
@@ -45,23 +66,22 @@ def run_otros(screen, clock):
     gap = 72
 
     boss_names = [
-    "Tutorial – Silver-Russell",           # boss0
-    "Nivel 1 – El Mago",                   # boss1
-    "Nivel 2 – SAPOOOOOOOOOOO",            # boss2
-    "Nivel 3 – Baby oil",                  # boss3
-    "Nivel 4 – COMING SOON",               # boss4 (Amego)
-    "Nivel 5 – COMING SOON",               # boss5
-    "Nivel 6 – COMING SOON",               # boss6
-    "Nivel 7 – COMING SOON",               # boss7
-    "Nivel 8 – COMING SOON",               # boss8
-    "Nivel 9 – COMING SOON",               # boss9
-    "Nivel 10 – COMING SOON"               # boss10 
+        "Tutorial – Silver-Russell",           
+        "Nivel 1 – El Mago",                   
+        "Nivel 2 – SAPOOOOOOOOOOO",            
+        "Nivel 3 – Baby oil",                  
+        "Nivel 4 – COMING SOON",               
+        "Nivel 5 – COMING SOON",               
+        "Nivel 6 – COMING SOON",               
+        "Nivel 7 – COMING SOON",               
+        "Nivel 8 – COMING SOON",               
+        "Nivel 9 – COMING SOON",               
+        "Nivel 10 – COMING SOON"               
     ] 
 
     labels = []
     for i in range(0, 11):
         labels.append((boss_names[i], f"boss{i}"))
-
 
     buttons = []
     for i, (txt, act) in enumerate(labels):
@@ -94,7 +114,7 @@ def run_otros(screen, clock):
 
                     # 🔥 VOLVER A PONER LA MÚSICA DEL MENÚ
                     try:
-                        pygame.mixer.music.load(config.MENU_MUSIC)
+                        pygame.mixer.music.load(resource_path(config.MENU_MUSIC))
                         pygame.mixer.music.set_volume(0.6)
                         pygame.mixer.music.play(-1)
                     except:

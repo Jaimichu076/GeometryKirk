@@ -6,7 +6,7 @@ import os
 import config
 import skins
 import otros
-import niveles
+from niveles import niveles   # ✔ IMPORT CORRECTO DESDE LA CARPETA niveles
 
 pygame.init()
 try:
@@ -14,15 +14,27 @@ try:
 except Exception:
     pass
 
+# === FUNCIÓN PARA CARGAR RECURSOS EN VSCode, PyInstaller Y EL INSTALADOR ===
+def resource_path(relative_path):
+    # Si estamos dentro de un ejecutable PyInstaller
+    if hasattr(sys, '_MEIPASS'):
+        base_path = sys._MEIPASS
+    else:
+        # Si estamos ejecutando desde VSCode o Python normal
+        base_path = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(base_path, relative_path)
+
+
 screen = pygame.display.set_mode((config.WIDTH, config.HEIGHT))
 pygame.display.set_caption("GEOMETRY KIRK - MAIN MENU")
 clock = pygame.time.Clock()
 
 # Cargar logo desde config
 logo_img = None
-if os.path.exists(config.LOGO_IMG):
+logo_path = resource_path(config.LOGO_IMG)
+if os.path.exists(logo_path):
     try:
-        logo_img = pygame.image.load(config.LOGO_IMG).convert_alpha()
+        logo_img = pygame.image.load(logo_path).convert_alpha()
         logo_img = pygame.transform.smoothscale(
             logo_img,
             (int(config.WIDTH * 0.65), int(config.HEIGHT * 0.22))
@@ -32,17 +44,19 @@ if os.path.exists(config.LOGO_IMG):
 
 # Fondo
 background_img = None
-if os.path.exists(config.MENU_BACKGROUND):
+bg_path = resource_path(config.MENU_BACKGROUND)
+if os.path.exists(bg_path):
     try:
-        background_img = pygame.image.load(config.MENU_BACKGROUND).convert()
+        background_img = pygame.image.load(bg_path).convert()
         background_img = pygame.transform.scale(background_img, (config.WIDTH, config.HEIGHT))
     except Exception:
         background_img = None
 
 # Música
 try:
-    if os.path.exists(config.MENU_MUSIC):
-        pygame.mixer.music.load(config.MENU_MUSIC)
+    music_path = resource_path(config.MENU_MUSIC)
+    if os.path.exists(music_path):
+        pygame.mixer.music.load(music_path)
         pygame.mixer.music.set_volume(0.6)
         pygame.mixer.music.play(-1)
 except Exception:
@@ -117,7 +131,7 @@ def main_menu():
                 for b in buttons:
                     action = b.handle_click(mouse_pos)
                     if action == "LEVELS":
-                        niveles.run_levels_menu(screen, clock)
+                        niveles.run_levels_menu(screen, clock)   # ✔ CORRECTO
                     elif action == "SKINS":
                         skins.run_skins_menu(screen, clock)
                     elif action == "OTHERS":

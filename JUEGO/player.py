@@ -2,10 +2,21 @@
 import pygame
 import config
 import os
+import sys
 import math
 
-# Inicializar pygame si no está ya inicializado en el flujo principal
 pygame.init()
+
+# === FUNCIÓN PARA CARGAR RECURSOS EN VSCode, PyInstaller Y EL INSTALADOR ===
+def resource_path(relative_path):
+    # Si estamos dentro de un ejecutable PyInstaller
+    if hasattr(sys, '_MEIPASS'):
+        base_path = sys._MEIPASS
+    else:
+        # Si estamos ejecutando desde VSCode o Python normal
+        base_path = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(base_path, relative_path)
+
 
 # Constantes del jugador y armas
 PLAYER_SIZE = config.PLAYER_SIZE if hasattr(config, "PLAYER_SIZE") else 60
@@ -24,10 +35,7 @@ SHOTGUN_PELLETS = 7
 SHOTGUN_SPREAD = 0.6
 SHOTGUN_PELLET_SPEED = 20
 SHOTGUN_BASE_DAMAGE = 90
-# -------------------------
-# Cambia este valor para ajustar el tamaño de los pellets de la escopeta
 SHOTGUN_PELLET_SIZE = 60
-# -------------------------
 
 # Lanzacohetes
 ROCKET_COOLDOWN_SEC = 9.0
@@ -40,10 +48,10 @@ SLOT_SIZE = 48
 
 def load_image(path, size=None):
     """Carga una imagen y la escala si size es proporcionado. Devuelve None si falla."""
-    if not path or not os.path.exists(path):
+    if not path or not os.path.exists(resource_path(path)):
         return None
     try:
-        img = pygame.image.load(path).convert_alpha()
+        img = pygame.image.load(resource_path(path)).convert_alpha()
         if size:
             img = pygame.transform.smoothscale(img, size)
         return img
@@ -57,7 +65,7 @@ def load_player_skin(size=PLAYER_SIZE):
         surf.fill((180, 180, 180))
         return surf
     try:
-        img = pygame.image.load(path).convert_alpha()
+        img = pygame.image.load(resource_path(path)).convert_alpha()
         return pygame.transform.scale(img, (size, size))
     except Exception:
         surf = pygame.Surface((size, size), pygame.SRCALPHA)
@@ -74,16 +82,15 @@ class Player:
         self.img = load_player_skin(self.w)
         self.hp = PLAYER_MAX_HP
 
-        # Disparos: lista de dicts {"rect","vx","vy","life","damage","kind","img"}
+        # Disparos
         self.shots = []
 
         # Estado de armas
-        self.weapon = "pistol"   # "pistol","shotgun","rocket"
+        self.weapon = "pistol"
         self.cooldowns = {"pistol":0, "shotgun":0}
         self.rocket_last_time = -999999
 
         # Cargar imágenes de proyectiles e iconos desde config
-        # Usamos las constantes de tamaño para escalar correctamente
         self.proj_imgs = {
             "pistol": load_image(config.PROJ_PISTOL, (PISTOL_SIZE, PISTOL_SIZE)),
             "shotgun": load_image(config.PROJ_SHOTGUN, (SHOTGUN_PELLET_SIZE, SHOTGUN_PELLET_SIZE)),
@@ -109,16 +116,13 @@ class Player:
         if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
             self.x += PLAYER_SPEED
 
-        # Cambio de arma con 1/2/3 (solo si desbloqueada)
-        if keys[pygame.K_1]:
-            if self.allowed_weapons.get("pistol", True):
-                self.weapon = "pistol"
-        if keys[pygame.K_2]:
-            if self.allowed_weapons.get("shotgun", False):
-                self.weapon = "shotgun"
-        if keys[pygame.K_3]:
-            if self.allowed_weapons.get("rocket", False):
-                self.weapon = "rocket"
+        # Cambio de arma
+        if keys[pygame.K_1] and self.allowed_weapons.get("pistol", True):
+            self.weapon = "pistol"
+        if keys[pygame.K_2] and self.allowed_weapons.get("shotgun", False):
+            self.weapon = "shotgun"
+        if keys[pygame.K_3] and self.allowed_weapons.get("rocket", False):
+            self.weapon = "rocket"
 
         # Limitar a pantalla
         self.x = max(0, min(config.WIDTH - self.w, self.x))
@@ -144,7 +148,7 @@ class Player:
         # Jugador
         screen.blit(self.img, (self.x, self.y))
 
-        # Dibujar proyectiles (con imagen si existe)
+        # Proyectiles
         for s in self.shots:
             if s.get("img"):
                 try:
@@ -154,26 +158,33 @@ class Player:
             else:
                 pygame.draw.rect(screen, (0,220,140), s["rect"])
 
-        # HUD inventario (esquina inferior izquierda)
+        # HUD inventario
         hud_x = 20
         hud_y = config.HEIGHT - 20 - SLOT_SIZE
         slot_gap = 12
         weapons_order = ["pistol","shotgun","rocket"]
         font = pygame.font.SysFont("Arial", 18)
+
         for i, w in enumerate(weapons_order):
             sx = hud_x + i * (SLOT_SIZE + slot_gap)
             srect = pygame.Rect(sx, hud_y, SLOT_SIZE, SLOT_SIZE)
             pygame.draw.rect(screen, (30,30,40), srect, border_radius=6)
             pygame.draw.rect(screen, (200,200,200), srect, 2, border_radius=6)
+
             icon = self.icons.get(w)
             if icon:
-                screen.blit(icon, (sx + (SLOT_SIZE - icon.get_width())//2, hud_y + (SLOT_SIZE - icon.get_height())//2))
+                screen.blit(icon, (sx + (SLOT_SIZE - icon.get_width())//2,
+                                   hud_y + (SLOT_SIZE - icon.get_height())//2))
             else:
-                pygame.draw.rect(screen, (120,120,120), (sx+8, hud_y+8, SLOT_SIZE-16, SLOT_SIZE-16))
+                pygame.draw.rect(screen, (120,120,120),
+                                 (sx+8, hud_y+8, SLOT_SIZE-16, SLOT_SIZE-16))
+
             num_surf = font.render(str(i+1), True, config.C_TEXT)
             screen.blit(num_surf, (sx + 6, hud_y + 6))
+
             if self.weapon == w:
                 pygame.draw.rect(screen, (0,255,0), srect.inflate(6,6), 3, border_radius=8)
+
             if not self.allowed_weapons.get(w, False):
                 overlay = pygame.Surface((SLOT_SIZE, SLOT_SIZE), pygame.SRCALPHA)
                 overlay.fill((0,0,0,160))
@@ -202,17 +213,21 @@ class Player:
                     angle = -SHOTGUN_SPREAD/2 + t * SHOTGUN_SPREAD
                     vx = SHOTGUN_PELLET_SPEED * math.cos(angle)
                     vy = SHOTGUN_PELLET_SPEED * math.sin(angle)
-                    # Usar SHOTGUN_PELLET_SIZE para el rect del pellet
-                    rect = pygame.Rect(int(sx), int(sy - SHOTGUN_PELLET_SIZE//2), SHOTGUN_PELLET_SIZE, SHOTGUN_PELLET_SIZE)
+
+                    rect = pygame.Rect(int(sx), int(sy - SHOTGUN_PELLET_SIZE//2),
+                                       SHOTGUN_PELLET_SIZE, SHOTGUN_PELLET_SIZE)
                     img = self.proj_imgs.get("shotgun")
                     damage = SHOTGUN_BASE_DAMAGE
+
                     if target_rect:
                         dx = (target_rect.x + target_rect.w//2) - (self.x + self.w//2)
                         dy = (target_rect.y + target_rect.h//2) - (self.y + self.h//2)
                         dist = math.hypot(dx, dy)
                         factor = max(0.6, 1.6 - (dist / 400.0))
                         damage = int(damage * factor)
+
                     self.shots.append({"rect":rect,"vx":vx,"vy":vy,"life":80,"damage":damage,"kind":"shotgun","img":img})
+
                 self.cooldowns["shotgun"] = SHOTGUN_COOLDOWN
 
         # Lanzacohetes

@@ -10,6 +10,18 @@ import main
 
 pygame.init()
 
+# === FUNCIÓN PARA CARGAR RECURSOS EN VSCode, PyInstaller Y EL INSTALADOR ===
+def resource_path(relative_path):
+    # Si estamos dentro de un ejecutable PyInstaller
+    if hasattr(sys, '_MEIPASS'):
+        base_path = sys._MEIPASS
+    else:
+        # Si estamos ejecutando desde VSCode o Python normal
+        base_path = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(base_path, relative_path)
+
+
+
 # SILENCIAR SOLO pygame.mixer.music SIN DETENERLA
 try:
     original_music_volume = pygame.mixer.music.get_volume()
@@ -23,9 +35,9 @@ clock = pygame.time.Clock()
 
 # Logo desde config
 logo_img = None
-if os.path.exists(config.LOGO_IMG):
+if os.path.exists(resource_path(config.LOGO_IMG)):
     try:
-        logo_img = pygame.image.load(config.LOGO_IMG).convert_alpha()
+        logo_img = pygame.image.load(resource_path(config.LOGO_IMG)).convert_alpha()
         logo_img = pygame.transform.smoothscale(
             logo_img,
             (int(config.WIDTH * 0.75), int(config.HEIGHT * 0.28))
@@ -47,7 +59,6 @@ LOADING_QUOTES = [
     "Hueles pestaco,.. A zorro mata peyizcos!",
     "- --- -. - --- / . .-.. / --.- ..- . / .-.. --- / .-.. . .-",
     "Ay la cookieeee!!!",
-
 ]
 quote = random.choice(LOADING_QUOTES)
 
