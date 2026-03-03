@@ -471,8 +471,12 @@ def generate_level():
 
     objects.append(Spike(5800, 0))
     objects.append(Spike(5850, 0))
-    objects.append(MovingSaw(6200, config.GROUND_Y - 120))
-    objects.append(MovingSaw(6600, config.GROUND_Y - 120))
+    
+    
+
+    
+    objects.append(Saw(4500, config.GROUND_Y - 120))
+
     
 
     objects.append(Spike(7000, 0))
@@ -480,10 +484,28 @@ def generate_level():
     objects.append(Spike(7300, 0))
     objects.append(Spike(7350, 0))
 
-    objects.append(MovingSaw(7700, config.GROUND_Y - 120))
+    objects.append(MovingSaw(7800, config.GROUND_Y - 120))
+    objects.append(Saw(8200, config.GROUND_Y - 100))
 
-    objects.append(MovingSaw(77200, config.GROUND_Y - 120))
+    objects.append(Saw(8700, config.GROUND_Y - 100))
 
+    objects.append(Spike(9500, 0))
+    objects.append(Spike(9500, 0))
+
+
+
+    objects.append(Spike(9500, 0))
+    objects.append(Spike(9550, 0))
+
+
+    objects.append(Spike(9700, 0))
+    objects.append(Spike(9750, 0))
+
+
+
+
+
+  
 
 
 
@@ -500,7 +522,7 @@ def generate_level():
     objects.append(Saw(portal3_x, portal3_y - 480))
 
         # --- PORTAL FINAL A CUBE ---
-    portal4_x = 13600
+    portal4_x = 17600
     portal4_y = config.GROUND_Y - 90
     objects.append(Portal(portal4_x, portal4_y, "out"))
 
@@ -519,7 +541,7 @@ def generate_level():
     objects.append(Spike(14900, 0))
 
         # --- FINAL DEL NIVEL ---
-    end_x = 15000
+    end_x = 19000
     objects.append(GameObject(end_x, 0, 10, config.HEIGHT, kind="end"))
 
     total_distance_real = end_x - 150
