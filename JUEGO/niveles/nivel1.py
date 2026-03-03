@@ -488,9 +488,66 @@ def generate_level():
     objects.append(Spike(7300, 0))
     objects.append(Spike(7350, 0))
 
-    objects.append(MovingSaw(7700, config.GROUND_Y - 120))
+    
 
-    objects.append(MovingSaw(77200, config.GROUND_Y - 120))
+    
+
+
+    objects.append(Spike(8000, 0))
+    objects.append(Spike(8050, 0))
+
+    objects.append(Saw(8300, config.GROUND_Y - 110))
+    
+
+
+
+
+    
+
+
+    objects.append(MovingSaw(9100, config.GROUND_Y - 120))
+
+
+    
+
+
+    objects.append(Spike(9800, 0))
+    objects.append(Spike(9950, 0))
+    
+
+    
+    
+
+    
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
 
 
 
@@ -507,8 +564,148 @@ def generate_level():
     objects.append(Saw(portal3_x, portal3_y - 400))
     objects.append(Saw(portal3_x, portal3_y - 480))
 
+
+    objects.append(Spike(1, 0))
+
+    objects.append(Saw(11400, config.GROUND_Y - 500))
+    objects.append(Saw(11450, config.GROUND_Y - 500))
+
+    objects.append(Spike(11500, 0))
+    objects.append(Spike(11550, 0))
+    objects.append(Spike(11600, 0))
+    objects.append(Spike(11650, 0))
+    objects.append(Spike(11700, 0))
+    objects.append(Spike(11750, 0))
+    objects.append(Spike(11800, 0))
+    objects.append(Spike(11850, 0))
+    objects.append(Spike(11900, 0))
+    objects.append(Spike(11950, 0))
+    objects.append(Spike(12000, 0))
+    objects.append(Spike(12050, 0))
+    objects.append(Spike(12100, 0))
+    objects.append(Spike(12150, 0))
+    objects.append(Spike(12200, 0))
+    objects.append(Spike(12250, 0))
+    objects.append(Spike(12300, 0))
+    objects.append(Spike(12350, 0))
+    objects.append(Spike(12400, 0))
+    objects.append(Spike(12450, 0))
+    objects.append(Spike(12500, 0))
+    objects.append(Spike(12550, 0))
+    objects.append(Spike(12600, 0))
+    objects.append(Spike(12650, 0))
+    objects.append(Spike(12700, 0))
+    objects.append(Spike(12750, 0))
+    objects.append(Spike(12800, 0))
+    objects.append(Spike(12850, 0))
+    objects.append(Spike(12900, 0))
+    objects.append(Spike(12950, 0))
+    objects.append(Spike(13000, 0))
+    objects.append(Spike(13050, 0))
+    objects.append(Spike(13100, 0))
+    objects.append(Spike(13150, 0))
+    objects.append(Spike(13200, 0))
+    objects.append(Spike(13250, 0))
+    objects.append(Spike(13300, 0))
+    objects.append(Spike(13350, 0))
+    objects.append(Spike(13400, 0))
+    objects.append(Spike(13450, 0))
+    objects.append(Spike(13500, 0))
+    objects.append(Spike(13550, 0))
+    objects.append(Spike(13600, 0))
+    objects.append(Spike(13650, 0))
+    objects.append(Spike(13700, 0))
+    objects.append(Spike(13750, 0))
+    objects.append(Spike(13800, 0))
+    objects.append(Spike(13850, 0))
+    objects.append(Spike(13900, 0))
+    objects.append(Spike(13950, 0))
+    objects.append(Spike(14000, 0))
+    objects.append(Spike(14050, 0))
+    objects.append(Spike(14100, 0))
+    objects.append(Spike(14150, 0))
+    objects.append(Spike(14200, 0))
+    objects.append(Spike(14250, 0))
+    objects.append(Spike(14300, 0))
+    objects.append(Spike(14350, 0))
+    objects.append(Spike(14400, 0))
+    objects.append(Spike(14450, 0))
+    objects.append(Spike(14500, 0))
+    objects.append(Spike(14550, 0))
+    objects.append(Spike(14600, 0))
+    objects.append(Spike(14650, 0))
+    objects.append(Spike(14700, 0))
+    objects.append(Spike(14750, 0))
+    objects.append(Spike(14800, 0))
+    objects.append(Spike(14850, 0))
+    objects.append(Spike(14900, 0))
+    objects.append(Spike(14950, 0))
+    objects.append(Spike(15000, 0))
+    objects.append(Spike(15050, 0))
+    objects.append(Spike(15100, 0))
+    objects.append(Spike(15150, 0))
+    objects.append(Spike(15200, 0))
+    objects.append(Spike(15250, 0))
+    objects.append(Spike(15300, 0))
+    objects.append(Spike(15350, 0))
+    objects.append(Spike(15400, 0))
+    objects.append(Spike(15450, 0))
+    objects.append(Spike(15500, 0))
+    objects.append(Spike(15550, 0))
+    objects.append(Spike(15600, 0))
+    objects.append(Spike(15650, 0))
+    objects.append(Spike(15700, 0))
+    objects.append(Spike(15750, 0))
+    objects.append(Spike(15800, 0))
+    objects.append(Spike(15850, 0))
+    objects.append(Spike(15900, 0))
+    objects.append(Spike(15950, 0))
+    objects.append(Spike(16000, 0))
+    objects.append(Spike(16050, 0))
+    objects.append(Spike(16100, 0))
+    objects.append(Spike(16150, 0))
+    objects.append(Spike(16200, 0))
+    objects.append(Spike(16250, 0))
+    objects.append(Spike(16300, 0))
+    objects.append(Spike(16350, 0))
+    objects.append(Spike(16400, 0))
+    objects.append(Spike(16450, 0))
+    objects.append(Spike(16500, 0))
+    objects.append(Spike(16550, 0))
+    objects.append(Spike(16600, 0))
+    objects.append(Spike(16650, 0))
+    objects.append(Spike(16700, 0))
+    objects.append(Spike(16750, 0))
+    objects.append(Spike(16800, 0))
+    objects.append(Spike(16850, 0))
+    objects.append(Spike(16900, 0))
+    objects.append(Spike(16950, 0))
+    objects.append(Spike(17000, 0))
+    objects.append(Spike(17050, 0))
+    objects.append(Spike(17100, 0))
+    objects.append(Spike(17150, 0))
+    objects.append(Spike(17200, 0))
+    objects.append(Spike(17250, 0))
+    objects.append(Spike(17300, 0))
+    objects.append(Spike(17350, 0))
+    objects.append(Spike(17400, 0))
+    objects.append(Saw(12000, config.GROUND_Y - 300))
+    
+
+
+
+
+    
+
+
+
+
+    
+
+
+
         # --- PORTAL FINAL A CUBE ---
-    portal4_x = 13600
+    portal4_x = 17600
     portal4_y = config.GROUND_Y - 90
     objects.append(Portal(portal4_x, portal4_y, "out"))
 
@@ -520,14 +717,10 @@ def generate_level():
     objects.append(Saw(portal4_x, portal4_y - 480))
 
         # --- CUBE FINAL ---
-    objects.append(Spike(13900, 0))
-    objects.append(Spike(14100, 0))
-    objects.append(Saw(14400, config.GROUND_Y - 90))
-    objects.append(Spike(14700, 0))
-    objects.append(Spike(14900, 0))
+    
 
         # --- FINAL DEL NIVEL ---
-    end_x = 15000
+    end_x = 19000
     objects.append(GameObject(end_x, 0, 10, config.HEIGHT, kind="end"))
 
     total_distance_real = end_x - 150
