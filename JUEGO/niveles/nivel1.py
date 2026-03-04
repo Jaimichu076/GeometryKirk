@@ -701,6 +701,26 @@ def generate_level():
     objects.append(MovingSaw(12300, config.GROUND_Y - 300))
     objects.append(Saw(12700, config.GROUND_Y - 250))
     objects.append(Saw(13100, config.GROUND_Y - 350))
+    objects.append(MovingSaw(13500, config.GROUND_Y - 140))
+    objects.append(Saw(13900, config.GROUND_Y - 270))
+    objects.append(Saw(13900, config.GROUND_Y - 270))
+    objects.append(MovingSaw(14500, config.GROUND_Y - 250))
+    objects.append(Saw(14900, config.GROUND_Y - 270))
+    objects.append(MovingSaw(15300, config.GROUND_Y - 240))
+    objects.append(Saw(15700, config.GROUND_Y - 270))
+
+    objects.append(Saw(15800, config.GROUND_Y - 170))
+
+    objects.append(Saw(15900, config.GROUND_Y - 140))
+
+    objects.append(Saw(16200, config.GROUND_Y - 160))
+    objects.append(Saw(16500, config.GROUND_Y - 180))
+
+    objects.append(MovingSaw(16800, config.GROUND_Y - 240))
+
+
+
+
 
     # --- SECCIÓN CON OBSTACULOS CENTRAL ---
 
