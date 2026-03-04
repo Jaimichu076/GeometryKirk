@@ -876,6 +876,12 @@ def generate_level():
 
         # --- CUBE FINAL ---
     
+    objects.append(Spike(17900, 0))
+    objects.append(Spike(17950, 0))
+
+    objects.append(Spike(18150, 0))
+    objects.append(Spike(18200, 0))
+
 
         # --- FINAL DEL NIVEL ---
     end_x = 19000
