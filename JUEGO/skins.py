@@ -1,46 +1,60 @@
-# skins.py — selector de skins de personaje y avión con hover mejorado + nombres multilínea
+# skins.py — selector de skins con botones circulares estilo niveles.py
 import pygame
 import os
 import sys
+import math
 import config
 
 pygame.init()
 
-# === FUNCIÓN PARA CARGAR RECURSOS EN VSCode, PyInstaller Y EL INSTALADOR ===
+# === FUNCIÓN PARA CARGAR RECURSOS ===
 def resource_path(relative_path):
-    # Si estamos dentro de un ejecutable PyInstaller
     if hasattr(sys, '_MEIPASS'):
         base_path = sys._MEIPASS
     else:
-        # Si estamos ejecutando desde VSCode o Python normal
         base_path = os.path.dirname(os.path.abspath(__file__))
     return os.path.join(base_path, relative_path)
 
-
-# Fuentes
-font_title = pygame.font.SysFont("Arial Black", 56)
-font_small = pygame.font.SysFont("Arial", 18)
-font_name = pygame.font.SysFont("Arial Black", 12)
+# === FUENTES ===
+font_title = pygame.font.SysFont("Arial Black", 70)
+font_small = pygame.font.SysFont("Arial", 20)
+font_name = pygame.font.SysFont("Arial Black", 14)
 font_search = pygame.font.SysFont("Arial", 26)
 
-# Layout
+# === LAYOUT ===
 SKIN_SIZE = 120
 PADDING_X = 28
-PADDING_Y = 40   # ← aumentado para dejar espacio al texto
+PADDING_Y = 40
 SKINS_PER_ROW = 4
-TOP_MARGIN = 210
+TOP_MARGIN = 260     # ← BAJADO PARA DEJAR ESPACIO
 BOTTOM_MARGIN = 40
 SCROLL_STEP = 120
 EASING = 0.18
 
-# Hover
 HOVER_SCALE = 1.18
 HOVER_OFFSET_Y = -12
 GLOW_MAX_ALPHA = 160
 
+# -----------------------------
+# FONDO ANIMADO (ONDAS + PARTÍCULAS NEÓN)
+# -----------------------------
+def draw_animated_background(surface, t):
+    w, h = surface.get_size()
 
+    for y in range(0, h, 60):
+        c = 40 + int(40 * math.sin(t * 0.7 + y * 0.03))
+        pygame.draw.rect(surface, (10, c, 60 + c//3), (0, y, w, 60))
+
+    for i in range(18):
+        x = (i * 120 + int(t * 90)) % (w + 200) - 100
+        y = 120 + int(40 * math.sin(t * 1.3 + i))
+        alpha = 80 + int(60 * math.sin(t * 2 + i))
+        pygame.draw.circle(surface, (0, 255, 255, alpha), (x, y), 6)
+
+# -----------------------------
+# UTILIDADES
+# -----------------------------
 def wrap_text(text, font, max_width):
-    """Divide un texto en varias líneas para que no supere max_width."""
     words = text.split(" ")
     lines = []
     current = ""
@@ -59,7 +73,6 @@ def wrap_text(text, font, max_width):
 
     return lines
 
-
 def _make_placeholder(size, text="COMING SOON"):
     surf = pygame.Surface((size, size), pygame.SRCALPHA)
     surf.fill((36, 36, 46))
@@ -68,7 +81,6 @@ def _make_placeholder(size, text="COMING SOON"):
     txt = f.render(text, True, (220, 220, 220))
     surf.blit(txt, ((size - txt.get_width()) // 2, (size - txt.get_height()) // 2))
     return surf
-
 
 def _load_image_safe(path, size):
     if not path or not os.path.exists(resource_path(path)):
@@ -79,11 +91,9 @@ def _load_image_safe(path, size):
     except:
         return None
 
-
 # ----------------------------------------------------------
 # MENÚ GENÉRICO (personaje o avión)
 # ----------------------------------------------------------
-
 def _run_generic_menu(screen, clock, title_text, paths, index_attr_name):
     running = True
 
@@ -101,7 +111,6 @@ def _run_generic_menu(screen, clock, title_text, paths, index_attr_name):
     if not names:
         names = ["coming_soon"]
 
-    # índice actual real desde config
     current_index = getattr(config, index_attr_name, -1)
 
     search_text = ""
@@ -116,8 +125,11 @@ def _run_generic_menu(screen, clock, title_text, paths, index_attr_name):
     hover_offset_y = [0 for _ in imgs]
     glow_alpha = [0 for _ in imgs]
 
+    start_time = pygame.time.get_ticks()
+
     while running:
         dt = clock.tick(config.FPS)
+        t = (pygame.time.get_ticks() - start_time) / 1000.0
         mx, my = pygame.mouse.get_pos()
 
         cursor_timer += dt
@@ -146,13 +158,11 @@ def _run_generic_menu(screen, clock, title_text, paths, index_attr_name):
 
             if ev.type == pygame.MOUSEBUTTONDOWN:
                 if ev.button == 1:
-                    # activar buscador
-                    if 50 <= mx <= config.WIDTH - 50 and 110 <= my <= 150:
+                    if 50 <= mx <= config.WIDTH - 50 and 160 <= my <= 200:
                         active_search = True
                     else:
                         active_search = False
 
-                    # selección de skin
                     for n, idx in enumerate(filtered_indices):
                         row = n // SKINS_PER_ROW
                         col = n % SKINS_PER_ROW
@@ -165,7 +175,6 @@ def _run_generic_menu(screen, clock, title_text, paths, index_attr_name):
                             current_index = idx
                             setattr(config, index_attr_name, idx)
 
-                # scroll
                 if ev.button == 4:
                     scroll_target -= SCROLL_STEP
                 elif ev.button == 5:
@@ -194,13 +203,16 @@ def _run_generic_menu(screen, clock, title_text, paths, index_attr_name):
         scroll_offset += (scroll_target - scroll_offset) * EASING
 
         # DIBUJO
-        screen.fill(config.C_BG)
+        draw_animated_background(screen, t)
 
-        title = font_title.render(title_text, True, config.C_TEXT)
-        screen.blit(title, (config.WIDTH // 2 - title.get_width() // 2, 20))
+        # TÍTULO IGUAL QUE niveles.py
+        title = font_title.render(title_text, True, (0, 255, 200))
+        shadow = font_title.render(title_text, True, (0, 0, 0))
+        screen.blit(shadow, (config.WIDTH//2 - title.get_width()//2 + 6, 40 + 6))
+        screen.blit(title, (config.WIDTH//2 - title.get_width()//2, 40))
 
-        # Buscador
-        search_rect = pygame.Rect(50, 110, config.WIDTH - 100, 40)
+        # Buscador (BAJADO)
+        search_rect = pygame.Rect(50, 160, config.WIDTH - 100, 40)
         pygame.draw.rect(screen, (30, 30, 50), search_rect, border_radius=10)
         pygame.draw.rect(screen, (0, 180, 255) if active_search else (120, 120, 160),
                          search_rect, 3, border_radius=10)
@@ -245,7 +257,6 @@ def _run_generic_menu(screen, clock, title_text, paths, index_attr_name):
             center_y = y + SKIN_SIZE // 2 + int(hover_offset_y[idx])
             scaled_rect = scaled.get_rect(center=(center_x, center_y))
 
-            # Glow
             if glow_alpha[idx] > 5:
                 glow_surf = pygame.Surface((new_size + 26, new_size + 26), pygame.SRCALPHA)
                 pygame.draw.ellipse(
@@ -256,16 +267,13 @@ def _run_generic_menu(screen, clock, title_text, paths, index_attr_name):
                 glow_rect = glow_surf.get_rect(center=(center_x, center_y + 4))
                 surf.blit(glow_surf, glow_rect)
 
-            # Marco de selección
             if idx == current_index:
                 border_rect = pygame.Rect(0, 0, new_size + 14, new_size + 14)
                 border_rect.center = (center_x, center_y)
                 pygame.draw.rect(surf, (0, 255, 120), border_rect, 4, border_radius=10)
 
-            # Imagen
             surf.blit(scaled, scaled_rect.topleft)
 
-            # NOMBRE MULTILÍNEA
             lines = wrap_text(name, font_name, SKIN_SIZE)
             text_y = scaled_rect.bottom + 4
 
@@ -293,36 +301,57 @@ def _run_generic_menu(screen, clock, title_text, paths, index_attr_name):
 
         pygame.display.flip()
 
-
 # ----------------------------------------------------------
-# MENÚ PRINCIPAL DE SKINS
+# MENÚ PRINCIPAL DE SKINS (BOTONES CIRCULARES)
 # ----------------------------------------------------------
-
 def run_skins_menu(screen, clock):
     running = True
 
-    btn_char = pygame.Rect(config.WIDTH // 2 - 260, 120, 220, 60)
-    btn_plane = pygame.Rect(config.WIDTH // 2 + 40, 120, 220, 60)
+    # === Cargar imágenes de los botones ===
+    img_char = pygame.image.load(resource_path("assets/images/icon_personaje.png")).convert_alpha()
+    img_plane = pygame.image.load(resource_path("assets/images/icon_avion.png")).convert_alpha()
+
+    # Tamaño base de los iconos (más pequeños que antes)
+    ICON_SIZE = 140
+    img_char = pygame.transform.smoothscale(img_char, (ICON_SIZE, ICON_SIZE))
+    img_plane = pygame.transform.smoothscale(img_plane, (ICON_SIZE, ICON_SIZE))
+
+    # Botones circulares
+    radius = 110   # más pequeño que antes
+    btn_char_center = (config.WIDTH//2 - 180, config.HEIGHT//2)
+    btn_plane_center = (config.WIDTH//2 + 180, config.HEIGHT//2)
+
+    # Escala animada
+    scale_char = 1.0
+    scale_plane = 1.0
+
+    start_time = pygame.time.get_ticks()
 
     while running:
-        clock.tick(config.FPS)
+        dt = clock.tick(config.FPS) / 1000
+        t = (pygame.time.get_ticks() - start_time) / 1000
         mx, my = pygame.mouse.get_pos()
 
         for ev in pygame.event.get():
             if ev.type == pygame.QUIT:
                 pygame.quit()
                 raise SystemExit
+
             if ev.type == pygame.KEYDOWN and ev.key == pygame.K_ESCAPE:
                 running = False
+
             if ev.type == pygame.MOUSEBUTTONDOWN and ev.button == 1:
-                if btn_char.collidepoint(mx, my):
+                # Click en botón personaje
+                if (mx - btn_char_center[0])**2 + (my - btn_char_center[1])**2 <= (radius*1.2)**2:
                     _run_generic_menu(
                         screen, clock,
                         "SKINS DE PERSONAJE",
                         config.CHAR_SKINS,
                         "selected_character_skin_index"
                     )
-                if btn_plane.collidepoint(mx, my):
+
+                # Click en botón avión
+                if (mx - btn_plane_center[0])**2 + (my - btn_plane_center[1])**2 <= (radius*1.2)**2:
                     _run_generic_menu(
                         screen, clock,
                         "SKINS DE AVIÓN",
@@ -330,21 +359,39 @@ def run_skins_menu(screen, clock):
                         "selected_plane_skin_index"
                     )
 
-        screen.fill(config.C_BG)
+        # Fondo animado
+        draw_animated_background(screen, t)
 
-        title = font_title.render("SELECCIONAR TIPO DE SKIN", True, config.C_TEXT)
-        screen.blit(title, (config.WIDTH // 2 - title.get_width() // 2, 20))
+        # Hover detección
+        hover_char = (mx - btn_char_center[0])**2 + (my - btn_char_center[1])**2 <= radius**2
+        hover_plane = (mx - btn_plane_center[0])**2 + (my - btn_plane_center[1])**2 <= radius**2
 
-        pygame.draw.rect(screen, (40, 40, 80), btn_char, border_radius=10)
-        pygame.draw.rect(screen, (255, 255, 255), btn_char, 3, border_radius=10)
-        txt = font_small.render("Skins de personaje", True, (255, 255, 255))
-        screen.blit(txt, (btn_char.centerx - txt.get_width() // 2,
-                          btn_char.centery - txt.get_height() // 2))
+        # Animación de escala
+        scale_char += ((1.18 if hover_char else 1.0) - scale_char) * 0.15
+        scale_plane += ((1.18 if hover_plane else 1.0) - scale_plane) * 0.15
 
-        pygame.draw.rect(screen, (40, 40, 80), btn_plane, border_radius=10)
-        pygame.draw.rect(screen, (255, 255, 255), btn_plane, 3, border_radius=10)
-        txt2 = font_small.render("Skins de avión", True, (255, 255, 255))
-        screen.blit(txt2, (btn_plane.centerx - txt2.get_width() // 2,
-                           btn_plane.centery - txt2.get_height() // 2))
+        # Dibujar botones
+        for center, img, scale in [
+            (btn_char_center, img_char, scale_char),
+            (btn_plane_center, img_plane, scale_plane)
+        ]:
+            cx, cy = center
+            r = int(radius * scale)
+
+            # === Glow exterior ===
+            glow = pygame.Surface((r*2+40, r*2+40), pygame.SRCALPHA)
+            pygame.draw.circle(glow, (0,255,255, 120 if scale > 1.05 else 70), (r+20, r+20), r+18)
+            screen.blit(glow, (cx-r-20, cy-r-20), special_flags=pygame.BLEND_ADD)
+
+            # === Borde circular estilo GD ===
+            pygame.draw.circle(screen, (255,255,255), (cx, cy), r, 6)
+            pygame.draw.circle(screen, (0,0,0), (cx, cy), r, 10)
+
+            # === Imagen centrada ===
+            icon_scaled = pygame.transform.smoothscale(img, (int(ICON_SIZE*scale), int(ICON_SIZE*scale)))
+            rect = icon_scaled.get_rect(center=(cx, cy))
+            screen.blit(icon_scaled, rect)
 
         pygame.display.flip()
+
+
