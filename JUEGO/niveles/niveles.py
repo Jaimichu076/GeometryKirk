@@ -6,9 +6,10 @@ import sys
 import math
 import random
 
+from audio_manager import audio   # ← AÑADIDO
+
 pygame.init()
 
-# === FUNCIÓN PARA CARGAR RECURSOS EN VSCode, PyInstaller Y EL INSTALADOR ===
 def resource_path(relative_path):
     if hasattr(sys, '_MEIPASS'):
         base_path = sys._MEIPASS
@@ -16,16 +17,10 @@ def resource_path(relative_path):
         base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     return os.path.join(base_path, relative_path)
 
-# -----------------------------
-# FUENTES
-# -----------------------------
 font_title = pygame.font.SysFont("Arial Black", 70)
 font_name = pygame.font.SysFont("Arial Black", 45)
 font_small = pygame.font.SysFont("Arial", 26)
 
-# -----------------------------
-# BARRA DE PROGRESO
-# -----------------------------
 def draw_progress_bar(surface, x, y, width, percent, color):
     pygame.draw.rect(surface, (20, 20, 30), (x, y, width, 26), border_radius=12)
     fill = int(width * (percent / 100))
@@ -36,9 +31,6 @@ def draw_progress_bar(surface, x, y, width, percent, color):
     pygame.draw.rect(glow, (*color, 80), (0, 0, fill, 26), border_radius=12)
     surface.blit(glow, (x, y), special_flags=pygame.BLEND_PREMULTIPLIED)
 
-# -----------------------------
-# BOTÓN PLAY ESTILO GD
-# -----------------------------
 class PlayButton:
     def __init__(self, x, y, size):
         self.x = x
@@ -51,10 +43,8 @@ class PlayButton:
     def draw(self, surf, dt):
         self.pulse_t += dt * 4
         pulse = 0.04 * math.sin(self.pulse_t * 2)
-
         target = 1.22 if self.hover else 1.05 + pulse
         self.scale += (target - self.scale) * 0.18
-
         s = int(self.base_size * self.scale)
 
         glow = pygame.Surface((s * 2, s * 2), pygame.SRCALPHA)
@@ -80,9 +70,6 @@ class PlayButton:
         mx, my = mouse_pos
         return ((mx - self.x)**2 + (my - self.y)**2)**0.5 <= self.base_size//2
 
-# -----------------------------
-# FLECHAS IZQUIERDA / DERECHA
-# -----------------------------
 class ArrowButton:
     def __init__(self, x, y, direction):
         self.x = x
@@ -95,7 +82,6 @@ class ArrowButton:
     def draw(self, surf, dt):
         self.pulse_t += dt * 3
         pulse = 0.03 * math.sin(self.pulse_t * 2)
-
         target = 1.25 if self.hover else 1.05 + pulse
         self.scale += (target - self.scale) * 0.2
 
@@ -134,25 +120,17 @@ class ArrowButton:
         mx, my = mouse_pos
         return ((mx - self.x)**2 + (my - self.y)**2)**0.5 <= 40
 
-# -----------------------------
-# FONDO ANIMADO (SIN CÍRCULOS)
-# -----------------------------
 def draw_animated_background(surface, t):
     w, h = surface.get_size()
-
     for y in range(0, h, 60):
         c = 40 + int(40 * math.sin(t * 0.7 + y * 0.03))
         pygame.draw.rect(surface, (10, c, 60 + c//3), (0, y, w, 60))
-
     for i in range(18):
         x = (i * 120 + int(t * 90)) % (w + 200) - 100
         y = 120 + int(40 * math.sin(t * 1.3 + i))
         alpha = 80 + int(60 * math.sin(t * 2 + i))
         pygame.draw.circle(surface, (0, 255, 255, alpha), (x, y), 6)
 
-# -----------------------------
-# TRANSICIÓN FADE + ZOOM
-# -----------------------------
 def transition_to_level(screen, clock, draw_last_frame_callback):
     w, h = screen.get_size()
     overlay = pygame.Surface((w, h), pygame.SRCALPHA)
@@ -183,10 +161,9 @@ def transition_to_level(screen, clock, draw_last_frame_callback):
         if t >= 1:
             break
 
-# -----------------------------
-# MENÚ DE NIVELES
-# -----------------------------
 def run_levels_menu(screen, clock):
+
+    audio.resume()   # ← AÑADIDO (reanudar música del menú)
 
     levels = [
         {"name": "Maincra",          "difficulty": "Easy",   "color": (0, 200, 255), "progress": 0},
@@ -204,9 +181,7 @@ def run_levels_menu(screen, clock):
 
     current = 0
 
-    # PLAY CENTRADO EN LA TARJETA
     play_button = PlayButton(config.WIDTH//2 + 250, config.HEIGHT//2 + 40, 130)
-
     arrow_left = ArrowButton(config.WIDTH//2 - 450, config.HEIGHT//2 + 20, -1)
     arrow_right = ArrowButton(config.WIDTH//2 + 450, config.HEIGHT//2 + 20, +1)
 
@@ -226,9 +201,11 @@ def run_levels_menu(screen, clock):
                 raise SystemExit
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                audio.play_sfx(config.BUTTON_SOUND)   # ← AÑADIDO
                 running = False
 
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                audio.play_sfx(config.BUTTON_SOUND)   # ← AÑADIDO
 
                 if arrow_left.handle_click(mouse_pos):
                     current = (current - 1) % len(levels)
@@ -238,11 +215,16 @@ def run_levels_menu(screen, clock):
 
                 if play_button.handle_click(mouse_pos):
                     if current == 0:
+                        audio.pause()   # ← AÑADIDO (pausar música del menú)
+
                         def draw_last():
                             screen.blit(last_frame, (0, 0))
                         last_frame.blit(screen, (0, 0))
                         transition_to_level(screen, clock, draw_last)
+
                         nivel1.run_level(screen, clock)
+
+                        audio.resume()   # ← AÑADIDO (reanudar música al salir del nivel)
                         start_time = pygame.time.get_ticks()
 
         draw_animated_background(screen, t)
@@ -305,3 +287,4 @@ def run_levels_menu(screen, clock):
         play_button.draw(screen, dt)
 
         pygame.display.flip()
+        audio.update()   # ← AÑADIDO

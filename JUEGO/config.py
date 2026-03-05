@@ -26,6 +26,8 @@ C_BTN_HOVER = (60, 60, 120)
 
 # Menu assets
 MENU_BACKGROUND = os.path.join(ASSETS_IMG, "wallpaper.png")
+
+# Música del menú (ya no se usa directamente, pero la dejamos por compatibilidad)
 MENU_MUSIC = os.path.join(ASSETS_AUDIO, "C418 - Aria Math.mp3")
 
 # Logo compartido entre start y main
@@ -33,6 +35,11 @@ LOGO_IMG = os.path.join(ASSETS_IMG, "logogeometrykirk.png")
 
 # Música del nivel
 LEVEL_MUSIC = os.path.join(ASSETS_AUDIO, "level1_soundtrac.mp3")
+
+# ---------------------------
+# Sonido global de botones
+# ---------------------------
+BUTTON_SOUND = os.path.join(ASSETS_AUDIO, "button.mp3")
 
 # ---------------------------
 # Descubrimiento automático de skins

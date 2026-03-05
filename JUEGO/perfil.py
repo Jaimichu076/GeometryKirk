@@ -2,6 +2,7 @@ import pygame
 import sys
 import os
 import config
+from audio_manager import audio   # ← AÑADIDO
 
 def resource_path(relative_path):
     if hasattr(sys, "_MEIPASS"):
@@ -11,6 +12,8 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 def run_perfil(screen, clock):
+    audio.resume()   # ← AÑADIDO
+
     font_big = pygame.font.SysFont("Arial Black", 70)
     font_small = pygame.font.SysFont("Arial", 28)
 
@@ -21,7 +24,9 @@ def run_perfil(screen, clock):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit(); sys.exit()
+
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                audio.play_sfx(config.BUTTON_SOUND)   # ← AÑADIDO
                 running = False
 
         screen.fill((20, 20, 40))

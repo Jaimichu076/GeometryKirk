@@ -10,11 +10,9 @@ from niveles import niveles
 import perfil
 import notas
 
+from audio_manager import audio   # ← AUDIO GLOBAL
+
 pygame.init()
-try:
-    pygame.mixer.init()
-except Exception:
-    pass
 
 # === FUNCIÓN UNIVERSAL PARA CARGAR RECURSOS ===
 def resource_path(relative_path):
@@ -51,44 +49,27 @@ if os.path.exists(bg_path):
     except Exception:
         background_img = None
 
-# Música
-try:
-    music_path = resource_path(config.MENU_MUSIC)
-    if os.path.exists(music_path):
-        pygame.mixer.music.load(music_path)
-        pygame.mixer.music.set_volume(0.6)
-        pygame.mixer.music.play(-1)
-except Exception:
-    pass
 
 # === ICONOS GENERADOS AUTOMÁTICAMENTE (CALIDAD ALTA) ===
 
 def draw_icon_perfil(size, hover=False):
     surf = pygame.Surface((size, size), pygame.SRCALPHA)
-
     glow = 12 if hover else 6
     pygame.draw.circle(surf, (255, 255, 0, 80), (size//2, size//2), size//2 + glow)
-
     pygame.draw.circle(surf, (255, 255, 0), (size//2, size//2 - 10), size//4)
     pygame.draw.rect(surf, (255, 255, 0), (size//4, size//2, size//2, size//3), border_radius=12)
-
     pygame.draw.circle(surf, (0, 0, 0), (size//2, size//2 - 10), size//4, 3)
     pygame.draw.rect(surf, (0, 0, 0), (size//4, size//2, size//2, size//3), 3, border_radius=12)
-
     return surf
 
 def draw_icon_notas(size, hover=False):
     surf = pygame.Surface((size, size), pygame.SRCALPHA)
-
     glow = 12 if hover else 6
     pygame.draw.circle(surf, (255, 255, 255, 80), (size//2, size//2), size//2 + glow)
-
     pygame.draw.rect(surf, (255, 255, 255), (size*0.2, size*0.15, size*0.6, size*0.7), border_radius=8)
     pygame.draw.rect(surf, (0, 0, 0), (size*0.2, size*0.15, size*0.6, size*0.7), 3, border_radius=8)
-
     for i in range(4):
         pygame.draw.line(surf, (0, 0, 0), (size*0.28, size*0.28 + i*size*0.13), (size*0.72, size*0.28 + i*size*0.13), 3)
-
     return surf
 
 ICON_SIZE = 70
@@ -147,8 +128,18 @@ class RoundButton:
             return self.action
         return None
 
+
+# ============================
+#   MENÚ PRINCIPAL ARREGLADO
+# ============================
 def main_menu():
     global perfil_hover, notas_hover
+
+    # ARRANCAR MÚSICA DEL MENÚ SI NO SUENA NADA
+    if not pygame.mixer.music.get_busy():
+        audio.play_random_menu_music()
+    else:
+        audio.resume()
 
     center_y = config.HEIGHT // 2 + 40
     spacing = 180
@@ -172,6 +163,7 @@ def main_menu():
                 pygame.quit(); sys.exit()
 
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                audio.play_sfx(config.BUTTON_SOUND)
 
                 for b in buttons:
                     action = b.handle_click(mouse_pos)
@@ -207,6 +199,8 @@ def main_menu():
         screen.blit(notas_icon_final, notas_rect)
 
         pygame.display.flip()
+        audio.update()   # ← CAMBIO DE CANCIÓN AUTOMÁTICO
+
 
 if __name__ == "__main__":
     main_menu()

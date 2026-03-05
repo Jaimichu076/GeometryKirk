@@ -2,6 +2,7 @@ import pygame
 import sys
 import os
 import config
+from audio_manager import audio   # ← AÑADIDO
 
 def resource_path(relative_path):
     if hasattr(sys, "_MEIPASS"):
@@ -18,10 +19,11 @@ VERSIONES = [
         "Nivel 1 completamente jugable.",
         "Sistema de bosses inicial."
     ]),
-
 ]
 
 def run_notas(screen, clock):
+    audio.resume()   # ← AÑADIDO
+
     font_title = pygame.font.SysFont("Arial Black", 60)
     font_ver = pygame.font.SysFont("Arial Black", 36)
     font_text = pygame.font.SysFont("Arial", 26)
@@ -29,15 +31,12 @@ def run_notas(screen, clock):
     scroll = 0
     running = True
 
-    # Área donde se dibuja el contenido scrolleable
     CONTENT_TOP = 140
     CONTENT_BOTTOM = config.HEIGHT - 40
     CONTENT_HEIGHT = CONTENT_BOTTOM - CONTENT_TOP
 
-    # Crear superficie grande para el contenido
     content_surface = pygame.Surface((config.WIDTH, 2000), pygame.SRCALPHA)
 
-    # Pre-renderizar contenido
     def render_content():
         y = 0
         for version, cambios in VERSIONES:
@@ -56,11 +55,9 @@ def run_notas(screen, clock):
 
     total_content_height = render_content()
 
-    # Scroll limits
     max_scroll = 0
     min_scroll = -(total_content_height - CONTENT_HEIGHT)
 
-    # Scrollbar settings
     scrollbar_width = 12
     scrollbar_color = (180, 180, 180)
     scrollbar_bg = (60, 60, 60)
@@ -73,28 +70,24 @@ def run_notas(screen, clock):
                 pygame.quit(); sys.exit()
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                audio.play_sfx(config.BUTTON_SOUND)   # ← AÑADIDO
                 running = False
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 4:  # scroll up
+                if event.button == 4:
                     scroll += 40
-                if event.button == 5:  # scroll down
+                if event.button == 5:
                     scroll -= 40
 
-        # Limitar scroll
         scroll = max(min_scroll, min(max_scroll, scroll))
 
-        # Fondo
         screen.fill((25, 25, 45))
 
-        # Título fijo
         title = font_title.render("Notas de la versión", True, (0, 255, 200))
         screen.blit(title, (config.WIDTH//2 - title.get_width()//2, 40))
 
-        # Dibujar contenido scrolleado dentro del área
         screen.blit(content_surface, (0, CONTENT_TOP), area=pygame.Rect(0, -scroll, config.WIDTH, CONTENT_HEIGHT))
 
-        # Dibujar barra de scroll
         if total_content_height > CONTENT_HEIGHT:
             scrollbar_height = max(40, int(CONTENT_HEIGHT * (CONTENT_HEIGHT / total_content_height)))
             scrollbar_y = CONTENT_TOP + int((-scroll / (total_content_height - CONTENT_HEIGHT)) * (CONTENT_HEIGHT - scrollbar_height))
