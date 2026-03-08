@@ -34,6 +34,7 @@ SPIKE_IMG = None
 SAW_IMG = None
 saw_img = None
 PORTAL_IMG = None
+FINAL_IMG = None
 
 # Cargar imagen del suelo
 
@@ -112,12 +113,6 @@ class Particle:
         surface.blit(s, (self.x, self.y))
 
 class Player:
-    """
-    Jugador principal.
-    - mode: "cube" o "ship"
-    - cube: física con gravedad y salto
-    - ship: control vertical (mantener = subir)
-    """
     def __init__(self, start_x):
         self.start_x = start_x
         self.rect = pygame.Rect(start_x, config.GROUND_Y - config.PLAYER_SIZE,
@@ -131,73 +126,72 @@ class Player:
         self.mode = "cube"
         self.ship_speed_y = 4.0
         self.on_platform = False
+        self.on_ground_flag = False
 
     def on_ground(self):
         return (
             self.mode == "cube"
-            and (
-                (self.gravity_dir == 1 and self.rect.bottom >= config.GROUND_Y)
-                or (self.gravity_dir == -1 and self.rect.top <= 0)
-                or self.on_platform
-            )
+            and (self.rect.bottom >= config.GROUND_Y or self.on_platform)
         )
 
     def update(self):
         if not self.alive:
             return
 
-        # ------------------ MODO CUBE ------------------
+        # ------------------ CUBE ------------------
         if self.mode == "cube":
-            # gravedad
-            if not self.on_platform:
-                self.vel_y += config.GRAVITY * self.gravity_dir
-            else:
-                self.vel_y = 0
 
+            # gravedad
+            self.vel_y += config.GRAVITY
+
+            # movimiento
             self.rect.y += self.vel_y
 
-            # colisión con suelo
+            # suelo
             if self.rect.bottom >= config.GROUND_Y:
                 self.rect.bottom = config.GROUND_Y
                 self.vel_y = 0
+                self.on_ground_flag = True
                 self.rotation = round(self.rotation / 90) * 90
+            else:
+                self.on_ground_flag = False
 
-            # rotación mientras cae
+            # rotación
             if self.vel_y != 0:
-                self.rotation -= 6 * self.gravity_dir
+                self.rotation -= 6
 
-        # ------------------ MODO SHIP ------------------
+            # salto continuo
+            if self.jump_held and self.on_ground_flag:
+                self.jump()
+
+        # ------------------ SHIP ------------------
         elif self.mode == "ship":
-            # subir si mantienes pulsado
             if self.jump_held:
                 self.rect.y -= self.ship_speed_y
             else:
                 self.rect.y += self.ship_speed_y
 
-            # límites verticales
             if self.rect.top < 0:
                 self.rect.top = 0
             if self.rect.bottom > config.GROUND_Y:
                 self.rect.bottom = config.GROUND_Y
 
-        # ------------------ TRAIL ------------------
+        # trail
         self.trail.append(self.rect.center)
         if len(self.trail) > 12:
             self.trail.pop(0)
 
     def jump(self):
-        """Salto en modo cube."""
-        if self.mode == "cube":
-            if self.gravity_dir == 1 and (self.rect.bottom >= config.GROUND_Y or self.on_platform):
-                self.vel_y = config.JUMP_FORCE
-                return True
-            elif self.gravity_dir == -1 and self.rect.top <= 0:
-                self.vel_y = -config.JUMP_FORCE
-                return True
+        if self.mode != "cube":
+            return False
+
+        if self.rect.bottom >= config.GROUND_Y or self.on_platform:
+            self.vel_y = -config.JUMP_FORCE
+            return True
+
         return False
 
     def draw(self, surface):
-        # trail
         for i, pos in enumerate(self.trail):
             alpha = int(120 * (i / len(self.trail)))
             size = config.PLAYER_SIZE - (len(self.trail) - i) * 1.5
@@ -205,24 +199,22 @@ class Player:
             s.fill((0, 255, 200, alpha))
             surface.blit(s, s.get_rect(center=pos))
 
-        # --- AVIÓN DEBAJO EN MODO SHIP ---
         if self.mode == "ship" and plane_skin_img:
             plane_rect = plane_skin_img.get_rect(center=(self.rect.centerx, self.rect.centery + 30))
             surface.blit(plane_skin_img, plane_rect)
 
-        # --- PERSONAJE ENCIMA ---
         if skin_img:
             rotated = pygame.transform.rotate(skin_img, self.rotation)
         else:
             cube = pygame.Surface((config.PLAYER_SIZE, config.PLAYER_SIZE), pygame.SRCALPHA)
-            if self.mode == "cube":
-                cube.fill((0, 255, 200))
-            else:
-                cube.fill((80, 200, 255))
+            cube.fill((0, 255, 200) if self.mode == "cube" else (80, 200, 255))
             pygame.draw.rect(cube, config.C_TEXT, cube.get_rect(), 3)
             rotated = pygame.transform.rotate(cube, self.rotation)
 
         surface.blit(rotated, rotated.get_rect(center=self.rect.center))
+
+
+
 
 
 
@@ -902,22 +894,21 @@ def spawn_particles(particles, x, y, color, count=30, speed=1.0):
 # ------------------ BUCLE PRINCIPAL DEL NIVEL ------------------
 
 def run_level(screen, clock):
-    global skin_img, plane_skin_img, bg_image, SPIKE_IMG, SAW_IMG, saw_img, PORTAL_IMG
+    global skin_img, plane_skin_img, bg_image, SPIKE_IMG, SAW_IMG, saw_img, PORTAL_IMG, FINAL_IMG
+
+    # ------------------ CARGA DE RECURSOS ------------------
     skin_img = load_skin()
     plane_skin_img = load_plane_skin()
     bg_image = load_bg()
-
 
     font_title = pygame.font.SysFont("Arial Black", 60)
     font_ui = pygame.font.SysFont("Arial", 24)
     font_pct = pygame.font.SysFont("Arial Black", 28)
 
-    bg_static = bg_image
-
     SPIKE_IMG = pygame.image.load(resource_path("assets/images/level1_spike.png")).convert_alpha()
     SPIKE_IMG = pygame.transform.scale(SPIKE_IMG, (70, 70))
 
-    GROUND_IMG = pygame.image.load(resource_path("assets/images/suelo.png")).convert_alpha()
+    GROUND_IMG = pygame.image.load(resource_path("assets/images/suelo_level1.png")).convert_alpha()
     GROUND_IMG = pygame.transform.scale(GROUND_IMG, (config.WIDTH, config.HEIGHT - config.GROUND_Y))
 
     SAW_IMG = pygame.image.load(resource_path("assets/images/level1_motioncirclespike.png")).convert_alpha()
@@ -929,18 +920,23 @@ def run_level(screen, clock):
     PORTAL_IMG = pygame.image.load(resource_path("assets/images/netherportal.gif")).convert_alpha()
     PORTAL_IMG = pygame.transform.scale(PORTAL_IMG, (90, 120))
 
+    FINAL_IMG = pygame.image.load(resource_path("assets/images/final_level1-removebg.png")).convert_alpha()
+    FINAL_IMG = pygame.transform.scale(FINAL_IMG, (180, 260))
 
-    particles = []
+    # ------------------ ESTADO INICIAL ------------------
     player = Player(start_x=150)
     objects, end_x, total_distance = generate_level()
 
+    final_rect = FINAL_IMG.get_rect()
+    final_rect.midbottom = (end_x, config.GROUND_Y)
+
     distance_traveled = 0
     progress = 0
-
-    camera_shake = 0
     state = "PLAY"
 
-    # Música
+    SCROLL_SPEED = getattr(config, "SCROLL_SPEED", 400)
+
+    # ------------------ MÚSICA ------------------
     music_path = resource_path(config.LEVEL_MUSIC)
     if os.path.exists(music_path):
         try:
@@ -950,149 +946,209 @@ def run_level(screen, clock):
         except:
             pass
 
-
+    # ------------------ BUCLE PRINCIPAL ------------------
     running = True
     while running:
         dt = clock.tick(config.FPS) / 1000.0
+        scroll_speed = SCROLL_SPEED * dt
 
         # ------------------ EVENTOS ------------------
         for event in pygame.event.get():
+
             if event.type == pygame.QUIT:
                 pygame.quit()
                 raise SystemExit
 
-            # INPUT SOLO EN PLAY
+            # ------------------ PLAY ------------------
             if state == "PLAY":
+
+                # Saltar con espacio o flecha arriba
                 if event.type == pygame.KEYDOWN:
                     if event.key in (pygame.K_SPACE, pygame.K_UP):
                         player.jump_held = True
-                        if player.mode == "cube":
-                            player.jump()
+                        player.jump()
+
+                    if event.key == pygame.K_ESCAPE:
+                        pygame.mixer.music.pause()
+                        state = "PAUSA"
 
                 if event.type == pygame.KEYUP:
                     if event.key in (pygame.K_SPACE, pygame.K_UP):
                         player.jump_held = False
 
+                # Saltar con clic izquierdo
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     player.jump_held = True
-                    if player.mode == "cube":
-                        player.jump()
+                    player.jump()
 
                 if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                     player.jump_held = False
 
-            # GAMEOVER
-            if state == "GAMEOVER":
+            # ------------------ PAUSA ------------------
+            elif state == "PAUSA":
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN:
+                        pygame.mixer.music.unpause()
+                        state = "PLAY"
+                    if event.key == pygame.K_ESCAPE:
+                        pygame.mixer.music.stop()
+                        running = False
+
+            # ------------------ GAMEOVER ------------------
+            elif state == "GAMEOVER":
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN:   # reiniciar
+                        return run_level(screen, clock)
+                    if event.key == pygame.K_ESCAPE:   # salir
+                        running = False
+
+            # ------------------ WIN ------------------
+            elif state == "WIN":
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
                         return run_level(screen, clock)
                     if event.key == pygame.K_ESCAPE:
                         running = False
 
-        # ------------------ UPDATE ------------------
-        # partículas siempre
-        for p in particles[:]:
-            p.update()
-            if p.life <= 0:
-                particles.remove(p)
+        # ------------------ ACTUALIZACIÓN ------------------
+        if state == "PLAY":
 
-        # SOLO HAY LÓGICA SI ESTÁ EN PLAY Y VIVO
-        if state == "PLAY" and player.alive:
-
-            # actualizar jugador
             player.update()
 
-            # auto-salto (como GD)
-            if player.mode == "cube" and player.jump_held and player.on_ground():
-                player.jump()
+            for obj in objects:
+                obj.update(scroll_speed)
 
-            hitbox = player.rect.inflate(-4, -4)
+            distance_traveled += scroll_speed
+            progress = min(100, (distance_traveled / total_distance) * 100)
+
+            # --------- COLISIONES, PORTALES Y MUERTE ----------
             player.on_platform = False
 
-            # actualizar objetos SOLO si estás vivo
             for obj in objects:
-                obj.update(config.SPEED)
 
-            # colisiones mortales
-            for obj in objects:
-                if obj.kind in ("spike", "saw", "movingsaw"):
-                    if hitbox.colliderect(obj.rect):
-                        player.alive = False
+                # SPIKES
+                if getattr(obj, "kind", None) == "spike":
+                    if player.rect.colliderect(obj.rect):
                         state = "GAMEOVER"
-                        pygame.mixer.music.stop()  # parar música
-                        camera_shake = 12
-                        spawn_particles(
-                            particles,
-                            player.rect.centerx,
-                            player.rect.centery,
-                            (255, 50, 50),
-                            40,
-                            1.2
-                        )
-                        break  # NO MÁS COLISIONES
+                        pygame.mixer.music.stop()
+                        break
 
-                if obj.kind == "portal" and hitbox.colliderect(obj.rect) and not obj.used:
-                    obj.used = True
-                    player.mode = "ship" if obj.portal_type == "in" else "cube"
+                # SIERRAS
+                if getattr(obj, "kind", None) in ("saw", "movingsaw"):
+                    if player.rect.colliderect(obj.rect):
+                        state = "GAMEOVER"
+                        pygame.mixer.music.stop()
+                        break
 
-                if obj.kind == "end" and hitbox.colliderect(obj.rect):
-                    state = "WIN"
+                # PLATAFORMAS
+                if getattr(obj, "kind", None) == "platform":
+                    if player.rect.colliderect(obj.rect):
+                        if player.vel_y >= 0 and player.rect.bottom <= obj.rect.bottom:
+                            player.rect.bottom = obj.rect.top
+                            player.vel_y = 0
+                            player.on_platform = True
 
-            # progreso solo avanza si estás vivo
-            distance_traveled += config.SPEED
-            progress = max(0, min(100, int((distance_traveled / total_distance) * 100)))
+                # PORTALES
+                if getattr(obj, "kind", None) == "portal":
+                    if player.rect.colliderect(obj.rect) and not getattr(obj, "used", False):
+                        obj.used = True
+                        if obj.portal_type == "in":
+                            player.mode = "ship"
+                            player.vel_y = 0
+                            player.rotation = 0
+                        elif obj.portal_type == "out":
+                            player.mode = "cube"
+                            player.vel_y = 0
+                            player.rotation = 0
 
-        # ------------------ DRAW ------------------
-        # si estás muerto, NO hay shake
-        if state == "PLAY":
-            ox = random.randint(-camera_shake, camera_shake) if camera_shake > 0 else 0
-            oy = random.randint(-camera_shake, camera_shake) if camera_shake > 0 else 0
-        else:
-            ox = 0
-            oy = 0
+            # FINAL DEL NIVEL
+            if player.rect.colliderect(final_rect):
+                state = "WIN"
+                pygame.mixer.music.stop()
 
-        temp_surf = pygame.Surface((config.WIDTH, config.HEIGHT))
+        # ------------------ DIBUJO ------------------
+        screen.blit(bg_image, (0, 0))
 
-        if bg_static:
-            temp_surf.blit(bg_static, (0, 0))
-        else:
-            temp_surf.fill(config.C_BG)
-
-        temp_surf.blit(GROUND_IMG, (0, config.GROUND_Y))
-
-        pygame.draw.line(temp_surf, (0, 0, 0), (0, config.GROUND_Y), (config.WIDTH, config.GROUND_Y), 3)
+        screen.blit(GROUND_IMG, (0, config.GROUND_Y))
+        pygame.draw.line(screen, (0, 0, 0), (0, config.GROUND_Y), (config.WIDTH, config.GROUND_Y), 4)
 
         for obj in objects:
-            obj.draw(temp_surf)
+            obj.draw(screen)
 
-        for p in particles:
-            p.draw(temp_surf)
+        player.draw(screen)
 
-        player.draw(temp_surf)
+        screen.blit(FINAL_IMG, final_rect)
 
-        # barra de progreso
-        bar_w = int(config.WIDTH * 0.72)
-        bar_x = config.WIDTH // 2 - bar_w // 2
-        bar_y = 18
-        pygame.draw.rect(temp_surf, (30, 30, 30), (bar_x, bar_y, bar_w, 28), border_radius=8)
-        pygame.draw.rect(temp_surf, (0, 200, 0), (bar_x, bar_y, int(bar_w * (progress / 100)), 28), border_radius=8)
-        pygame.draw.rect(temp_surf, (0, 0, 0), (bar_x, bar_y, bar_w, 28), 3, border_radius=8)
+        # ------------------ BARRA DE PROGRESO ------------------
+        bar_total_width = 400
+        bar_height = 25
+        bar_x = config.WIDTH // 2 - bar_total_width // 2
+        bar_y = 20
 
-        pct_text = font_pct.render(f"{progress}%", True, config.C_TEXT)
-        temp_surf.blit(pct_text, (config.WIDTH // 2 - pct_text.get_width() // 2, bar_y + 34))
+        pygame.draw.rect(screen, (0, 0, 0), (bar_x, bar_y, bar_total_width, bar_height), 3)
+        pygame.draw.rect(screen, (0, 255, 0), (bar_x, bar_y, int((progress / 100) * bar_total_width), bar_height))
 
-        # GAME OVER
+        pct_text = font_pct.render(f"{int(progress)}%", True, (255, 255, 255))
+        screen.blit(pct_text, (config.WIDTH // 2 - pct_text.get_width() // 2,
+                               bar_y + bar_height // 2 - pct_text.get_height() // 2))
+
+        # ------------------ PAUSA ------------------
+        if state == "PAUSA":
+            overlay = pygame.Surface((config.WIDTH, config.HEIGHT), pygame.SRCALPHA)
+            overlay.fill((0, 0, 0, 150))
+            screen.blit(overlay, (0, 0))
+
+            font_big = pygame.font.SysFont(None, 80)
+            text = font_big.render("PAUSA", True, (255, 255, 255))
+            screen.blit(text, (config.WIDTH//2 - text.get_width()//2,
+                               config.HEIGHT//2 - text.get_height()//2 - 40))
+
+            font_small = pygame.font.SysFont(None, 40)
+            msg1 = font_small.render("ENTER para continuar", True, (200, 200, 200))
+            msg2 = font_small.render("ESC para salir", True, (200, 200, 200))
+
+            screen.blit(msg1, (config.WIDTH//2 - msg1.get_width()//2,
+                               config.HEIGHT//2 + 10))
+            screen.blit(msg2, (config.WIDTH//2 - msg2.get_width()//2,
+                               config.HEIGHT//2 + 50))
+
+        # ------------------ GAMEOVER ------------------
         if state == "GAMEOVER":
             overlay = pygame.Surface((config.WIDTH, config.HEIGHT), pygame.SRCALPHA)
-            overlay.fill((0, 0, 0, 230))
-            temp_surf.blit(overlay, (0, 0))
-            txt = font_title.render("HAS MUERTO", True, (255, 50, 50))
-            temp_surf.blit(txt, (config.WIDTH//2 - txt.get_width()//2, config.HEIGHT//2 - 80))
-            hint = font_ui.render("ENTER: reintentar  |  ESC: salir", True, config.C_TEXT)
-            temp_surf.blit(hint, (config.WIDTH//2 - hint.get_width()//2, config.HEIGHT//2 + 10))
+            overlay.fill((0, 0, 0, 180))
+            screen.blit(overlay, (0, 0))
 
-        screen.blit(temp_surf, (ox, oy))
+            font_big = pygame.font.SysFont(None, 90)
+            text = font_big.render("HAS PERDIDO", True, (255, 0, 0))
+            screen.blit(text, (config.WIDTH//2 - text.get_width()//2,
+                               config.HEIGHT//2 - text.get_height()//2))
+
+            font_small = pygame.font.SysFont(None, 40)
+            msg = font_small.render("ENTER para reiniciar   |   ESC para salir", True, (255, 255, 255))
+            screen.blit(msg, (config.WIDTH//2 - msg.get_width()//2,
+                              config.HEIGHT//2 + 60))
+
+        # ------------------ WIN ------------------
+        if state == "WIN":
+            overlay = pygame.Surface((config.WIDTH, config.HEIGHT), pygame.SRCALPHA)
+            overlay.fill((0, 0, 0, 180))
+            screen.blit(overlay, (0, 0))
+
+            font_big = pygame.font.SysFont(None, 90)
+            text = font_big.render("¡HAS GANADO!", True, (0, 255, 0))
+            screen.blit(text, (config.WIDTH//2 - text.get_width()//2,
+                               config.HEIGHT//2 - text.get_height()//2))
+
+            font_small = pygame.font.SysFont(None, 40)
+            msg = font_small.render("ENTER para reiniciar   |   ESC para salir", True, (255, 255, 255))
+            screen.blit(msg, (config.WIDTH//2 - msg.get_width()//2,
+                              config.HEIGHT//2 + 60))
+
         pygame.display.flip()
+
+
+
+
 
 
 

@@ -14,7 +14,7 @@ FPS = 60
 # Física del jugador
 PLAYER_SIZE = 64
 GRAVITY = 1.0
-JUMP_FORCE = -20
+JUMP_FORCE = 20
 SPEED = 6
 GROUND_Y = 500
 
@@ -34,7 +34,7 @@ MENU_MUSIC = os.path.join(ASSETS_AUDIO, "C418 - Aria Math.mp3")
 LOGO_IMG = os.path.join(ASSETS_IMG, "logogeometrykirk.png")
 
 # Música del nivel
-LEVEL_MUSIC = os.path.join(ASSETS_AUDIO, "level1_soundtrac.mp3")
+LEVEL_MUSIC = os.path.join(ASSETS_AUDIO, "level1_soundtrack.mp3")
 
 # ---------------------------
 # Sonido global de botones
