@@ -896,6 +896,8 @@ def spawn_particles(particles, x, y, color, count=30, speed=1.0):
 def run_level(screen, clock):
     global skin_img, plane_skin_img, bg_image, SPIKE_IMG, SAW_IMG, saw_img, PORTAL_IMG, FINAL_IMG
 
+
+    
     # ------------------ CARGA DE RECURSOS ------------------
     skin_img = load_skin()
     plane_skin_img = load_plane_skin()
@@ -1145,6 +1147,10 @@ def run_level(screen, clock):
                               config.HEIGHT//2 + 60))
 
         pygame.display.flip()
+
+
+
+
 
 
 
