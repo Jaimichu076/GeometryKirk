@@ -35,6 +35,8 @@ SAW_IMG = None
 saw_img = None
 PORTAL_IMG = None
 FINAL_IMG = None
+FINAL_WALL_IMG = None
+
 
 # Cargar imagen del suelo
 
@@ -273,6 +275,21 @@ class Spike(GameObject):
         else:
             img = SPIKE_IMG
         surface.blit(img, self.rect)
+
+class FinalWall(GameObject):
+    def __init__(self, x):
+        super().__init__(x, 0, 1000, config.GROUND_Y, kind="final_wall")
+
+    def draw(self, surface):
+        if FINAL_WALL_IMG:
+            surface.blit(FINAL_WALL_IMG, self.rect)
+        else:
+            pygame.draw.rect(surface, (0, 0, 0), self.rect)
+
+
+
+
+
 
 class Saw(GameObject):
     """Sierra giratoria fija."""
@@ -873,13 +890,27 @@ def generate_level():
 
     objects.append(Spike(18150, 0))
     objects.append(Spike(18200, 0))
+        # --- PORTAL FINAL A CUBE ---
+    portal4_x = 17600
+    portal4_y = config.GROUND_Y - 90
+    objects.append(Portal(portal4_x, portal4_y, "out"))
+
+    # Bloque final de victoria
+    objects.append(FinalWall(19000))
+
+    
+
+    
+
+    
 
 
-        # --- FINAL DEL NIVEL ---
+
+    # --- FINAL DEL NIVEL ---
     end_x = 19000
-    objects.append(GameObject(end_x, 0, 10, config.HEIGHT, kind="end"))
+    
 
-    total_distance_real = end_x - 150
+    total_distance_real = end_x - 200
     return objects, end_x, total_distance_real
 
 
@@ -894,10 +925,9 @@ def spawn_particles(particles, x, y, color, count=30, speed=1.0):
 # ------------------ BUCLE PRINCIPAL DEL NIVEL ------------------
 
 def run_level(screen, clock):
-    global skin_img, plane_skin_img, bg_image, SPIKE_IMG, SAW_IMG, saw_img, PORTAL_IMG, FINAL_IMG
+    global skin_img, plane_skin_img, bg_image
+    global SPIKE_IMG, SAW_IMG, saw_img, PORTAL_IMG, FINAL_IMG, FINAL_WALL_IMG
 
-
-    
     # ------------------ CARGA DE RECURSOS ------------------
     skin_img = load_skin()
     plane_skin_img = load_plane_skin()
@@ -924,6 +954,10 @@ def run_level(screen, clock):
 
     FINAL_IMG = pygame.image.load(resource_path("assets/images/final_level1-removebg.png")).convert_alpha()
     FINAL_IMG = pygame.transform.scale(FINAL_IMG, (180, 260))
+
+    # ------------------ PARED FINAL ------------------
+    FINAL_WALL_IMG = pygame.image.load(resource_path("assets/images/final_wall.jpg")).convert_alpha()
+    FINAL_WALL_IMG = pygame.transform.scale(FINAL_WALL_IMG, (1000, config.GROUND_Y))
 
     # ------------------ ESTADO INICIAL ------------------
     player = Player(start_x=150)
@@ -964,7 +998,6 @@ def run_level(screen, clock):
             # ------------------ PLAY ------------------
             if state == "PLAY":
 
-                # Saltar con espacio o flecha arriba
                 if event.type == pygame.KEYDOWN:
                     if event.key in (pygame.K_SPACE, pygame.K_UP):
                         player.jump_held = True
@@ -978,7 +1011,6 @@ def run_level(screen, clock):
                     if event.key in (pygame.K_SPACE, pygame.K_UP):
                         player.jump_held = False
 
-                # Saltar con clic izquierdo
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     player.jump_held = True
                     player.jump()
@@ -989,19 +1021,20 @@ def run_level(screen, clock):
             # ------------------ PAUSA ------------------
             elif state == "PAUSA":
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_RETURN:
+                    if event.key == pygame.K_RETURN:   # continuar
                         pygame.mixer.music.unpause()
                         state = "PLAY"
-                    if event.key == pygame.K_ESCAPE:
+
+                    if event.key == pygame.K_ESCAPE:   # salir al menú
                         pygame.mixer.music.stop()
-                        running = False
+                        return  # vuelve al menú principal
 
             # ------------------ GAMEOVER ------------------
             elif state == "GAMEOVER":
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_RETURN:   # reiniciar
+                    if event.key == pygame.K_RETURN:
                         return run_level(screen, clock)
-                    if event.key == pygame.K_ESCAPE:   # salir
+                    if event.key == pygame.K_ESCAPE:
                         running = False
 
             # ------------------ WIN ------------------
@@ -1020,27 +1053,15 @@ def run_level(screen, clock):
             for obj in objects:
                 obj.update(scroll_speed)
 
-            distance_traveled += scroll_speed
+            distance_traveled = min(distance_traveled + scroll_speed, total_distance)
             progress = min(100, (distance_traveled / total_distance) * 100)
 
-            # --------- COLISIONES, PORTALES Y MUERTE ----------
+            # YA NO GANAS AUTOMÁTICAMENTE AL 100%
+            # if progress >= 100:  <-- ELIMINADO
+
             player.on_platform = False
 
             for obj in objects:
-
-                # SPIKES
-                if getattr(obj, "kind", None) == "spike":
-                    if player.rect.colliderect(obj.rect):
-                        state = "GAMEOVER"
-                        pygame.mixer.music.stop()
-                        break
-
-                # SIERRAS
-                if getattr(obj, "kind", None) in ("saw", "movingsaw"):
-                    if player.rect.colliderect(obj.rect):
-                        state = "GAMEOVER"
-                        pygame.mixer.music.stop()
-                        break
 
                 # PLATAFORMAS
                 if getattr(obj, "kind", None) == "platform":
@@ -1063,22 +1084,24 @@ def run_level(screen, clock):
                             player.vel_y = 0
                             player.rotation = 0
 
-            # FINAL DEL NIVEL
-            if player.rect.colliderect(final_rect):
-                state = "WIN"
-                pygame.mixer.music.stop()
+                # ------------------ GANAR SOLO SI:
+                # 1) PROGRESO >= 100
+                # 2) TOCAS LA PARED FINAL
+                if getattr(obj, "kind", None) == "final_wall":
+                    if progress >= 100 and player.rect.colliderect(obj.rect):
+                        state = "WIN"
+                        pygame.mixer.music.stop()
+                        SCROLL_SPEED = 0
+                        player.vel_y = 0
 
         # ------------------ DIBUJO ------------------
         screen.blit(bg_image, (0, 0))
-
         screen.blit(GROUND_IMG, (0, config.GROUND_Y))
-        pygame.draw.line(screen, (0, 0, 0), (0, config.GROUND_Y), (config.WIDTH, config.GROUND_Y), 4)
 
         for obj in objects:
             obj.draw(screen)
 
         player.draw(screen)
-
         screen.blit(FINAL_IMG, final_rect)
 
         # ------------------ BARRA DE PROGRESO ------------------
@@ -1097,38 +1120,22 @@ def run_level(screen, clock):
         # ------------------ PAUSA ------------------
         if state == "PAUSA":
             overlay = pygame.Surface((config.WIDTH, config.HEIGHT), pygame.SRCALPHA)
-            overlay.fill((0, 0, 0, 150))
+            overlay.fill((0, 0, 0, 180))
             screen.blit(overlay, (0, 0))
 
             font_big = pygame.font.SysFont(None, 80)
             text = font_big.render("PAUSA", True, (255, 255, 255))
             screen.blit(text, (config.WIDTH//2 - text.get_width()//2,
-                               config.HEIGHT//2 - text.get_height()//2 - 40))
+                               config.HEIGHT//2 - 150))
 
             font_small = pygame.font.SysFont(None, 40)
-            msg1 = font_small.render("ENTER para continuar", True, (200, 200, 200))
-            msg2 = font_small.render("ESC para salir", True, (200, 200, 200))
+            msg1 = font_small.render("ENTER - Continuar", True, (255, 255, 255))
+            msg2 = font_small.render("ESC - Salir al menú", True, (255, 255, 255))
 
             screen.blit(msg1, (config.WIDTH//2 - msg1.get_width()//2,
-                               config.HEIGHT//2 + 10))
+                               config.HEIGHT//2 - 20))
             screen.blit(msg2, (config.WIDTH//2 - msg2.get_width()//2,
-                               config.HEIGHT//2 + 50))
-
-        # ------------------ GAMEOVER ------------------
-        if state == "GAMEOVER":
-            overlay = pygame.Surface((config.WIDTH, config.HEIGHT), pygame.SRCALPHA)
-            overlay.fill((0, 0, 0, 180))
-            screen.blit(overlay, (0, 0))
-
-            font_big = pygame.font.SysFont(None, 90)
-            text = font_big.render("HAS PERDIDO", True, (255, 0, 0))
-            screen.blit(text, (config.WIDTH//2 - text.get_width()//2,
-                               config.HEIGHT//2 - text.get_height()//2))
-
-            font_small = pygame.font.SysFont(None, 40)
-            msg = font_small.render("ENTER para reiniciar   |   ESC para salir", True, (255, 255, 255))
-            screen.blit(msg, (config.WIDTH//2 - msg.get_width()//2,
-                              config.HEIGHT//2 + 60))
+                               config.HEIGHT//2 + 40))
 
         # ------------------ WIN ------------------
         if state == "WIN":
@@ -1147,6 +1154,10 @@ def run_level(screen, clock):
                               config.HEIGHT//2 + 60))
 
         pygame.display.flip()
+
+
+
+
 
 
 
