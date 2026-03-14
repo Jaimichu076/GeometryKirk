@@ -168,20 +168,33 @@ class Player:
 
         # ------------------ SHIP ------------------
         elif self.mode == "ship":
+
             if self.jump_held:
                 self.rect.y -= self.ship_speed_y
+                self.rotation = max(self.rotation - 4, -45)   # inclina arriba
             else:
                 self.rect.y += self.ship_speed_y
+                self.rotation = min(self.rotation + 4, 45)    # inclina abajo
 
+            # Suavizado hacia el centro
+            if not self.jump_held:
+                if self.rotation > 0:
+                    self.rotation -= 2
+                elif self.rotation < 0:
+                    self.rotation += 2
+
+            # Límites
             if self.rect.top < 0:
                 self.rect.top = 0
             if self.rect.bottom > config.GROUND_Y:
                 self.rect.bottom = config.GROUND_Y
 
-        # trail
-        self.trail.append(self.rect.center)
-        if len(self.trail) > 12:
-            self.trail.pop(0)
+            
+
+                # trail
+                self.trail.append(self.rect.center)
+                if len(self.trail) > 12:
+                    self.trail.pop(0)
 
     def jump(self):
         if self.mode != "cube":
@@ -202,8 +215,11 @@ class Player:
             surface.blit(s, s.get_rect(center=pos))
 
         if self.mode == "ship" and plane_skin_img:
-            plane_rect = plane_skin_img.get_rect(center=(self.rect.centerx, self.rect.centery + 30))
-            surface.blit(plane_skin_img, plane_rect)
+            rotated_plane = pygame.transform.rotate(plane_skin_img, self.rotation)
+            plane_rect = rotated_plane.get_rect(center=self.rect.center)
+            surface.blit(rotated_plane, plane_rect)
+            return
+
 
         if skin_img:
             rotated = pygame.transform.rotate(skin_img, self.rotation)
