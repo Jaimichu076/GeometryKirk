@@ -1001,7 +1001,8 @@ def run_level(screen, clock):
     SCROLL_SPEED = getattr(config, "SCROLL_SPEED", 400)
 
     # ------------------ MÚSICA ------------------
-    music_path = resource_path(config.LEVEL_MUSIC)
+    music_path = resource_path(config.LEVEL2_MUSIC)
+
     if os.path.exists(music_path):
         try:
             pygame.mixer.music.load(music_path)
