@@ -1,6 +1,7 @@
 import pygame
 import config
 from niveles import nivel1
+from niveles import nivel2
 import os
 import sys
 import math
@@ -214,8 +215,10 @@ def run_levels_menu(screen, clock):
                     current = (current + 1) % len(levels)
 
                 if play_button.handle_click(mouse_pos):
+                    
+                    # NIVEL 1
                     if current == 0:
-                        audio.pause()   # ← AÑADIDO (pausar música del menú)
+                        audio.pause()
 
                         def draw_last():
                             screen.blit(last_frame, (0, 0))
@@ -224,8 +227,24 @@ def run_levels_menu(screen, clock):
 
                         nivel1.run_level(screen, clock)
 
-                        audio.resume()   # ← AÑADIDO (reanudar música al salir del nivel)
+                        audio.resume()
                         start_time = pygame.time.get_ticks()
+
+                    # NIVEL 2
+                    if current == 1:
+                        audio.pause()
+
+                        def draw_last():
+                            screen.blit(last_frame, (0, 0))
+                        last_frame.blit(screen, (0, 0))
+                        transition_to_level(screen, clock, draw_last)
+
+                        nivel2.run_level(screen, clock)
+
+                        audio.resume()
+                        start_time = pygame.time.get_ticks()
+
+                
 
         draw_animated_background(screen, t)
 
