@@ -12,10 +12,10 @@ WIDTH, HEIGHT = 1100, 600
 FPS = 60
 
 # Física del jugador
-PLAYER_SIZE = 64
+PLAYER_SIZE = 60
 GRAVITY = 1.0
 JUMP_FORCE = 20
-SPEED = 4
+SPEED = 5
 GROUND_Y = 500
 
 # Colores

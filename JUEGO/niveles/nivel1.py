@@ -143,13 +143,9 @@ class Player:
         # ------------------ CUBE ------------------
         if self.mode == "cube":
 
-            # gravedad
             self.vel_y += config.GRAVITY
-
-            # movimiento
             self.rect.y += self.vel_y
 
-            # suelo
             if self.rect.bottom >= config.GROUND_Y:
                 self.rect.bottom = config.GROUND_Y
                 self.vel_y = 0
@@ -158,11 +154,9 @@ class Player:
             else:
                 self.on_ground_flag = False
 
-            # rotación
             if self.vel_y != 0:
                 self.rotation -= 6
 
-            # salto continuo
             if self.jump_held and self.on_ground_flag:
                 self.jump()
 
@@ -171,30 +165,28 @@ class Player:
 
             if self.jump_held:
                 self.rect.y -= self.ship_speed_y
-                self.rotation = max(self.rotation - 4, -45)   # inclina arriba
+                self.rotation = min(self.rotation + 4, 45)   # MORRO ARRIBA
             else:
                 self.rect.y += self.ship_speed_y
-                self.rotation = min(self.rotation + 4, 45)    # inclina abajo
+                self.rotation = max(self.rotation - 4, -45)  # MORRO ABAJO
 
-            # Suavizado hacia el centro
+            # Suavizado
             if not self.jump_held:
                 if self.rotation > 0:
-                    self.rotation -= 2
+                    self.rotation -= 1
                 elif self.rotation < 0:
-                    self.rotation += 2
+                    self.rotation += 1
 
-            # Límites
             if self.rect.top < 0:
                 self.rect.top = 0
             if self.rect.bottom > config.GROUND_Y:
                 self.rect.bottom = config.GROUND_Y
 
-            
+        # ------------------ TRAIL (FUERA DE CUBE/SHIP) ------------------
+        self.trail.append(self.rect.center)
+        if len(self.trail) > 12:
+            self.trail.pop(0)
 
-                # trail
-                self.trail.append(self.rect.center)
-                if len(self.trail) > 12:
-                    self.trail.pop(0)
 
     def jump(self):
         if self.mode != "cube":
@@ -207,6 +199,7 @@ class Player:
         return False
 
     def draw(self, surface):
+    # ------------------ TRAIL ------------------
         for i, pos in enumerate(self.trail):
             alpha = int(120 * (i / len(self.trail)))
             size = config.PLAYER_SIZE - (len(self.trail) - i) * 1.5
@@ -214,22 +207,42 @@ class Player:
             s.fill((0, 255, 200, alpha))
             surface.blit(s, s.get_rect(center=pos))
 
+        # ------------------ SHIP ------------------
         if self.mode == "ship" and plane_skin_img:
+            # Dibujar nave rotada
             rotated_plane = pygame.transform.rotate(plane_skin_img, self.rotation)
             plane_rect = rotated_plane.get_rect(center=self.rect.center)
             surface.blit(rotated_plane, plane_rect)
-            return
 
+            # Dibujar el personaje encima de la nave
+            if skin_img:
+                rotated_player = pygame.transform.rotate(skin_img, self.rotation)
+            else:
+                cube = pygame.Surface((config.PLAYER_SIZE, config.PLAYER_SIZE), pygame.SRCALPHA)
+                cube.fill((0, 255, 200))
+                pygame.draw.rect(cube, config.C_TEXT, cube.get_rect(), 3)
+                rotated_player = pygame.transform.rotate(cube, self.rotation)
 
+            # Ajusta aquí la altura del personaje sobre la nave
+            player_rect = rotated_player.get_rect(
+                center=(self.rect.centerx, self.rect.centery - 27)
+            )
+            surface.blit(rotated_player, player_rect)
+            return  # ya dibujamos todo en modo ship
+
+        # ------------------ CUBE ------------------
         if skin_img:
             rotated = pygame.transform.rotate(skin_img, self.rotation)
         else:
             cube = pygame.Surface((config.PLAYER_SIZE, config.PLAYER_SIZE), pygame.SRCALPHA)
-            cube.fill((0, 255, 200) if self.mode == "cube" else (80, 200, 255))
+            cube.fill((0, 255, 200))
             pygame.draw.rect(cube, config.C_TEXT, cube.get_rect(), 3)
             rotated = pygame.transform.rotate(cube, self.rotation)
 
         surface.blit(rotated, rotated.get_rect(center=self.rect.center))
+
+
+
 
 
 
@@ -537,7 +550,7 @@ def generate_level():
 
 
     objects.append(Spike(9800, 0))
-    objects.append(Spike(9950, 0))
+    objects.append(Spike(10000, 0))
     
 
     
@@ -971,7 +984,6 @@ def run_level(screen, clock):
     FINAL_IMG = pygame.image.load(resource_path("assets/images/final_level1-removebg.png")).convert_alpha()
     FINAL_IMG = pygame.transform.scale(FINAL_IMG, (180, 260))
 
-    # ------------------ PARED FINAL ------------------
     FINAL_WALL_IMG = pygame.image.load(resource_path("assets/images/final_wall.jpg")).convert_alpha()
     FINAL_WALL_IMG = pygame.transform.scale(FINAL_WALL_IMG, (1000, config.GROUND_Y))
 
@@ -1037,13 +1049,13 @@ def run_level(screen, clock):
             # ------------------ PAUSA ------------------
             elif state == "PAUSA":
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_RETURN:   # continuar
+                    if event.key == pygame.K_RETURN:
                         pygame.mixer.music.unpause()
                         state = "PLAY"
 
-                    if event.key == pygame.K_ESCAPE:   # salir al menú
+                    if event.key == pygame.K_ESCAPE:
                         pygame.mixer.music.stop()
-                        return  # vuelve al menú principal
+                        return
 
             # ------------------ GAMEOVER ------------------
             elif state == "GAMEOVER":
@@ -1072,9 +1084,6 @@ def run_level(screen, clock):
             distance_traveled = min(distance_traveled + scroll_speed, total_distance)
             progress = min(100, (distance_traveled / total_distance) * 100)
 
-            # YA NO GANAS AUTOMÁTICAMENTE AL 100%
-            # if progress >= 100:  <-- ELIMINADO
-
             player.on_platform = False
 
             for obj in objects:
@@ -1100,9 +1109,15 @@ def run_level(screen, clock):
                             player.vel_y = 0
                             player.rotation = 0
 
-                # ------------------ GANAR SOLO SI:
-                # 1) PROGRESO >= 100
-                # 2) TOCAS LA PARED FINAL
+                # ------------------ MUERTE ------------------
+                if getattr(obj, "kind", None) in ("spike", "saw", "movingsaw"):
+                    if player.rect.colliderect(obj.rect):
+                        state = "GAMEOVER"
+                        pygame.mixer.music.stop()
+                        SCROLL_SPEED = 0
+                        player.vel_y = 0
+
+                # ------------------ GANAR ------------------
                 if getattr(obj, "kind", None) == "final_wall":
                     if progress >= 100 and player.rect.colliderect(obj.rect):
                         state = "WIN"
@@ -1169,7 +1184,24 @@ def run_level(screen, clock):
             screen.blit(msg, (config.WIDTH//2 - msg.get_width()//2,
                               config.HEIGHT//2 + 60))
 
+        # ------------------ GAMEOVER ------------------
+        if state == "GAMEOVER":
+            overlay = pygame.Surface((config.WIDTH, config.HEIGHT), pygame.SRCALPHA)
+            overlay.fill((0, 0, 0, 180))
+            screen.blit(overlay, (0, 0))
+
+            font_big = pygame.font.SysFont(None, 90)
+            text = font_big.render("HAS PERDIDO", True, (255, 0, 0))
+            screen.blit(text, (config.WIDTH//2 - text.get_width()//2,
+                               config.HEIGHT//2 - text.get_height()//2))
+
+            font_small = pygame.font.SysFont(None, 40)
+            msg = font_small.render("ENTER para reintentar   |   ESC para salir", True, (255, 255, 255))
+            screen.blit(msg, (config.WIDTH//2 - msg.get_width()//2,
+                              config.HEIGHT//2 + 60))
+
         pygame.display.flip()
+
 
 
 
