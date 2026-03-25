@@ -36,7 +36,7 @@ LOGO_IMG = os.path.join(ASSETS_IMG, "logogeometrykirk.png")
 # Música del nivel 1
 LEVEL_MUSIC = os.path.join(ASSETS_AUDIO, "level1_soundtrack.mp3")
 # Música del nivel 2
-LEVEL2_MUSIC = os.path.join(ASSETS_AUDIO, "level2_soundtrack.mp3")
+LEVEL2_MUSIC = os.path.join(ASSETS_AUDIO, "level2_soundtrac.mp3")
 
 
 # ---------------------------

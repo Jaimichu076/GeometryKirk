@@ -36,6 +36,8 @@ saw_img = None
 PORTAL_IMG = None
 FINAL_IMG = None
 FINAL_WALL_IMG = None
+BLOCK_IMG = None
+ROCKET_IMG = None
 
 
 # Cargar imagen del suelo
@@ -387,6 +389,57 @@ class Portal(GameObject):
     def draw(self, surface):
         rect = PORTAL_IMG.get_rect(center=self.rect.center) 
         surface.blit(PORTAL_IMG, rect)
+
+class Rocket(GameObject):
+    """Cohete que cae hacia el jugador en diagonal cuando llega a trigger_x."""
+    def __init__(self, x, y, trigger_x, speed=8):
+        super().__init__(x, y, 50, 20, kind="rocket")
+        self.speed = speed
+        self.trigger_x = trigger_x
+        self.active = False
+        self.image = ROCKET_IMG
+
+        # Dirección 45° hacia abajo
+        self.dx = math.cos(math.radians(45))
+        self.dy = math.sin(math.radians(45))
+
+    def update(self, scroll_speed):
+        if not self.active:
+            self.rect.x -= scroll_speed
+            return
+
+        # Movimiento diagonal hacia abajo
+        self.rect.x -= self.speed * self.dx
+        self.rect.y += self.speed * self.dy
+
+    def draw(self, surface):
+        if self.image:
+            surface.blit(self.image, self.rect)
+        else:
+            pygame.draw.rect(surface, (255, 80, 0), self.rect)
+            pygame.draw.rect(surface, (0, 0, 0), self.rect, 2)
+
+
+
+class Block(GameObject):
+    """Bloque sólido apilable. Se puede pisar, pero chocar de frente mata."""
+    def __init__(self, x, y, w=60, h=60):
+        super().__init__(x, y, w, h, kind="block")
+        self.image = BLOCK_IMG
+
+    def draw(self, surface):
+        if self.image:
+            surface.blit(self.image, self.rect)
+        else:
+            pygame.draw.rect(surface, (150, 100, 50), self.rect)
+            pygame.draw.rect(surface, (0, 0, 0), self.rect, 2)
+
+
+
+
+
+  
+
         
        
 
@@ -405,6 +458,14 @@ class Platform(GameObject):
 
 # ------------------ GENERACIÓN DEL NIVEL (LARGO + FASE SHIP) ------------------
 
+
+try:
+    BLOCK_IMG = pygame.image.load(resource_path("assets/images/block.png")).convert_alpha()
+    BLOCK_IMG = pygame.transform.scale(BLOCK_IMG, (60, 60))
+except:
+    BLOCK_IMG = None
+
+
 def generate_level():
     """
     Genera un nivel largo con varias secciones y una fase 'ship'.
@@ -418,514 +479,16 @@ def generate_level():
 
     objects = []
 
-        # --- SECCIÓN INICIAL (muy fácil) ---
-    objects.append(Spike(1200, 0))
-    objects.append(Spike(1400, 0))
-    objects.append(Spike(1600, 0))
+    objects.append(Rocket(3000, 100, trigger_x=2800))
+    objects.append(Rocket(4500, 150, trigger_x=4300))
+    objects.append(Rocket(6000, 50, trigger_x=5800))
 
-    objects.append(Saw(2000, config.GROUND_Y - 90))
-    objects.append(Spike(2400, 0))
 
-        # --- PORTAL A SHIP ---
-    portal1_x = 2800
-    portal1_y = config.GROUND_Y - 90
-    objects.append(Portal(portal1_x, portal1_y, "in"))
 
-    objects.append(Saw(portal1_x, portal1_y - 80))
-    objects.append(Saw(portal1_x, portal1_y - 160))
-    objects.append(Saw(portal1_x, portal1_y - 240))
-    objects.append(Saw(portal1_x, portal1_y - 320))
-    objects.append(Saw(portal1_x, portal1_y - 400))
-    objects.append(Saw(portal1_x, portal1_y - 480))
-
-    objects.append(Spike(3000, 0))
-    objects.append(Spike(3050, 0))
-    objects.append(Spike(3100, 0))
-    objects.append(Spike(3150, 0))
-    objects.append(Spike(3200, 0))
-    objects.append(Spike(3250, 0))
-    objects.append(Spike(3300, 0))
-
-    objects.append(Saw(3200, config.GROUND_Y - 130))
-    objects.append(Saw(3300, config.GROUND_Y - 170))
-    objects.append(Saw(3500, config.GROUND_Y - 110))
-
-    objects.append(Spike(3350, 0))
-    objects.append(Spike(3400, 0))
-    objects.append(Spike(3450, 0))
-    objects.append(Spike(3500, 0))
-    objects.append(Spike(3550, 0))
-    objects.append(Spike(3600, 0))
-    objects.append(Spike(3650, 0))
-    objects.append(Spike(3700, 0))
-    objects.append(Spike(3750, 0))
-    objects.append(Spike(3800, 0))
-    objects.append(Spike(3850, 0))
-    objects.append(Spike(3900, 0))
-    objects.append(Spike(3950, 0))
-    objects.append(Spike(4000, 0))
-    objects.append(Spike(4050, 0))
-    objects.append(Spike(4100, 0))
-    objects.append(Spike(4150, 0))
-    objects.append(Spike(4200, 0))
-    objects.append(Spike(4250, 0))
-    objects.append(Spike(4300, 0))
-    objects.append(Spike(4350, 0))
-    objects.append(Spike(4400, 0))
-    objects.append(Spike(4450, 0))
-    objects.append(Spike(4500, 0))
-    objects.append(Spike(4550, 0))
-    objects.append(Spike(4600, 0))
-    objects.append(Spike(4650, 0))
-    objects.append(Spike(4700, 0))
-    objects.append(Spike(4750, 0))
-    objects.append(Spike(4800, 0))
-    objects.append(Spike(4850, 0))
-    objects.append(Spike(4900, 0))
-    objects.append(Spike(4850, 0))
-    objects.append(Spike(4900, 0))
-    objects.append(Spike(4950, 0))
-    objects.append(Spike(5000, 0))
-    objects.append(Spike(5050, 0))
-    objects.append(Spike(5100, 0))
-    objects.append(Spike(5150, 0))
-    objects.append(Spike(5200, 0))
-    objects.append(Spike(5250, 0))
-    objects.append(Spike(5300, 0))
-
-    objects.append(Saw(3700, config.GROUND_Y - 190))
-    objects.append(Saw(3850, config.GROUND_Y - 350))
-    objects.append(Saw(4000, config.GROUND_Y - 450))
-    objects.append(Saw(3900, config.GROUND_Y - 290))
-    objects.append(MovingSaw(4200, config.GROUND_Y - 350))
-    objects.append(Saw(4500, config.GROUND_Y - 120))
-    objects.append(Saw(4700, config.GROUND_Y - 320))
-    objects.append(Saw(4900, config.GROUND_Y - 390))
-    objects.append(Saw(5200, config.GROUND_Y - 250))
-
-        # --- PORTAL A CUBE ---
-    portal2_x = 5500
-    portal2_y = config.GROUND_Y - 90
-    objects.append(Portal(portal2_x, portal2_y, "out"))
-
-    objects.append(Saw(portal2_x, portal2_y - 80))
-    objects.append(Saw(portal2_x, portal2_y - 160))
-    objects.append(Saw(portal2_x, portal2_y - 240))
-    objects.append(Saw(portal2_x, portal2_y - 320))
-    objects.append(Saw(portal2_x, portal2_y - 400))
-    objects.append(Saw(portal2_x, portal2_y - 480))
-
-    objects.append(Spike(5800, 0))
-    objects.append(Spike(5850, 0))
-    objects.append(MovingSaw(6200, config.GROUND_Y - 120))
-    objects.append(MovingSaw(6600, config.GROUND_Y - 120))
-    
-
-    objects.append(Spike(7000, 0))
-    objects.append(Spike(7050, 0))
-    objects.append(Spike(7300, 0))
-    objects.append(Spike(7350, 0))
-
-    
-
-    
-
-
-    objects.append(Spike(8000, 0))
-    objects.append(Spike(8050, 0))
-
-    objects.append(Saw(8300, config.GROUND_Y - 110))
-    
-
-
-
-
-    
-
-
-    objects.append(MovingSaw(9100, config.GROUND_Y - 120))
-
-
-    
-
-
-    objects.append(Spike(9800, 0))
-    objects.append(Spike(10000, 0))
-    
-
-    
-    
-
-    
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
-
-
-
-
-        # --- SEGUNDA SECCIÓN SHIP ---
-    portal3_x = 11300
-    portal3_y = config.GROUND_Y - 90
-    objects.append(Portal(portal3_x, portal3_y, "in"))
-
-    objects.append(Saw(portal3_x, portal3_y - 80))
-    objects.append(Saw(portal3_x, portal3_y - 160))
-    objects.append(Saw(portal3_x, portal3_y - 240))
-    objects.append(Saw(portal3_x, portal3_y - 320))
-    objects.append(Saw(portal3_x, portal3_y - 400))
-    objects.append(Saw(portal3_x, portal3_y - 480))
-
-
-    objects.append(Spike(1, 0))
-    objects.append(Saw(11350, config.GROUND_Y - 500))
-    objects.append(Saw(11400, config.GROUND_Y - 500))
-    objects.append(Saw(11450, config.GROUND_Y - 500))
-    objects.append(Saw(11500, config.GROUND_Y - 500))
-    objects.append(Saw(11550, config.GROUND_Y - 500))
-    objects.append(Saw(11600, config.GROUND_Y - 500))
-    objects.append(Saw(11650, config.GROUND_Y - 500))
-    objects.append(Saw(11700, config.GROUND_Y - 500))
-    objects.append(Saw(11750, config.GROUND_Y - 500))
-    objects.append(Saw(11800, config.GROUND_Y - 500))
-    objects.append(Saw(11850, config.GROUND_Y - 500))
-    objects.append(Saw(11900, config.GROUND_Y - 500))
-    objects.append(Saw(11950, config.GROUND_Y - 500))
-    objects.append(Saw(12000, config.GROUND_Y - 500))
-    objects.append(Saw(12050, config.GROUND_Y - 500))
-    objects.append(Saw(12100, config.GROUND_Y - 500))
-    objects.append(Saw(12150, config.GROUND_Y - 500))
-    objects.append(Saw(12200, config.GROUND_Y - 500))
-    objects.append(Saw(12250, config.GROUND_Y - 500))
-    objects.append(Saw(12300, config.GROUND_Y - 500))
-    objects.append(Saw(12350, config.GROUND_Y - 500))
-    objects.append(Saw(12400, config.GROUND_Y - 500))
-    objects.append(Saw(12450, config.GROUND_Y - 500))
-    objects.append(Saw(12500, config.GROUND_Y - 500))
-    objects.append(Saw(12550, config.GROUND_Y - 500))
-    objects.append(Saw(12600, config.GROUND_Y - 500))
-    objects.append(Saw(12650, config.GROUND_Y - 500))
-    objects.append(Saw(12700, config.GROUND_Y - 500))
-    objects.append(Saw(12750, config.GROUND_Y - 500))
-    objects.append(Saw(12800, config.GROUND_Y - 500))
-    objects.append(Saw(12850, config.GROUND_Y - 500))
-    objects.append(Saw(12900, config.GROUND_Y - 500))
-    objects.append(Saw(12950, config.GROUND_Y - 500))
-    objects.append(Saw(13000, config.GROUND_Y - 500))
-    objects.append(Saw(13050, config.GROUND_Y - 500))
-    objects.append(Saw(13100, config.GROUND_Y - 500))
-    objects.append(Saw(13150, config.GROUND_Y - 500))
-    objects.append(Saw(13200, config.GROUND_Y - 500))
-    objects.append(Saw(13250, config.GROUND_Y - 500))
-    objects.append(Saw(13300, config.GROUND_Y - 500))
-    objects.append(Saw(13350, config.GROUND_Y - 500))
-    objects.append(Saw(13400, config.GROUND_Y - 500))
-    objects.append(Saw(13450, config.GROUND_Y - 500))
-    objects.append(Saw(13500, config.GROUND_Y - 500))
-    objects.append(Saw(13550, config.GROUND_Y - 500))
-    objects.append(Saw(13600, config.GROUND_Y - 500))
-    objects.append(Saw(13650, config.GROUND_Y - 500))
-    objects.append(Saw(13700, config.GROUND_Y - 500))
-    objects.append(Saw(13750, config.GROUND_Y - 500))
-    objects.append(Saw(13800, config.GROUND_Y - 500))
-    objects.append(Saw(13850, config.GROUND_Y - 500))
-    objects.append(Saw(13900, config.GROUND_Y - 500))
-    objects.append(Saw(13950, config.GROUND_Y - 500))
-    objects.append(Saw(14000, config.GROUND_Y - 500))
-    objects.append(Saw(14050, config.GROUND_Y - 500))
-    objects.append(Saw(14100, config.GROUND_Y - 500))
-    objects.append(Saw(14150, config.GROUND_Y - 500))
-    objects.append(Saw(14200, config.GROUND_Y - 500))
-    objects.append(Saw(14250, config.GROUND_Y - 500))
-    objects.append(Saw(14300, config.GROUND_Y - 500))
-    objects.append(Saw(14350, config.GROUND_Y - 500))
-    objects.append(Saw(14400, config.GROUND_Y - 500))
-    objects.append(Saw(14450, config.GROUND_Y - 500))
-    objects.append(Saw(14500, config.GROUND_Y - 500))
-    objects.append(Saw(14550, config.GROUND_Y - 500))
-    objects.append(Saw(14600, config.GROUND_Y - 500))
-    objects.append(Saw(14650, config.GROUND_Y - 500))
-    objects.append(Saw(14700, config.GROUND_Y - 500))
-    objects.append(Saw(14750, config.GROUND_Y - 500))
-    objects.append(Saw(14800, config.GROUND_Y - 500))
-    objects.append(Saw(14850, config.GROUND_Y - 500))
-    objects.append(Saw(14900, config.GROUND_Y - 500))
-    objects.append(Saw(14950, config.GROUND_Y - 500))
-    objects.append(Saw(15000, config.GROUND_Y - 500))
-    objects.append(Saw(15050, config.GROUND_Y - 500))
-    objects.append(Saw(15100, config.GROUND_Y - 500))
-    objects.append(Saw(15150, config.GROUND_Y - 500))
-    objects.append(Saw(15200, config.GROUND_Y - 500))
-    objects.append(Saw(15250, config.GROUND_Y - 500))
-    objects.append(Saw(15300, config.GROUND_Y - 500))
-    objects.append(Saw(15350, config.GROUND_Y - 500))
-    objects.append(Saw(15400, config.GROUND_Y - 500))
-    objects.append(Saw(15450, config.GROUND_Y - 500))
-    objects.append(Saw(15500, config.GROUND_Y - 500))
-    objects.append(Saw(15550, config.GROUND_Y - 500))
-    objects.append(Saw(15600, config.GROUND_Y - 500))
-    objects.append(Saw(15650, config.GROUND_Y - 500))
-    objects.append(Saw(15700, config.GROUND_Y - 500))
-    objects.append(Saw(15750, config.GROUND_Y - 500))
-    objects.append(Saw(15800, config.GROUND_Y - 500))
-    objects.append(Saw(15850, config.GROUND_Y - 500))
-    objects.append(Saw(15900, config.GROUND_Y - 500))
-    objects.append(Saw(15950, config.GROUND_Y - 500))
-    objects.append(Saw(16000, config.GROUND_Y - 500))
-    objects.append(Saw(16050, config.GROUND_Y - 500))
-    objects.append(Saw(16100, config.GROUND_Y - 500))
-    objects.append(Saw(16150, config.GROUND_Y - 500))
-    objects.append(Saw(16200, config.GROUND_Y - 500))
-    objects.append(Saw(16250, config.GROUND_Y - 500))
-    objects.append(Saw(16300, config.GROUND_Y - 500))
-    objects.append(Saw(16350, config.GROUND_Y - 500))
-    objects.append(Saw(16400, config.GROUND_Y - 500))
-    objects.append(Saw(16450, config.GROUND_Y - 500))
-    objects.append(Saw(16500, config.GROUND_Y - 500))
-    objects.append(Saw(16550, config.GROUND_Y - 500))
-    objects.append(Saw(16600, config.GROUND_Y - 500))
-    objects.append(Saw(16650, config.GROUND_Y - 500))
-    objects.append(Saw(16700, config.GROUND_Y - 500))
-    objects.append(Saw(16750, config.GROUND_Y - 500))
-    objects.append(Saw(16800, config.GROUND_Y - 500))
-    objects.append(Saw(16850, config.GROUND_Y - 500))
-    objects.append(Saw(16900, config.GROUND_Y - 500))
-    objects.append(Saw(16950, config.GROUND_Y - 500))
-    objects.append(Saw(17000, config.GROUND_Y - 500))
-    objects.append(Saw(17050, config.GROUND_Y - 500))
-    objects.append(Saw(17100, config.GROUND_Y - 500))
-    objects.append(Saw(17150, config.GROUND_Y - 500))
-    objects.append(Saw(17200, config.GROUND_Y - 500))
-    objects.append(Saw(17250, config.GROUND_Y - 500))
-    objects.append(Saw(17300, config.GROUND_Y - 500))
-    objects.append(Saw(17350, config.GROUND_Y - 500))
-    objects.append(Saw(17400, config.GROUND_Y - 500))
-    objects.append(Saw(17450, config.GROUND_Y - 500))
-    objects.append(Saw(17500, config.GROUND_Y - 500))
-    objects.append(Saw(17550, config.GROUND_Y - 500))
-    objects.append(Saw(17600, config.GROUND_Y - 500))
-
-
-    # --- SECCIÓN CON OBSTACULOS CENTRAL ---
-
-    objects.append(Saw(11600, config.GROUND_Y - 300))
-    objects.append(Saw(11900, config.GROUND_Y - 200))
-    objects.append(MovingSaw(12300, config.GROUND_Y - 300))
-    objects.append(Saw(12700, config.GROUND_Y - 250))
-    objects.append(Saw(13100, config.GROUND_Y - 350))
-    objects.append(MovingSaw(13500, config.GROUND_Y - 140))
-    objects.append(Saw(13900, config.GROUND_Y - 270))
-    objects.append(Saw(13900, config.GROUND_Y - 270))
-    objects.append(MovingSaw(14500, config.GROUND_Y - 250))
-    objects.append(Saw(14900, config.GROUND_Y - 270))
-    objects.append(MovingSaw(15300, config.GROUND_Y - 240))
-    objects.append(Saw(15700, config.GROUND_Y - 270))
-
-    objects.append(Saw(15800, config.GROUND_Y - 170))
-
-    objects.append(Saw(15900, config.GROUND_Y - 140))
-
-    objects.append(Saw(16200, config.GROUND_Y - 160))
-    objects.append(Saw(16500, config.GROUND_Y - 180))
-
-    objects.append(MovingSaw(16800, config.GROUND_Y - 240))
-
-
-
-
-
-    # --- SECCIÓN CON OBSTACULOS CENTRAL ---
-
-
-
-
-
-    objects.append(Spike(11500, 0))
-    objects.append(Spike(11550, 0))
-    objects.append(Spike(11600, 0))
-    objects.append(Spike(11650, 0))
-    objects.append(Spike(11700, 0))
-    objects.append(Spike(11750, 0))
-    objects.append(Spike(11800, 0))
-    objects.append(Spike(11850, 0))
-    objects.append(Spike(11900, 0))
-    objects.append(Spike(11950, 0))
-    objects.append(Spike(12000, 0))
-    objects.append(Spike(12050, 0))
-    objects.append(Spike(12100, 0))
-    objects.append(Spike(12150, 0))
-    objects.append(Spike(12200, 0))
-    objects.append(Spike(12250, 0))
-    objects.append(Spike(12300, 0))
-    objects.append(Spike(12350, 0))
-    objects.append(Spike(12400, 0))
-    objects.append(Spike(12450, 0))
-    objects.append(Spike(12500, 0))
-    objects.append(Spike(12550, 0))
-    objects.append(Spike(12600, 0))
-    objects.append(Spike(12650, 0))
-    objects.append(Spike(12700, 0))
-    objects.append(Spike(12750, 0))
-    objects.append(Spike(12800, 0))
-    objects.append(Spike(12850, 0))
-    objects.append(Spike(12900, 0))
-    objects.append(Spike(12950, 0))
-    objects.append(Spike(13000, 0))
-    objects.append(Spike(13050, 0))
-    objects.append(Spike(13100, 0))
-    objects.append(Spike(13150, 0))
-    objects.append(Spike(13200, 0))
-    objects.append(Spike(13250, 0))
-    objects.append(Spike(13300, 0))
-    objects.append(Spike(13350, 0))
-    objects.append(Spike(13400, 0))
-    objects.append(Spike(13450, 0))
-    objects.append(Spike(13500, 0))
-    objects.append(Spike(13550, 0))
-    objects.append(Spike(13600, 0))
-    objects.append(Spike(13650, 0))
-    objects.append(Spike(13700, 0))
-    objects.append(Spike(13750, 0))
-    objects.append(Spike(13800, 0))
-    objects.append(Spike(13850, 0))
-    objects.append(Spike(13900, 0))
-    objects.append(Spike(13950, 0))
-    objects.append(Spike(14000, 0))
-    objects.append(Spike(14050, 0))
-    objects.append(Spike(14100, 0))
-    objects.append(Spike(14150, 0))
-    objects.append(Spike(14200, 0))
-    objects.append(Spike(14250, 0))
-    objects.append(Spike(14300, 0))
-    objects.append(Spike(14350, 0))
-    objects.append(Spike(14400, 0))
-    objects.append(Spike(14450, 0))
-    objects.append(Spike(14500, 0))
-    objects.append(Spike(14550, 0))
-    objects.append(Spike(14600, 0))
-    objects.append(Spike(14650, 0))
-    objects.append(Spike(14700, 0))
-    objects.append(Spike(14750, 0))
-    objects.append(Spike(14800, 0))
-    objects.append(Spike(14850, 0))
-    objects.append(Spike(14900, 0))
-    objects.append(Spike(14950, 0))
-    objects.append(Spike(15000, 0))
-    objects.append(Spike(15050, 0))
-    objects.append(Spike(15100, 0))
-    objects.append(Spike(15150, 0))
-    objects.append(Spike(15200, 0))
-    objects.append(Spike(15250, 0))
-    objects.append(Spike(15300, 0))
-    objects.append(Spike(15350, 0))
-    objects.append(Spike(15400, 0))
-    objects.append(Spike(15450, 0))
-    objects.append(Spike(15500, 0))
-    objects.append(Spike(15550, 0))
-    objects.append(Spike(15600, 0))
-    objects.append(Spike(15650, 0))
-    objects.append(Spike(15700, 0))
-    objects.append(Spike(15750, 0))
-    objects.append(Spike(15800, 0))
-    objects.append(Spike(15850, 0))
-    objects.append(Spike(15900, 0))
-    objects.append(Spike(15950, 0))
-    objects.append(Spike(16000, 0))
-    objects.append(Spike(16050, 0))
-    objects.append(Spike(16100, 0))
-    objects.append(Spike(16150, 0))
-    objects.append(Spike(16200, 0))
-    objects.append(Spike(16250, 0))
-    objects.append(Spike(16300, 0))
-    objects.append(Spike(16350, 0))
-    objects.append(Spike(16400, 0))
-    objects.append(Spike(16450, 0))
-    objects.append(Spike(16500, 0))
-    objects.append(Spike(16550, 0))
-    objects.append(Spike(16600, 0))
-    objects.append(Spike(16650, 0))
-    objects.append(Spike(16700, 0))
-    objects.append(Spike(16750, 0))
-    objects.append(Spike(16800, 0))
-    objects.append(Spike(16850, 0))
-    objects.append(Spike(16900, 0))
-    objects.append(Spike(16950, 0))
-    objects.append(Spike(17000, 0))
-    objects.append(Spike(17050, 0))
-    objects.append(Spike(17100, 0))
-    objects.append(Spike(17150, 0))
-    objects.append(Spike(17200, 0))
-    objects.append(Spike(17250, 0))
-    objects.append(Spike(17300, 0))
-    objects.append(Spike(17350, 0))
-    objects.append(Spike(17400, 0))
-    
-    
-
-
-
-
-    
-
-
-
-
-    
-
-
-
-        # --- PORTAL FINAL A CUBE ---
-    portal4_x = 17600
-    portal4_y = config.GROUND_Y - 90
-    objects.append(Portal(portal4_x, portal4_y, "out"))
-
-    objects.append(Saw(portal4_x, portal4_y - 80))
-    objects.append(Saw(portal4_x, portal4_y - 160))
-    objects.append(Saw(portal4_x, portal4_y - 240))
-    objects.append(Saw(portal4_x, portal4_y - 320))
-    objects.append(Saw(portal4_x, portal4_y - 400))
-    objects.append(Saw(portal4_x, portal4_y - 480))
-
-        # --- CUBE FINAL ---
-    
-    objects.append(Spike(17900, 0))
-    objects.append(Spike(17950, 0))
-
-    objects.append(Spike(18150, 0))
-    objects.append(Spike(18200, 0))
-        # --- PORTAL FINAL A CUBE ---
-    portal4_x = 17600
-    portal4_y = config.GROUND_Y - 90
-    objects.append(Portal(portal4_x, portal4_y, "out"))
+        
 
     # Bloque final de victoria
-    objects.append(FinalWall(19000))
+    objects.append(FinalWall(34000))
 
     
 
@@ -936,7 +499,7 @@ def generate_level():
 
 
     # --- FINAL DEL NIVEL ---
-    end_x = 19000
+    end_x = 34000
     
 
     total_distance_real = end_x - 200
@@ -955,12 +518,21 @@ def spawn_particles(particles, x, y, color, count=30, speed=1.0):
 
 def run_level(screen, clock):
     global skin_img, plane_skin_img, bg_image
-    global SPIKE_IMG, SAW_IMG, saw_img, PORTAL_IMG, FINAL_IMG, FINAL_WALL_IMG
+    global SPIKE_IMG, SAW_IMG, saw_img, PORTAL_IMG, FINAL_IMG, FINAL_WALL_IMG, BLOCK_IMG, ROCKET_IMG
+
+    
 
     # ------------------ CARGA DE RECURSOS ------------------
     skin_img = load_skin()
     plane_skin_img = load_plane_skin()
     bg_image = load_bg()
+
+    try:
+        ROCKET_IMG = pygame.image.load(resource_path("assets/images/rocket_level2.png")).convert_alpha()
+        ROCKET_IMG = pygame.transform.scale(ROCKET_IMG, (60, 25))
+    except:
+        print("⚠ No se encontró rocket_level2.png, usando cohete por defecto")
+        ROCKET_IMG = None
 
     font_title = pygame.font.SysFont("Arial Black", 60)
     font_ui = pygame.font.SysFont("Arial", 24)
@@ -986,6 +558,8 @@ def run_level(screen, clock):
 
     FINAL_WALL_IMG = pygame.image.load(resource_path("assets/images/final_wall.jpg")).convert_alpha()
     FINAL_WALL_IMG = pygame.transform.scale(FINAL_WALL_IMG, (1000, config.GROUND_Y))
+
+  
 
     # ------------------ ESTADO INICIAL ------------------
     player = Player(start_x=150)
@@ -1089,7 +663,7 @@ def run_level(screen, clock):
 
             for obj in objects:
 
-                # PLATAFORMAS
+                # ------------------ PLATAFORMAS ------------------
                 if getattr(obj, "kind", None) == "platform":
                     if player.rect.colliderect(obj.rect):
                         if player.vel_y >= 0 and player.rect.bottom <= obj.rect.bottom:
@@ -1097,7 +671,24 @@ def run_level(screen, clock):
                             player.vel_y = 0
                             player.on_platform = True
 
-                # PORTALES
+                # ------------------ BLOQUES ------------------
+                if getattr(obj, "kind", None) == "block":
+                    if player.rect.colliderect(obj.rect):
+
+                        # Si está encima → plataforma
+                        if player.vel_y >= 0 and player.rect.bottom <= obj.rect.top + 10:
+                            player.rect.bottom = obj.rect.top
+                            player.vel_y = 0
+                            player.on_platform = True
+
+                        # Si choca de frente → muerte
+                        elif player.rect.right > obj.rect.left and player.rect.left < obj.rect.left:
+                            state = "GAMEOVER"
+                            pygame.mixer.music.stop()
+                            SCROLL_SPEED = 0
+                            player.vel_y = 0
+
+                # ------------------ PORTALES ------------------
                 if getattr(obj, "kind", None) == "portal":
                     if player.rect.colliderect(obj.rect) and not getattr(obj, "used", False):
                         obj.used = True
@@ -1109,6 +700,20 @@ def run_level(screen, clock):
                             player.mode = "cube"
                             player.vel_y = 0
                             player.rotation = 0
+
+                # ------------------ COHETE ------------------
+                if getattr(obj, "kind", None) == "rocket":
+
+                    # Activación por distancia
+                    if not obj.active and player.rect.x >= obj.trigger_x:
+                        obj.active = True
+
+                    # Colisión
+                    if player.rect.colliderect(obj.rect):
+                        state = "GAMEOVER"
+                        pygame.mixer.music.stop()
+                        SCROLL_SPEED = 0
+                        player.vel_y = 0
 
                 # ------------------ MUERTE ------------------
                 if getattr(obj, "kind", None) in ("spike", "saw", "movingsaw"):
@@ -1202,6 +807,7 @@ def run_level(screen, clock):
                               config.HEIGHT//2 + 60))
 
         pygame.display.flip()
+
 
 
 
