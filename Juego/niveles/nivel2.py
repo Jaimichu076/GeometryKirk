@@ -39,6 +39,10 @@ FINAL_WALL_IMG = None
 BLOCK_IMG = None
 ROCKET_IMG = None
 FIRE_FRAMES = []
+COHETE_SFX = None
+COHETE_LOOP = None
+
+
 
 
 
@@ -403,34 +407,41 @@ class Rocket(GameObject):
         self.fire_index = 0
         self.fire_speed = 0.25
 
+        self.exploded = False
+
         # Puedes dejar esto aunque no lo usemos ya
         self.dx = math.cos(math.radians(45))
         self.dy = math.sin(math.radians(45))
 
     def update(self, scroll_speed):
-        # El cohete se mueve con el scroll aunque no esté activo
+        # Se mueve con el scroll (todo hacia la izquierda)
         self.rect.x -= scroll_speed
 
-        # Animación del fuego SIEMPRE activa
+        # Animación del fuego
         self.fire_index += self.fire_speed
         if self.fire_index >= len(FIRE_FRAMES):
             self.fire_index = 0
 
-        # Si aún no está activo, no cae
+        # Si no está activo, no cae
         if not self.active:
             return
 
-        # --- CAÍDA A 45 GRADOS ---
-        # dx y dy ya los tienes definidos en __init__:
-        # self.dx = cos(45°)
-        # self.dy = sin(45°)
-        self.rect.x -= self.speed * self.dx   # hacia la izquierda
-        self.rect.y += self.speed * self.dy   # hacia abajo
+        # --- CAÍDA DIAGONAL HACIA ABAJO-IZQUIERDA (HACIA EL JUGADOR) ---
+        self.rect.x -= self.speed * 1.2    # movimiento hacia la izquierda (hacia el jugador)
+        self.rect.y += self.speed * 1.4    # caída hacia abajo
 
-        # IMPACTO CONTRA EL SUELO
+        
+        # Impacto contra el suelo → explota
         if self.rect.bottom >= config.GROUND_Y:
             self.rect.bottom = config.GROUND_Y
-            self.active = False
+            self.exploded = True
+            return
+
+        
+
+
+
+
 
 
 
@@ -514,9 +525,64 @@ def generate_level():
 
     objects = []
 
-    objects.append(Rocket(3000, 100, trigger_x=2800))
-    objects.append(Rocket(4500, 150, trigger_x=4300))
-    objects.append(Rocket(6000, 50, trigger_x=5800))
+    # ------------------ OLEADA DE COHETES (0 → 10.000) ------------------
+   
+
+    # ------------------ OLEADA DE COHETES (0 → 10.000) ------------------
+# TODOS usan altura 50 (aciertan al jugador)
+# SOLO 4 cohetes usan altura alta (no dan al suelo ni al jugador)
+
+    # 1 — Acierta al jugador
+    objects.append(Rocket(1000, 50, trigger_x=500, speed=9))
+
+    # 2 — Acierta al jugador
+    objects.append(Rocket(1300, 50, trigger_x=1100, speed=9))
+
+    # 3 — COHETE ESPECIAL (NO acierta, altura alta)
+    objects.append(Rocket(1800, 180, trigger_x=1600, speed=9))
+
+    # 4 — Acierta al jugador
+    objects.append(Rocket(2400, 50, trigger_x=2200, speed=9))
+
+    # 5 — Acierta al jugador
+    objects.append(Rocket(3000, 50, trigger_x=2800, speed=9))
+
+    # 6 — COHETE ESPECIAL (NO acierta)
+    objects.append(Rocket(3500, 160, trigger_x=3300, speed=9))
+
+    # 7 — Acierta al jugador
+    objects.append(Rocket(4000, 50, trigger_x=3800, speed=9))
+
+    # 8 — Acierta al jugador
+    objects.append(Rocket(4500, 50, trigger_x=4300, speed=9))
+
+    # 9 — COHETE ESPECIAL (NO acierta)
+    objects.append(Rocket(5000, 200, trigger_x=4800, speed=9))
+
+    # 10 — Acierta al jugador
+    objects.append(Rocket(5600, 50, trigger_x=5400, speed=9))
+
+    # 11 — Acierta al jugador
+    objects.append(Rocket(6200, 50, trigger_x=6000, speed=9))
+
+    # 12 — COHETE ESPECIAL (NO acierta)
+    objects.append(Rocket(6800, 170, trigger_x=6600, speed=9))
+
+    # 13 — Acierta al jugador
+    objects.append(Rocket(7400, 50, trigger_x=7200, speed=9))
+
+    # 14 — Acierta al jugador
+    objects.append(Rocket(8000, 50, trigger_x=7800, speed=9))
+
+    # 15 — Acierta al jugador
+    objects.append(Rocket(8600, 50, trigger_x=8400, speed=9))
+
+    # 16 — Acierta al jugador
+    objects.append(Rocket(9200, 50, trigger_x=9000, speed=9))
+
+    # 17 — Acierta al jugador
+    objects.append(Rocket(9800, 50, trigger_x=9600, speed=9))
+
 
 
 
@@ -554,8 +620,7 @@ def spawn_particles(particles, x, y, color, count=30, speed=1.0):
 def run_level(screen, clock):
     global skin_img, plane_skin_img, bg_image
     global SPIKE_IMG, SAW_IMG, saw_img, PORTAL_IMG, FINAL_IMG, FINAL_WALL_IMG, BLOCK_IMG, ROCKET_IMG
-
-    
+    global COHETE_SFX, COHETE_LOOP
 
     # ------------------ CARGA DE RECURSOS ------------------
     skin_img = load_skin()
@@ -566,7 +631,6 @@ def run_level(screen, clock):
         ROCKET_IMG = pygame.image.load(resource_path("assets/images/rocket_level2.png")).convert_alpha()
         ROCKET_IMG = pygame.transform.scale(ROCKET_IMG, (120, 60))
     except:
-        print("⚠ No se encontró rocket_level2.png, usando cohete por defecto")
         ROCKET_IMG = None
 
     # --- FUEGO DEL COHETE ---
@@ -574,9 +638,8 @@ def run_level(screen, clock):
     FIRE_FRAMES = []
     for i in range(4):
         img = pygame.image.load(resource_path(f"assets/images/fire_{i}.png")).convert_alpha()
-        img = pygame.transform.scale(img, (60, 60))  # tamaño del fuego
+        img = pygame.transform.scale(img, (60, 60))
         FIRE_FRAMES.append(img)
-
 
     font_title = pygame.font.SysFont("Arial Black", 60)
     font_ui = pygame.font.SysFont("Arial", 24)
@@ -586,20 +649,8 @@ def run_level(screen, clock):
     SPIKE_IMG = pygame.transform.scale(SPIKE_IMG, (70, 70))
 
     GROUND_IMG = pygame.image.load(resource_path("assets/images/level2_floor.png")).convert_alpha()
-
-    # Escalado doble para suavizar bordes y textura
-    GROUND_IMG = pygame.transform.smoothscale(
-        GROUND_IMG,
-        (config.WIDTH * 2, (config.HEIGHT - config.GROUND_Y) * 2)
-    )
-
-    # Downscale final para máxima nitidez
-    GROUND_IMG = pygame.transform.smoothscale(
-        GROUND_IMG,
-        (config.WIDTH, config.HEIGHT - config.GROUND_Y)
-    )
-
-
+    GROUND_IMG = pygame.transform.smoothscale(GROUND_IMG, (config.WIDTH * 2, (config.HEIGHT - config.GROUND_Y) * 2))
+    GROUND_IMG = pygame.transform.smoothscale(GROUND_IMG, (config.WIDTH, config.HEIGHT - config.GROUND_Y))
 
     SAW_IMG = pygame.image.load(resource_path("assets/images/level1_motioncirclespike.png")).convert_alpha()
     SAW_IMG = pygame.transform.scale(SAW_IMG, (70, 70))
@@ -616,7 +667,12 @@ def run_level(screen, clock):
     FINAL_WALL_IMG = pygame.image.load(resource_path("assets/images/final_wall.jpg")).convert_alpha()
     FINAL_WALL_IMG = pygame.transform.scale(FINAL_WALL_IMG, (1000, config.GROUND_Y))
 
-  
+    # ------------------ SONIDOS DEL COHETE ------------------
+    COHETE_SFX = pygame.mixer.Sound(resource_path("assets/AUDIO/sound_rocket.mp3"))  # vuelo
+    COHETE_SFX.set_volume(0.8)
+
+    COHETE_LOOP = pygame.mixer.Sound(resource_path("assets/AUDIO/explosion_rocket.mp3"))  # explosión
+    COHETE_LOOP.set_volume(0.5)
 
     # ------------------ ESTADO INICIAL ------------------
     player = Player(start_x=150)
@@ -631,9 +687,10 @@ def run_level(screen, clock):
 
     SCROLL_SPEED = getattr(config, "SCROLL_SPEED", 400)
 
+    particles = []
+
     # ------------------ MÚSICA ------------------
     music_path = resource_path(config.LEVEL2_MUSIC)
-
     if os.path.exists(music_path):
         try:
             pygame.mixer.music.load(music_path)
@@ -650,19 +707,15 @@ def run_level(screen, clock):
 
         # ------------------ EVENTOS ------------------
         for event in pygame.event.get():
-
             if event.type == pygame.QUIT:
                 pygame.quit()
                 raise SystemExit
 
-            # ------------------ PLAY ------------------
             if state == "PLAY":
-
                 if event.type == pygame.KEYDOWN:
                     if event.key in (pygame.K_SPACE, pygame.K_UP):
                         player.jump_held = True
                         player.jump()
-
                     if event.key == pygame.K_ESCAPE:
                         pygame.mixer.music.pause()
                         state = "PAUSA"
@@ -678,18 +731,15 @@ def run_level(screen, clock):
                 if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                     player.jump_held = False
 
-            # ------------------ PAUSA ------------------
             elif state == "PAUSA":
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
                         pygame.mixer.music.unpause()
                         state = "PLAY"
-
                     if event.key == pygame.K_ESCAPE:
                         pygame.mixer.music.stop()
                         return
 
-            # ------------------ GAMEOVER ------------------
             elif state == "GAMEOVER":
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
@@ -697,7 +747,6 @@ def run_level(screen, clock):
                     if event.key == pygame.K_ESCAPE:
                         running = False
 
-            # ------------------ WIN ------------------
             elif state == "WIN":
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
@@ -711,12 +760,7 @@ def run_level(screen, clock):
             player.update()
 
             for obj in objects:
-                # 🔥 ÚNICO CAMBIO REAL:
-                # Los cohetes necesitan el jugador para perseguirlo
-                if getattr(obj, "kind", None) == "rocket":
-                    obj.update(scroll_speed)
-                else:
-                    obj.update(scroll_speed)
+                obj.update(scroll_speed)
 
             distance_traveled = min(distance_traveled + scroll_speed, total_distance)
             progress = min(100, (distance_traveled / total_distance) * 100)
@@ -724,6 +768,30 @@ def run_level(screen, clock):
             player.on_platform = False
 
             for obj in objects:
+
+                # ------------------ COHETE ------------------
+                if getattr(obj, "kind", None) == "rocket":
+
+                    # Activación cuando entra en pantalla
+                    if not obj.active and obj.rect.x <= player.rect.x + 600:
+                        obj.active = True
+                        COHETE_SFX.play()   # sonido de vuelo (una vez, entero)
+
+                    # Explosión al tocar el suelo
+                    if getattr(obj, "exploded", False):
+                        COHETE_LOOP.play()  # explosión (una vez, entero)
+                        spawn_particles(particles, obj.rect.centerx, obj.rect.centery,
+                                        (255, 120, 0), count=40, speed=1.5)
+                        objects.remove(obj)
+                        continue
+
+                    # Colisión con el jugador
+                    if player.rect.colliderect(obj.rect):
+                        COHETE_LOOP.play()
+                        state = "GAMEOVER"
+                        pygame.mixer.music.stop()
+                        SCROLL_SPEED = 0
+                        player.vel_y = 0
 
                 # ------------------ PLATAFORMAS ------------------
                 if getattr(obj, "kind", None) == "platform":
@@ -736,15 +804,12 @@ def run_level(screen, clock):
                 # ------------------ BLOQUES ------------------
                 if getattr(obj, "kind", None) == "block":
                     if player.rect.colliderect(obj.rect):
-
-                        # Si está encima → plataforma
                         if player.vel_y >= 0 and player.rect.bottom <= obj.rect.top + 10:
                             player.rect.bottom = obj.rect.top
                             player.vel_y = 0
                             player.on_platform = True
-
-                        # Si choca de frente → muerte
                         elif player.rect.right > obj.rect.left and player.rect.left < obj.rect.left:
+                            COHETE_LOOP.play()
                             state = "GAMEOVER"
                             pygame.mixer.music.stop()
                             SCROLL_SPEED = 0
@@ -763,23 +828,10 @@ def run_level(screen, clock):
                             player.vel_y = 0
                             player.rotation = 0
 
-                # ------------------ COHETE ------------------
-                if getattr(obj, "kind", None) == "rocket":
-
-                    # Activación por distancia
-                    if not obj.active and player.rect.x >= obj.trigger_x:
-                        obj.active = True
-
-                    # Colisión
-                    if player.rect.colliderect(obj.rect):
-                        state = "GAMEOVER"
-                        pygame.mixer.music.stop()
-                        SCROLL_SPEED = 0
-                        player.vel_y = 0
-
                 # ------------------ MUERTE ------------------
                 if getattr(obj, "kind", None) in ("spike", "saw", "movingsaw"):
                     if player.rect.colliderect(obj.rect):
+                        COHETE_LOOP.play()
                         state = "GAMEOVER"
                         pygame.mixer.music.stop()
                         SCROLL_SPEED = 0
@@ -803,6 +855,13 @@ def run_level(screen, clock):
         player.draw(screen)
         screen.blit(FINAL_IMG, final_rect)
 
+        # Dibujar partículas
+        for p in particles[:]:
+            p.update()
+            p.draw(screen)
+            if p.life <= 0:
+                particles.remove(p)
+
         # ------------------ BARRA DE PROGRESO ------------------
         bar_total_width = 400
         bar_height = 25
@@ -810,11 +869,12 @@ def run_level(screen, clock):
         bar_y = 20
 
         pygame.draw.rect(screen, (0, 0, 0), (bar_x, bar_y, bar_total_width, bar_height), 3)
-        pygame.draw.rect(screen, (0, 255, 0), (bar_x, bar_y, int((progress / 100) * bar_total_width), bar_height))
+        pygame.draw.rect(screen, (0, 255, 0), (bar_x, bar_y,
+                        int((progress / 100) * bar_total_width), bar_height))
 
         pct_text = font_pct.render(f"{int(progress)}%", True, (255, 255, 255))
-        screen.blit(pct_text, (config.WIDTH // 2 - pct_text.get_width() // 2,
-                            bar_y + bar_height // 2 - pct_text.get_height() // 2))
+        screen.blit(pct_text, (config.WIDTH // 2 - pct_text.get_width()//2,
+                               bar_y + bar_height//2 - pct_text.get_height()//2))
 
         # ------------------ PAUSA ------------------
         if state == "PAUSA":
@@ -823,34 +883,18 @@ def run_level(screen, clock):
             screen.blit(overlay, (0, 0))
 
             font_big = pygame.font.SysFont(None, 80)
-            text = font_big.render("PAUSA", True, (255, 255, 255))
+            text = font_big.render("PAUSA", True, (180, 180, 180))
             screen.blit(text, (config.WIDTH//2 - text.get_width()//2,
-                            config.HEIGHT//2 - 150))
+                               config.HEIGHT//2 - 150))
 
             font_small = pygame.font.SysFont(None, 40)
-            msg1 = font_small.render("ENTER - Continuar", True, (255, 255, 255))
-            msg2 = font_small.render("ESC - Salir al menú", True, (255, 255, 255))
+            msg1 = font_small.render("ENTER - Continuar", True, (200, 200, 200))
+            msg2 = font_small.render("ESC - Salir al menú", True, (200, 200, 200))
 
             screen.blit(msg1, (config.WIDTH//2 - msg1.get_width()//2,
-                            config.HEIGHT//2 - 20))
+                               config.HEIGHT//2 - 20))
             screen.blit(msg2, (config.WIDTH//2 - msg2.get_width()//2,
-                            config.HEIGHT//2 + 40))
-
-        # ------------------ WIN ------------------
-        if state == "WIN":
-            overlay = pygame.Surface((config.WIDTH, config.HEIGHT), pygame.SRCALPHA)
-            overlay.fill((0, 0, 0, 180))
-            screen.blit(overlay, (0, 0))
-
-            font_big = pygame.font.SysFont(None, 90)
-            text = font_big.render("¡HAS GANADO!", True, (0, 255, 0))
-            screen.blit(text, (config.WIDTH//2 - text.get_width()//2,
-                            config.HEIGHT//2 - text.get_height()//2))
-
-            font_small = pygame.font.SysFont(None, 40)
-            msg = font_small.render("ENTER para reiniciar   |   ESC para salir", True, (255, 255, 255))
-            screen.blit(msg, (config.WIDTH//2 - msg.get_width()//2,
-                            config.HEIGHT//2 + 60))
+                               config.HEIGHT//2 + 40))
 
         # ------------------ GAMEOVER ------------------
         if state == "GAMEOVER":
@@ -861,14 +905,36 @@ def run_level(screen, clock):
             font_big = pygame.font.SysFont(None, 90)
             text = font_big.render("HAS PERDIDO", True, (255, 0, 0))
             screen.blit(text, (config.WIDTH//2 - text.get_width()//2,
-                            config.HEIGHT//2 - text.get_height()//2))
+                               config.HEIGHT//2 - 150))
 
             font_small = pygame.font.SysFont(None, 40)
-            msg = font_small.render("ENTER para reintentar   |   ESC para salir", True, (255, 255, 255))
+            msg = font_small.render("ENTER - Reintentar   |   ESC - Salir", True, (255, 255, 255))
             screen.blit(msg, (config.WIDTH//2 - msg.get_width()//2,
-                            config.HEIGHT//2 + 60))
+                               config.HEIGHT//2 + 40))
+
+        # ------------------ WIN ------------------
+        if state == "WIN":
+            overlay = pygame.Surface((config.WIDTH, config.HEIGHT), pygame.SRCALPHA)
+            overlay.fill((0, 0, 0, 180))
+            screen.blit(overlay, (0, 0))
+
+            font_big = pygame.font.SysFont(None, 90)
+            text = font_big.render("¡HAS GANADO!", True, (0, 255, 0))
+            screen.blit(text, (config.WIDTH//2 - text.get_width()//2,
+                               config.HEIGHT//2 - 150))
+
+            font_small = pygame.font.SysFont(None, 40)
+            msg = font_small.render("ENTER - Reintentar   |   ESC - Salir", True, (255, 255, 255))
+            screen.blit(msg, (config.WIDTH//2 - msg.get_width()//2,
+                               config.HEIGHT//2 + 40))
 
         pygame.display.flip()
+
+
+
+
+
+
 
 
 

@@ -2,7 +2,7 @@
 import pygame
 import sys 
 import os
-
+ 
 import config
 import skins
 import otros
