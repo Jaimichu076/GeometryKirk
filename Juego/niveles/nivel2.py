@@ -38,6 +38,8 @@ FINAL_IMG = None
 FINAL_WALL_IMG = None
 BLOCK_IMG = None
 ROCKET_IMG = None
+FIRE_FRAMES = []
+
 
 
 # Cargar imagen del suelo
@@ -69,8 +71,8 @@ def load_plane_skin():
 
 
 def load_bg():
-    """Carga una imagen de fondo fija llamada fondo_lvl1.png."""
-    bg_path = resource_path("assets/images/fondo_lvl1.png")
+    """Carga una imagen de fondo fija llamada fondo_level2.png."""
+    bg_path = resource_path("assets/images/fondo_level2.png")
 
     if not os.path.exists(bg_path):
         print("⚠ No se encontró el fondo en:", bg_path)
@@ -398,26 +400,59 @@ class Rocket(GameObject):
         self.trigger_x = trigger_x
         self.active = False
         self.image = ROCKET_IMG
+        self.fire_index = 0
+        self.fire_speed = 0.25
 
-        # Dirección 45° hacia abajo
+        # Puedes dejar esto aunque no lo usemos ya
         self.dx = math.cos(math.radians(45))
         self.dy = math.sin(math.radians(45))
 
     def update(self, scroll_speed):
+        # El cohete se mueve con el scroll aunque no esté activo
+        self.rect.x -= scroll_speed
+
+        # Animación del fuego SIEMPRE activa
+        self.fire_index += self.fire_speed
+        if self.fire_index >= len(FIRE_FRAMES):
+            self.fire_index = 0
+
+        # Si aún no está activo, no cae
         if not self.active:
-            self.rect.x -= scroll_speed
             return
 
-        # Movimiento diagonal hacia abajo
-        self.rect.x -= self.speed * self.dx
-        self.rect.y += self.speed * self.dy
+        # --- CAÍDA A 45 GRADOS ---
+        # dx y dy ya los tienes definidos en __init__:
+        # self.dx = cos(45°)
+        # self.dy = sin(45°)
+        self.rect.x -= self.speed * self.dx   # hacia la izquierda
+        self.rect.y += self.speed * self.dy   # hacia abajo
+
+        # IMPACTO CONTRA EL SUELO
+        if self.rect.bottom >= config.GROUND_Y:
+            self.rect.bottom = config.GROUND_Y
+            self.active = False
+
+
 
     def draw(self, surface):
         if self.image:
             surface.blit(self.image, self.rect)
+
+            # --- DIBUJAR FUEGO ---
+            if FIRE_FRAMES:
+                fire_img = FIRE_FRAMES[int(self.fire_index)]
+
+                # Ajusta la posición del fuego según tu sprite
+                fire_x = self.rect.x + 60   # detrás del cohete
+                fire_y = self.rect.y - 40   # centrado verticalmente
+
+                surface.blit(fire_img, (fire_x, fire_y))
+
         else:
             pygame.draw.rect(surface, (255, 80, 0), self.rect)
             pygame.draw.rect(surface, (0, 0, 0), self.rect, 2)
+
+
 
 
 
@@ -529,10 +564,19 @@ def run_level(screen, clock):
 
     try:
         ROCKET_IMG = pygame.image.load(resource_path("assets/images/rocket_level2.png")).convert_alpha()
-        ROCKET_IMG = pygame.transform.scale(ROCKET_IMG, (60, 25))
+        ROCKET_IMG = pygame.transform.scale(ROCKET_IMG, (120, 60))
     except:
         print("⚠ No se encontró rocket_level2.png, usando cohete por defecto")
         ROCKET_IMG = None
+
+    # --- FUEGO DEL COHETE ---
+    global FIRE_FRAMES
+    FIRE_FRAMES = []
+    for i in range(4):
+        img = pygame.image.load(resource_path(f"assets/images/fire_{i}.png")).convert_alpha()
+        img = pygame.transform.scale(img, (60, 60))  # tamaño del fuego
+        FIRE_FRAMES.append(img)
+
 
     font_title = pygame.font.SysFont("Arial Black", 60)
     font_ui = pygame.font.SysFont("Arial", 24)
@@ -541,8 +585,21 @@ def run_level(screen, clock):
     SPIKE_IMG = pygame.image.load(resource_path("assets/images/level1_spike.png")).convert_alpha()
     SPIKE_IMG = pygame.transform.scale(SPIKE_IMG, (70, 70))
 
-    GROUND_IMG = pygame.image.load(resource_path("assets/images/suelo_level1.png")).convert_alpha()
-    GROUND_IMG = pygame.transform.scale(GROUND_IMG, (config.WIDTH, config.HEIGHT - config.GROUND_Y))
+    GROUND_IMG = pygame.image.load(resource_path("assets/images/level2_floor.png")).convert_alpha()
+
+    # Escalado doble para suavizar bordes y textura
+    GROUND_IMG = pygame.transform.smoothscale(
+        GROUND_IMG,
+        (config.WIDTH * 2, (config.HEIGHT - config.GROUND_Y) * 2)
+    )
+
+    # Downscale final para máxima nitidez
+    GROUND_IMG = pygame.transform.smoothscale(
+        GROUND_IMG,
+        (config.WIDTH, config.HEIGHT - config.GROUND_Y)
+    )
+
+
 
     SAW_IMG = pygame.image.load(resource_path("assets/images/level1_motioncirclespike.png")).convert_alpha()
     SAW_IMG = pygame.transform.scale(SAW_IMG, (70, 70))
@@ -654,7 +711,12 @@ def run_level(screen, clock):
             player.update()
 
             for obj in objects:
-                obj.update(scroll_speed)
+                # 🔥 ÚNICO CAMBIO REAL:
+                # Los cohetes necesitan el jugador para perseguirlo
+                if getattr(obj, "kind", None) == "rocket":
+                    obj.update(scroll_speed)
+                else:
+                    obj.update(scroll_speed)
 
             distance_traveled = min(distance_traveled + scroll_speed, total_distance)
             progress = min(100, (distance_traveled / total_distance) * 100)
@@ -752,7 +814,7 @@ def run_level(screen, clock):
 
         pct_text = font_pct.render(f"{int(progress)}%", True, (255, 255, 255))
         screen.blit(pct_text, (config.WIDTH // 2 - pct_text.get_width() // 2,
-                               bar_y + bar_height // 2 - pct_text.get_height() // 2))
+                            bar_y + bar_height // 2 - pct_text.get_height() // 2))
 
         # ------------------ PAUSA ------------------
         if state == "PAUSA":
@@ -763,16 +825,16 @@ def run_level(screen, clock):
             font_big = pygame.font.SysFont(None, 80)
             text = font_big.render("PAUSA", True, (255, 255, 255))
             screen.blit(text, (config.WIDTH//2 - text.get_width()//2,
-                               config.HEIGHT//2 - 150))
+                            config.HEIGHT//2 - 150))
 
             font_small = pygame.font.SysFont(None, 40)
             msg1 = font_small.render("ENTER - Continuar", True, (255, 255, 255))
             msg2 = font_small.render("ESC - Salir al menú", True, (255, 255, 255))
 
             screen.blit(msg1, (config.WIDTH//2 - msg1.get_width()//2,
-                               config.HEIGHT//2 - 20))
+                            config.HEIGHT//2 - 20))
             screen.blit(msg2, (config.WIDTH//2 - msg2.get_width()//2,
-                               config.HEIGHT//2 + 40))
+                            config.HEIGHT//2 + 40))
 
         # ------------------ WIN ------------------
         if state == "WIN":
@@ -783,12 +845,12 @@ def run_level(screen, clock):
             font_big = pygame.font.SysFont(None, 90)
             text = font_big.render("¡HAS GANADO!", True, (0, 255, 0))
             screen.blit(text, (config.WIDTH//2 - text.get_width()//2,
-                               config.HEIGHT//2 - text.get_height()//2))
+                            config.HEIGHT//2 - text.get_height()//2))
 
             font_small = pygame.font.SysFont(None, 40)
             msg = font_small.render("ENTER para reiniciar   |   ESC para salir", True, (255, 255, 255))
             screen.blit(msg, (config.WIDTH//2 - msg.get_width()//2,
-                              config.HEIGHT//2 + 60))
+                            config.HEIGHT//2 + 60))
 
         # ------------------ GAMEOVER ------------------
         if state == "GAMEOVER":
@@ -799,14 +861,15 @@ def run_level(screen, clock):
             font_big = pygame.font.SysFont(None, 90)
             text = font_big.render("HAS PERDIDO", True, (255, 0, 0))
             screen.blit(text, (config.WIDTH//2 - text.get_width()//2,
-                               config.HEIGHT//2 - text.get_height()//2))
+                            config.HEIGHT//2 - text.get_height()//2))
 
             font_small = pygame.font.SysFont(None, 40)
             msg = font_small.render("ENTER para reintentar   |   ESC para salir", True, (255, 255, 255))
             screen.blit(msg, (config.WIDTH//2 - msg.get_width()//2,
-                              config.HEIGHT//2 + 60))
+                            config.HEIGHT//2 + 60))
 
         pygame.display.flip()
+
 
 
 
